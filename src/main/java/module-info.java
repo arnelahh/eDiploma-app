@@ -9,6 +9,8 @@ module main.ediploma {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
+    requires java.sql;
+    requires io.github.cdimascio.dotenv.java;
 
     opens main.ediploma to javafx.fxml;
     exports main.ediploma;
