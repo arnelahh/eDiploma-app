@@ -1,14 +1,14 @@
 package model;
 
-import dao.AcademicStaffDAO;
-import dao.AppUserDAO;
-import dao.CommissionRoleDAO;
-import dao.SubjectDAO;
+import dao.*;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 public class Main {
-    static void main(String[] args) {
+    static void main(String[] args) throws SQLException {
         SubjectDAO subjectDao = new SubjectDAO();
 
         List<Subject> predmeti = subjectDao.getAllSubjects();
@@ -33,6 +33,27 @@ public class Main {
         for(CommissionRole role : roles){
             System.out.println(role);
         }
+
+        System.out.println("--------------------------");
+        //dodavanje predmeta
+        Subject s = new Subject();
+        s.setId((predmeti.getLast().getId())+1);
+        s.setName("DSA");
+        subjectDao.AddSubject(s);
+        predmeti = subjectDao.getAllSubjects();
+        for (Subject subject : predmeti) {
+            System.out.println(subject);
+        }
+        System.out.println("--------------------------");
+        //brisanje predmeta
+        subjectDao.DeleteSubject(s.getId());
+        predmeti = subjectDao.getAllSubjects();
+        for (Subject subject : predmeti) {
+            System.out.println(subject);
+        }
+
     }
+
+
 
 }
