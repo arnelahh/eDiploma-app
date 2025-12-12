@@ -15,9 +15,11 @@ public class LoginTestApp extends Application {
     public void start(Stage stage) throws Exception {
         // Load FXML from resources
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/app/login.fxml"));
-        Scene scene = new Scene(loader.load(), 300, 200);
+        Scene scene = new Scene(loader.load());
         stage.setScene(scene);
-        stage.setTitle("Login Test");
+        stage.setTitle("eDiploma");
+        //za full screen kad pokrene kod
+        stage.setMaximized(true);
         stage.show();
 
         // Inject real DAO for dynamic login

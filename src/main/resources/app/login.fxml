@@ -1,18 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controller.LoginController">
+<StackPane xmlns="http://javafx.com/javafx/17.0.12"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="controller.LoginController"
+           style="-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);">
 
-    <Label text="Email:"/>
-    <TextField fx:id="emailField"/>
+    <!-- CARD -->
+    <VBox spacing="18"
+          alignment="CENTER"
+          style="-fx-background-color: white;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 5);">
 
-    <Label text="Password:"/>
-    <TextField fx:id="passwordField"/>
+        <padding>
+            <Insets top="30" right="30" bottom="30" left="30"/>
+        </padding>
 
-    <Button text="Login" onAction="#handleLogin"/>
+        <!-- LOGO -->
+        <Label text="eDiploma" textFill="#4f5dff">
+            <font>
+                <Font name="Arial" size="60"/>
+            </font>
+        </Label>
 
-</VBox>
+        <!-- EMAIL -->
+        <VBox spacing="6" maxWidth="360" alignment="CENTER_LEFT">
+            <Label text="Email"/>
+            <TextField fx:id="emailField"
+                       promptText="Unesite vašu email adresu"
+                       prefHeight="40"
+                       style="-fx-background-radius: 8;
+                              -fx-background-color: #f0f0f0;
+                              -fx-border-color: transparent;"/>
+        </VBox>
+
+        <!-- PASSWORD -->
+        <VBox spacing="6" maxWidth="360" alignment="CENTER_LEFT">
+            <Label text="Lozinka"/>
+            <PasswordField fx:id="passwordField"
+                           promptText="Unesite vašu lozinku"
+                           prefHeight="40"
+                           style="-fx-background-radius: 8;
+                                  -fx-background-color: #f0f0f0;
+                                  -fx-border-color: transparent;"/>
+        </VBox>
+
+        <!-- BUTTON -->
+        <Button text="Prijavite se"
+                onAction="#handleLogin"
+                prefHeight="42"
+                maxWidth="360"
+                style="-fx-background-color: #4f5dff;
+                       -fx-background-radius: 8;
+                       -fx-text-fill: white;
+                       -fx-font-size: 14;
+                       -fx-font-weight: bold;"/>
+
+    </VBox>
+
+</StackPane>
