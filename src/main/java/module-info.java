@@ -11,6 +11,7 @@ module main.ediploma {
     requires eu.hansolo.tilesfx;
     requires java.sql;
     requires io.github.cdimascio.dotenv.java;
+    requires static lombok;
 
     opens main.ediploma to javafx.fxml;
     exports main.ediploma;

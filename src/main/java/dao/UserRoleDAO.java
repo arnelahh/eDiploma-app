@@ -1,14 +1,15 @@
 package dao;
 
 import model.UserRole;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserRoleDAO {
+
     public UserRole getRoleById(int id) {
         String sql = "SELECT * FROM UserRole WHERE Id = ?";
+
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -16,15 +17,16 @@ public class UserRoleDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return new UserRole(
-                        rs.getInt("Id"),
-                        rs.getString("Name")
-                );
+                UserRole role = new UserRole();
+                role.setId(rs.getInt("Id"));
+                role.setName(rs.getString("Name"));
+                return role;
             }
 
-        }  catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
         return null;
     }
 
@@ -37,10 +39,10 @@ public class UserRoleDAO {
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                roles.add(new UserRole(
-                        rs.getInt("Id"),
-                        rs.getString("Name")
-                ));
+                UserRole role = new UserRole();
+                role.setId(rs.getInt("Id"));
+                role.setName(rs.getString("Name"));
+                roles.add(role);
             }
 
         } catch (SQLException e) {
