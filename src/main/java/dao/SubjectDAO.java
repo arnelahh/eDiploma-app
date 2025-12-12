@@ -60,7 +60,7 @@ public class SubjectDAO {
             int rowsAffected = stmt.executeUpdate();
             if(rowsAffected > 0){
                 System.out.println("Predmet je uspješno obrisan.");
-                
+
             } else {
                 System.out.println("Predmet sa ID "+id+" ne postoji");
             }

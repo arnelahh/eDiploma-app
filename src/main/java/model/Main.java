@@ -35,13 +35,19 @@ public class Main {
         }
 
         System.out.println("--------------------------");
-        /*dodavanje predmeta
+        //dodavanje predmeta
         Subject s = new Subject();
-        s.setId(predmeti.getLast().getId()+1);
-        s.setName("OOP");
-        subjectDao.AddSubject(s);*/
+        s.setId((predmeti.getLast().getId())+1);
+        s.setName("DSA");
+        subjectDao.AddSubject(s);
+        predmeti = subjectDao.getAllSubjects();
+        for (Subject subject : predmeti) {
+            System.out.println(subject);
+        }
+        System.out.println("--------------------------");
         //brisanje predmeta
-        subjectDao.DeleteSubject(30002);
+        subjectDao.DeleteSubject(s.getId());
+        predmeti = subjectDao.getAllSubjects();
         for (Subject subject : predmeti) {
             System.out.println(subject);
         }
