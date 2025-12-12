@@ -25,6 +25,7 @@ public class Main {
         for(AcademicStaff as : staff){
             System.out.println(as);
         }
+
     }
 
 }
