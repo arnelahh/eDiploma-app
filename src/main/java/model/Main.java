@@ -7,6 +7,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,10 +58,26 @@ public class Main {
 //
         System.out.println("--------------------------");
         ThesisDAO thesisDAO = new ThesisDAO();
-        List<ThesisDTO> lista=thesisDAO.getAllThesisBySearch("marko marko");
+        List<ThesisDTO> lista=thesisDAO.getAllThesisBySearch("amar");
         for(ThesisDTO thesisDTO:lista){
             System.out.println(thesisDTO);
         }
+
+        Thesis thesis = Thesis.builder()
+                .title("My Thesis Title")
+                .applicationDate(LocalDate.now())
+                .departmentId(1)
+                .studentId(1)
+                .academicStaffId(1)  // mentor
+                .secretaryId(1)
+                .subjectId(1)
+                .statusId(1)
+                .build();
+
+        ThesisDAO thesisDao = new ThesisDAO();
+        thesisDao.insertThesis(thesis);
+
+
 
 
 
