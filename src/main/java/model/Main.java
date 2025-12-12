@@ -2,6 +2,7 @@ package model;
 
 import dao.*;
 import dto.ThesisDTO;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

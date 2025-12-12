@@ -10,7 +10,7 @@ public class ThesisStatusHistory {
     private Thesis ThesisId;
     private Thesis OldStatusId;
     private Thesis NewStatusId;
-    private int ChangedByUsreId;
+    private int ChangedByUserId;
     private LocalDateTime ChangedAt;
     private String Comment;
 }
