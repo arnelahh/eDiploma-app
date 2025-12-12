@@ -33,7 +33,8 @@ public class AppUserDAO {
                         rs.getString("PasswordHash"),
                         rs.getTimestamp("CreatedAt").toLocalDateTime(),
                         rs.getTimestamp("UpdatedAt").toLocalDateTime(),
-                        rs.getBoolean("IsActive")
+                        rs.getBoolean("IsActive"),
+                        rs.getString("AppPassword")
                 );
 
                 users.add(user);

@@ -11,12 +11,13 @@ public class AppUser {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isActive;
+    private String AppPassword;
 
     public AppUser() {}
 
     public AppUser(int id, UserRole role, String username, String email,
                    String passwordHash, LocalDateTime createdAt,
-                   LocalDateTime updatedAt, boolean isActive) {
+                   LocalDateTime updatedAt, boolean isActive, String appPassword) {
         this.id = id;
         this.role = role;
         this.username = username;
@@ -25,6 +26,7 @@ public class AppUser {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.isActive = isActive;
+        this.AppPassword = appPassword;
     }
 
     public int getId() { return id; }
@@ -50,6 +52,11 @@ public class AppUser {
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
+
+
+    public String getAppPassword() {return AppPassword; }
+
+    public void setAppPassword(String appPassword) { AppPassword = appPassword; }
 
     @Override
     public String toString() {

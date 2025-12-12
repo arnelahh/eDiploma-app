@@ -1,5 +1,6 @@
 package model;
 
+import dao.AcademicStaffDAO;
 import dao.AppUserDAO;
 import dao.SubjectDAO;
 
@@ -18,6 +19,12 @@ public class Main {
         var users = dao.getAllUsers();
 
         users.forEach(System.out::println);
+
+        AcademicStaffDAO academicStaffDAO = new AcademicStaffDAO();
+        List<AcademicStaff> staff = academicStaffDAO.getAllAcademicStaff();
+        for(AcademicStaff as : staff){
+            System.out.println(as);
+        }
     }
 
 }
