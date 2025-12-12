@@ -72,6 +72,37 @@ public class ThesisDAO {
         return thesis;
     }
 
+    public void  insertThesis(Thesis thesis){
+        String sql= """
+                insert into Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId)
+                values(?,?,?,?,?,?,?);
+                """;
+        try (Connection connection=CloudDatabaseConnection.Konekcija();
+             PreparedStatement stmt=connection.prepareStatement(sql);)
+        {
+            java.time.LocalDate applicationLocalDate = thesis.getApplicationDate();
+            java.sql.Date sqlDate = java.sql.Date.valueOf(applicationLocalDate);
+
+            stmt.setString(1, thesis.getTitle());
+            stmt.setDate(2, sqlDate);
+            stmt.setInt(3,thesis.getDepartment().getId());
+            stmt.setInt(4,thesis.getStudent().getId());
+            stmt.setInt(5,thesis.getMentor().getId());
+            stmt.setInt(6,thesis.getSecretary().getId());
+            stmt.setInt(7,thesis.getSubject().getId());
+
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new RuntimeException("Error in inserting thesis");
+            }
+
+
+        }
+        catch(SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
 
 
 }
