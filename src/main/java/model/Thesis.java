@@ -1,6 +1,7 @@
 package model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,8 +12,16 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Thesis {
     private int id;
+    private int studentId;
+    private int academicStaffId;
+    private int departmentId;
+    private int secretaryId;
+    private int subjectId;
+    private int statusId;
+
     private String title;
     private LocalDate applicationDate;
     private LocalDate approvalDate;

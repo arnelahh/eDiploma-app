@@ -74,8 +74,8 @@ public class ThesisDAO {
 
     public void  insertThesis(Thesis thesis){
         String sql= """
-                insert into Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId)
-                values(?,?,?,?,?,?,?);
+                insert into Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId,StatusId)
+                values(?,?,?,?,?,?,?,?);
                 """;
         try (Connection connection=CloudDatabaseConnection.Konekcija();
              PreparedStatement stmt=connection.prepareStatement(sql);)
@@ -85,11 +85,12 @@ public class ThesisDAO {
 
             stmt.setString(1, thesis.getTitle());
             stmt.setDate(2, sqlDate);
-            stmt.setInt(3,thesis.getDepartment().getId());
-            stmt.setInt(4,thesis.getStudent().getId());
-            stmt.setInt(5,thesis.getMentor().getId());
-            stmt.setInt(6,thesis.getSecretary().getId());
-            stmt.setInt(7,thesis.getSubject().getId());
+            stmt.setInt(3,thesis.getDepartmentId());
+            stmt.setInt(4,thesis.getStudentId());
+            stmt.setInt(5,thesis.getAcademicStaffId());
+            stmt.setInt(6,thesis.getSecretaryId());
+            stmt.setInt(7,thesis.getSubjectId());
+            stmt.setInt(8,thesis.getStatusId());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
