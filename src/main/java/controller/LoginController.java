@@ -4,11 +4,16 @@ import dao.AppUserDAO;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Pane;
 import model.AppUser;
 import org.mindrot.jbcrypt.BCrypt;
+import utils.SessionManager;
+import utils.UserSession;
+
 
 public class LoginController {
 
+    private Pane rootPane;
     @FXML private TextField emailField;
     @FXML private TextField passwordField;
 
@@ -34,6 +39,19 @@ public class LoginController {
             return;
         }
         showSuccess("Login successful! Welcome " + user.getUsername());
+
+        UserSession.setUser(user);
+
+        // TODO redirect to dashboard
+
+        SessionManager.startSession(() -> {
+            System.out.println("Session expired!");
+
+            // TODO redirect to login screen
+        });
+
+        rootPane.setOnMouseMoved(e -> SessionManager.resetTimer());
+        rootPane.setOnKeyPressed(e -> SessionManager.resetTimer());
     }
     private void showSuccess(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
