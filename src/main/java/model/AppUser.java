@@ -17,6 +17,9 @@ public class AppUser {
     private String appPassword;
     private AcademicStaff academicStaff; // povezano preko AcademicStaffId
 
+    public AppUser() {}
+
+
     public AppUser(int id, UserRole role, String username, String email, String passwordHash, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isActive, String appPassword, AcademicStaff academicStaff) {
         this.id = id;
         this.role = role;
@@ -29,4 +32,5 @@ public class AppUser {
         this.appPassword = appPassword;
         this.academicStaff = academicStaff;
     }
+
 }
