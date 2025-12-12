@@ -1,5 +1,6 @@
 package dao;
 
+import model.AcademicStaff;
 import model.AppUser;
 import model.UserRole;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 public class AppUserDAO {
     private final UserRoleDAO roleDAO = new UserRoleDAO();
+    private final AcademicStaffDAO staffDAO = new AcademicStaffDAO();
 
     public List<AppUser> getAllUsers() {
         List<AppUser> users = new ArrayList<>();
@@ -24,7 +26,7 @@ public class AppUserDAO {
             while (rs.next()) {
 
                 UserRole role = roleDAO.getRoleById(rs.getInt("RoleId"));
-
+                AcademicStaff staff = staffDAO.getStaffById(rs.getInt("AcademicStaffId"));
                 AppUser user = new AppUser(
                         rs.getInt("Id"),
                         role,
@@ -34,7 +36,8 @@ public class AppUserDAO {
                         rs.getTimestamp("CreatedAt").toLocalDateTime(),
                         rs.getTimestamp("UpdatedAt").toLocalDateTime(),
                         rs.getBoolean("IsActive"),
-                        rs.getString("AppPassword")
+                        rs.getString("AppPassword"),
+                        staff
                 );
 
                 users.add(user);

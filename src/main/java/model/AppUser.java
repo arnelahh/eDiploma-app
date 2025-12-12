@@ -14,5 +14,19 @@ public class AppUser {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isActive;
-    private String AppPassword;
+    private String appPassword;
+    private AcademicStaff academicStaff; // povezano preko AcademicStaffId
+
+    public AppUser(int id, UserRole role, String username, String email, String passwordHash, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isActive, String appPassword, AcademicStaff academicStaff) {
+        this.id = id;
+        this.role = role;
+        this.username = username;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.isActive = isActive;
+        this.appPassword = appPassword;
+        this.academicStaff = academicStaff;
+    }
 }
