@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
+
+
+    <!-- TOP -->
+    <top>
+        <HBox alignment="CENTER" prefHeight="60">
+            <Label text="eDiploma" />
+        </HBox>
+    </top>
+
+
+    <!-- LEFT -->
+    <left>
+        <VBox prefWidth="200" spacing="10">
+         <Button mnemonicParsing="false" style="-fx-background-color: transparent;" text="Početna">
+            <VBox.margin>
+               <Insets left="10.0" />
+            </VBox.margin>
+         </Button>
+
+            <Separator />
+            <Label fx:id="lblOdjava" onMouseClicked="#handleLogout" style="-fx-cursor: hand; -fx-font-weight: bold;" text="Odjava" />
+        </VBox>
+    </left>
+
+
+    <!-- CENTER -->
+    <center>
+        <VBox spacing="10">
+            <Label text="Obavijesti" />
+        </VBox>
+    </center>
+
+
+</BorderPane>

@@ -8,23 +8,24 @@ import controller.LoginController;
 import dao.AppUserDAO;
 import model.AppUser;
 import org.mindrot.jbcrypt.BCrypt;
+import utils.SceneManager;
+
 
 public class LoginTestApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        // Load FXML from resources
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/app/login.fxml"));
-        Scene scene = new Scene(loader.load());
-        stage.setScene(scene);
-        stage.setTitle("eDiploma");
-        //za full screen kad pokrene kod
-        stage.setMaximized(true);
-        stage.show();
+        // Inicijaliziraj SceneManager sa stage-om
+        SceneManager.init(stage);
 
-        // Inject real DAO for dynamic login
+        // Pokaži login scenu preko SceneManager-a
+        SceneManager.show("/app/login.fxml", "eDiploma");
+
+        // Inject real DAO za dinamički login
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/app/login.fxml"));
+        loader.load(); // potrebno za dohvat kontrolera
         LoginController controller = loader.getController();
-        AppUserDAO realDao = new AppUserDAO(); // connects to your DB
+        AppUserDAO realDao = new AppUserDAO(); // konekcija na bazu
         controller.userDao = realDao;
     }
 
