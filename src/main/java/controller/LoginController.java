@@ -2,13 +2,19 @@ package controller;
 
 import dao.AppUserDAO;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import model.AppUser;
 import org.mindrot.jbcrypt.BCrypt;
 import utils.SessionManager;
 import utils.UserSession;
+
+import java.io.IOException;
 
 
 public class LoginController {
@@ -38,17 +44,26 @@ public class LoginController {
             showError("Wrong password");
             return;
         }
-        showSuccess("Login successful! Welcome " + user.getUsername());
 
         UserSession.setUser(user);
 
         // TODO redirect to dashboard
+        try{
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/app/dashboard.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setScene(new Scene(root)); stage.setTitle("eDiploma");
+            stage.setMaximized(true);
+            stage.show();
+            SessionManager.startSession(() -> {
+                System.out.println("Session expired!");
 
-        SessionManager.startSession(() -> {
-            System.out.println("Session expired!");
+                // TODO redirect to login screen
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-            // TODO redirect to login screen
-        });
 
         rootPane.setOnMouseMoved(e -> SessionManager.resetTimer());
         rootPane.setOnKeyPressed(e -> SessionManager.resetTimer());
