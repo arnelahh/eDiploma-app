@@ -5,22 +5,86 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import utils.SceneManager;
 import utils.UserSession;
 
 public class DashboardController {
     @FXML
-    private Label lblOdjava; // povežemo label
+    private BorderPane mainBorderPane;
+
+    @FXML
+    private Label lblOdjava;
+
+    @FXML
+    private Label pocetnaLabel, radoviLabel, studentiLabel, mentoriLabel;
+
+    @FXML
+    private AnchorPane rootPane;
+
 
     @FXML
     private void handleLogout() {
         try {
             UserSession.clear();
-
-            // Prikaz login scene preko SceneManager-a
             SceneManager.show("/app/login.fxml", "Login");
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleStudentiClick() {
+        try {
+            Parent studentsView = FXMLLoader.load(
+                    getClass().getResource("/app/students.fxml")
+            );
+            mainBorderPane.setCenter(studentsView);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handlePocetnaClick(){
+        try{
+            Parent homeView = FXMLLoader.load(
+                    getClass().getResource("/app/home.fxml")
+            );
+
+            mainBorderPane.setCenter(homeView);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleRadoviClick(){
+        try{
+            Parent worksView = FXMLLoader.load(
+                    getClass().getResource("/app/works.fxml")
+            );
+
+            mainBorderPane.setCenter(worksView);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleMentoriClick() {
+        try {
+            Parent mentorsView = FXMLLoader.load(
+                    getClass().getResource("/app/mentors.fxml")
+            );
+
+            mainBorderPane.setCenter(mentorsView);
 
         } catch (Exception e) {
             e.printStackTrace();

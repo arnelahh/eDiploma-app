@@ -11,6 +11,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import model.AppUser;
 import org.mindrot.jbcrypt.BCrypt;
+import utils.SceneManager;
 import utils.SessionManager;
 import utils.UserSession;
 
@@ -18,7 +19,7 @@ import java.io.IOException;
 
 
 public class LoginController {
-
+    @FXML
     private Pane rootPane;
     @FXML private TextField emailField;
     @FXML private TextField passwordField;
@@ -47,23 +48,13 @@ public class LoginController {
 
         UserSession.setUser(user);
 
-        // TODO redirect to dashboard
-        try{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/app/dashboard.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) emailField.getScene().getWindow();
-            stage.setScene(new Scene(root)); stage.setTitle("eDiploma");
-            stage.setMaximized(true);
-            stage.show();
-            SessionManager.startSession(() -> {
-                System.out.println("Session expired!");
+        SceneManager.show("/app/dashboard.fxml", "Dashboard");
 
-                // TODO redirect to login screen
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        SessionManager.startSession(() -> {
+            System.out.println("Session expired!");
+            UserSession.clear();
+            SceneManager.show("/app/login.fxml", "Login");
+        });
 
         rootPane.setOnMouseMoved(e -> SessionManager.resetTimer());
         rootPane.setOnKeyPressed(e -> SessionManager.resetTimer());
