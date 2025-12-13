@@ -5,61 +5,45 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<StackPane xmlns="http://javafx.com/javafx/17.0.12"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="controller.LoginController"
-           style="-fx-background-color: linear-gradient(to bottom, #1e1e1e, #2a2a2a);">
+<AnchorPane fx:id="rootPane" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController"
+            >
 
-    <!-- CARD -->
-    <VBox spacing="18"
-          alignment="CENTER"
-          style="-fx-background-color: white;
-                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 5);">
+    <StackPane alignment="CENTER"
+               AnchorPane.topAnchor="0"
+               AnchorPane.bottomAnchor="0"
+               AnchorPane.leftAnchor="0"
+               AnchorPane.rightAnchor="0">
 
-        <padding>
-            <Insets top="30" right="30" bottom="30" left="30"/>
-        </padding>
+        <VBox alignment="CENTER"
+              spacing="18"
+              style="-fx-background-color: white; -fx-background-radius: 12;">
+            <padding>
+                <Insets top="30" right="30" bottom="30" left="30"/>
+            </padding>
 
-        <!-- LOGO -->
-        <Label text="eDiploma" textFill="#4f5dff">
-            <font>
-                <Font name="Arial" size="60"/>
-            </font>
-        </Label>
+            <Label text="eDiploma" textFill="#4f5dff">
+                <font>
+                    <Font name="Arial" size="56"/>
+                </font>
+            </Label>
 
-        <!-- EMAIL -->
-        <VBox spacing="6" maxWidth="360" alignment="CENTER_LEFT">
-            <Label text="Email"/>
-            <TextField fx:id="emailField"
-                       promptText="Unesite vašu email adresu"
-                       prefHeight="40"
-                       style="-fx-background-radius: 8;
-                              -fx-background-color: #f0f0f0;
-                              -fx-border-color: transparent;"/>
+            <VBox alignment="CENTER_LEFT" maxWidth="360" spacing="6">
+                <Label text="Email"/>
+                <TextField fx:id="emailField" prefHeight="40" promptText="Unesite vašu email adresu"
+                           style="-fx-background-radius: 8; -fx-background-color: #f0f0f0; -fx-border-color: transparent;"/>
+            </VBox>
+
+            <VBox alignment="CENTER_LEFT" maxWidth="360" spacing="6">
+                <Label text="Lozinka"/>
+                <PasswordField fx:id="passwordField" prefHeight="40" promptText="Unesite vašu lozinku"
+                               style="-fx-background-radius: 8; -fx-background-color: #f0f0f0; -fx-border-color: transparent;"/>
+            </VBox>
+
+            <Button text="Prijavite se" maxWidth="360" prefHeight="42"
+                    onAction="#handleLogin"
+                    style="-fx-background-color: #4f5dff; -fx-background-radius: 8; -fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold;"/>
         </VBox>
 
-        <!-- PASSWORD -->
-        <VBox spacing="6" maxWidth="360" alignment="CENTER_LEFT">
-            <Label text="Lozinka"/>
-            <PasswordField fx:id="passwordField"
-                           promptText="Unesite vašu lozinku"
-                           prefHeight="40"
-                           style="-fx-background-radius: 8;
-                                  -fx-background-color: #f0f0f0;
-                                  -fx-border-color: transparent;"/>
-        </VBox>
+    </StackPane>
 
-        <!-- BUTTON -->
-        <Button text="Prijavite se"
-                onAction="#handleLogin"
-                prefHeight="42"
-                maxWidth="360"
-                style="-fx-background-color: #4f5dff;
-                       -fx-background-radius: 8;
-                       -fx-text-fill: white;
-                       -fx-font-size: 14;
-                       -fx-font-weight: bold;"/>
-
-    </VBox>
-
-</StackPane>
+</AnchorPane>
