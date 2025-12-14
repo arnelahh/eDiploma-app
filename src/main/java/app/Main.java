@@ -1,14 +1,9 @@
-package model;
+package app;
 
 import dao.*;
-import dto.ThesisDTO;
-import org.mindrot.jbcrypt.BCrypt;
+import model.Student;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -56,36 +51,37 @@ public class Main {
 //            System.out.println(subject);
 //        }
 //
+//        System.out.println("--------------------------");
+//        ThesisDAO thesisDAO = new ThesisDAO();
+//        List<ThesisDTO> lista=thesisDAO.getAllThesisBySearch("amar");
+//        for(ThesisDTO thesisDTO:lista){
+//            System.out.println(thesisDTO);
+//        }
+//
+//        Thesis thesis = Thesis.builder()
+//                .title("My Thesis Title")
+//                .applicationDate(LocalDate.now())
+//                .departmentId(1)
+//                .studentId(1)
+//                .academicStaffId(1)  // mentor
+//                .secretaryId(1)
+//                .subjectId(1)
+//                .statusId(1)
+//                .build();
+//
+//        ThesisDAO thesisDao = new ThesisDAO();
+//        thesisDao.insertThesis(thesis);
+
+
+        StudentStatusDAO studentStatusDAO = new StudentStatusDAO();
+        System.out.println(studentStatusDAO.getStatusById(1));
+
         System.out.println("--------------------------");
-        ThesisDAO thesisDAO = new ThesisDAO();
-        List<ThesisDTO> lista=thesisDAO.getAllThesisBySearch("amar");
-        for(ThesisDTO thesisDTO:lista){
-            System.out.println(thesisDTO);
+        StudentDAO studentDAO = new StudentDAO();
+        List<Student> students = studentDAO.getAllStudents();
+        for(Student student : students){
+            System.out.println(student);
         }
-
-        Thesis thesis = Thesis.builder()
-                .title("My Thesis Title")
-                .applicationDate(LocalDate.now())
-                .departmentId(1)
-                .studentId(1)
-                .academicStaffId(1)  // mentor
-                .secretaryId(1)
-                .subjectId(1)
-                .statusId(1)
-                .build();
-
-        ThesisDAO thesisDao = new ThesisDAO();
-        thesisDao.insertThesis(thesis);
-
-
-
-
-
-
-
-
-
-
     }
 
 

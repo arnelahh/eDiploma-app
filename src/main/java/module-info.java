@@ -15,6 +15,7 @@ module main.ediploma {
     requires static lombok;
     requires jbcrypt;
 
+
     opens main.ediploma to javafx.fxml;
     opens app to javafx.graphics, javafx.fxml;
     opens controller to javafx.fxml;
