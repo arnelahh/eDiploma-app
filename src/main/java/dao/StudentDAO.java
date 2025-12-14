@@ -14,14 +14,26 @@ public class StudentDAO {
 
     public List<Student> getAllStudents(){
         List<Student> students = new ArrayList<>();
-        String sql = "SELECT * FROM Student";
+        String sql = "SELECT * FROM Student ORDER BY Id DESC";
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 StudentStatus status = studentStatusDAO.getStatusById(rs.getInt("StatusId"));
-                Student student = new Student(rs.getInt("Id"), rs.getString("FirstName"), rs.getString("LastName"), rs.getString("FatherName"), rs.getInt("IndexNumber"), rs.getDate("BirthDate") != null ? rs.getDate("BirthDate").toLocalDate() : null, rs.getString("BirthPlace"), rs.getString("Municipality"), rs.getString("Country"), rs.getString("StudyProgram"), rs.getInt("ECTS"), rs.getInt("Cycle"), rs.getInt("CycleDuration"), status, rs.getString("Email"), rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null, rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null);
+                Student student = new Student(rs.getInt("Id"), rs.getString("FirstName"),                 rs.getString("LastName"),
+                        rs.getString("FatherName"),
+                        rs.getInt("IndexNumber"),
+                        rs.getDate("BirthDate") != null ? rs.getDate("BirthDate").toLocalDate() : null,
+                        rs.getString("BirthPlace"), rs.getString("Municipality"),
+                        rs.getString("Country"), rs.getString("StudyProgram"),
+                        rs.getInt("ECTS"),
+                        rs.getInt("Cycle"),
+                        rs.getInt("CycleDuration"),
+                        status,
+                        rs.getString("Email"),
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null);
                 students.add(student);
             }
 
@@ -113,6 +125,7 @@ public class StudentDAO {
             throw new RuntimeException(e);
         }
     }
+
     public Student getStudentById(int id) {
         String sql = "SELECT * FROM Student WHERE Id = ?";
         try (Connection conn = CloudDatabaseConnection.Konekcija();
