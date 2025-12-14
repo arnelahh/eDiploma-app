@@ -8,8 +8,12 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import utils.DashboardView;
+import utils.NavigationContext;
 import utils.SceneManager;
 import utils.UserSession;
+
+import java.io.IOException;
 
 public class DashboardController {
     @FXML
@@ -24,6 +28,17 @@ public class DashboardController {
     @FXML
     private AnchorPane rootPane;
 
+    @FXML
+    public void initialize(){
+        DashboardView view = NavigationContext.consumeTargetView();
+
+        switch (view) {
+            case STUDENTS -> handleStudentiClick();
+            case WORKS -> handleRadoviClick();
+            case MENTORS -> handleMentoriClick();
+            case HOME -> handlePocetnaClick();
+        }
+    }
 
     @FXML
     private void handleLogout() {

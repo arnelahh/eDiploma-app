@@ -1,9 +1,10 @@
 package model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
+@AllArgsConstructor
 @Data
 public class Student {
     private int Id;
@@ -19,8 +20,8 @@ public class Student {
     private int ECTS;
     private int Cycle;
     private int CycleDuration;
-    private String Email;
     private StudentStatus Status;
+    private String Email;
     private LocalDateTime CreatedAt;
     private LocalDateTime UpdatedAt;
 }
