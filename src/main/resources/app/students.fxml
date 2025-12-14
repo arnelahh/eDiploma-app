@@ -2,15 +2,21 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.geometry.Insets?>
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.StudentsController">
-    <ScrollPane fx:id="scrollPane" fitToWidth="true" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-        <VBox fx:id="studentsContainer" spacing="10">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-        </VBox>
 
+<AnchorPane prefHeight="400.0" prefWidth="600.0"
+            style="-fx-background-color: #f9f9f9;"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.StudentsController">
+    <ScrollPane fx:id="scrollPane" fitToWidth="true"
+                style="-fx-background-color: transparent; -fx-background: transparent;"
+                AnchorPane.topAnchor="0"
+                AnchorPane.bottomAnchor="0"
+                AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0">
+        <VBox fx:id="studentsContainer" spacing="0"
+              style="-fx-background-color: #f9f9f9;">
+        </VBox>
     </ScrollPane>
 </AnchorPane>

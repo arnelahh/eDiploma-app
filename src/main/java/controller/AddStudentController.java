@@ -14,8 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class EditStudentController {
-    private Student student;
+public class AddStudentController {
     private final StudentDAO studentDAO = new StudentDAO();
     private final StudentStatusDAO statusDAO = new StudentStatusDAO();
 
@@ -49,56 +48,20 @@ public class EditStudentController {
                 return null;
             }
         });
-    }
-
-    public void setStudent(Student student) {
-        this.student = student;
-        populateFields();
-    }
-
-    private void populateFields() {
-        if (student == null) return;
-
-        firstNameField.setText(student.getFirstName());
-        lastNameField.setText(student.getLastName());
-        fatherNameField.setText(student.getFatherName());
-        emailField.setText(student.getEmail());
-
-        if (student.getBirthDate() != null) {
-            birthDatePicker.setValue(student.getBirthDate());
-        }
-
-        birthPlaceField.setText(student.getBirthPlace());
-        municipalityField.setText(student.getMunicipality());
-        countryField.setText(student.getCountry());
-        indexNumberField.setText(String.valueOf(student.getIndexNumber()));
-        studyProgramField.setText(student.getStudyProgram());
-        ectsField.setText(String.valueOf(student.getECTS()));
-        cycleField.setText(String.valueOf(student.getCycle()));
-        cycleDurationField.setText(String.valueOf(student.getCycleDuration()));
-
-        if (student.getStatus() != null) {
-            statusComboBox.setValue(student.getStatus());
+        if (!statuses.isEmpty()) {
+            statusComboBox.setValue(statuses.get(0));
         }
     }
 
     @FXML
     private void handleSave() {
         try {
-            if (firstNameField.getText().trim().isEmpty() ||
-                    lastNameField.getText().trim().isEmpty()) {
-                showError("Ime i prezime su obavezna polja!");
+            if (firstNameField.getText().trim().isEmpty() || lastNameField.getText().trim().isEmpty() || indexNumberField.getText().trim().isEmpty()) {
+                showError("Ime, prezime i broj indeksa su obavezna polja!");
                 return;
             }
-
-            student.setFirstName(firstNameField.getText().trim());
-            student.setLastName(lastNameField.getText().trim());
-            student.setFatherName(fatherNameField.getText().trim());
-            student.setEmail(emailField.getText().trim());
-            student.setBirthDate(birthDatePicker.getValue());
-            student.setBirthPlace(birthPlaceField.getText().trim());
-            student.setMunicipality(municipalityField.getText().trim());
-            student.setCountry(countryField.getText().trim());
+            Student student = new Student(0, firstNameField.getText().trim(), lastNameField.getText().trim(), fatherNameField.getText().trim(), 0, birthDatePicker.getValue(), birthPlaceField.getText().trim(), municipalityField.getText().trim(), countryField.getText().trim(), studyProgramField.getText().trim(), 0, 0, 0, statusComboBox.getValue(), emailField.getText().trim(), LocalDateTime.now(), LocalDateTime.now()
+            );
 
             try {
                 student.setIndexNumber(Integer.parseInt(indexNumberField.getText().trim()));
@@ -107,28 +70,22 @@ public class EditStudentController {
                 return;
             }
 
-            student.setStudyProgram(studyProgramField.getText().trim());
-
             try {
-                student.setECTS(Integer.parseInt(ectsField.getText().trim()));
-                student.setCycle(Integer.parseInt(cycleField.getText().trim()));
-                student.setCycleDuration(Integer.parseInt(cycleDurationField.getText().trim()));
+                student.setECTS(ectsField.getText().trim().isEmpty() ? 0 : Integer.parseInt(ectsField.getText().trim()));
+                student.setCycle(cycleField.getText().trim().isEmpty() ? 0 : Integer.parseInt(cycleField.getText().trim()));
+                student.setCycleDuration(cycleDurationField.getText().trim().isEmpty() ? 0 : Integer.parseInt(cycleDurationField.getText().trim()));
             } catch (NumberFormatException e) {
                 showError("ECTS, ciklus i trajanje moraju biti brojevi!");
                 return;
             }
+            studentDAO.insertStudent(student);
 
-            student.setStatus(statusComboBox.getValue());
-
-            studentDAO.updateStudent(student);
-
-            showSuccess("Student je uspješno ažuriran!");
-
+            showSuccess("Student je uspješno dodan!");
             handleBack();
 
         } catch (Exception e) {
             e.printStackTrace();
-            showError("Greška pri čuvanju studenta: " + e.getMessage());
+            showError("Greška pri dodavanju studenta: " + e.getMessage());
         }
     }
 

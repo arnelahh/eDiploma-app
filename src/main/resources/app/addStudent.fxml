@@ -6,7 +6,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/17.0.12"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controller.EditStudentController"
+            fx:controller="controller.AddStudentController"
             style="-fx-background-color: #f9f9f9;">
     <BorderPane prefHeight="800.0" prefWidth="1200.0">
         <top>
@@ -32,8 +32,8 @@
 
                     <!-- Title Section -->
                     <VBox spacing="5">
-                        <Label text="Uredi studenta" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
-                        <Label text="Unesite podatke o studentu" style="-fx-font-size: 14; -fx-text-fill: #666;"/>
+                        <Label text="Dodaj novog studenta" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+                        <Label text="Unesite podatke o novom studentu" style="-fx-font-size: 14; -fx-text-fill: #666;"/>
                     </VBox>
 
                     <Separator/>
