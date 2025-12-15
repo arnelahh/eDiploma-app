@@ -3,17 +3,13 @@ package controller;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
 import utils.DashboardView;
 import utils.NavigationContext;
 import utils.SceneManager;
 import utils.UserSession;
-
-import java.io.IOException;
 
 public class DashboardController {
     @FXML
@@ -82,7 +78,7 @@ public class DashboardController {
     private void handleRadoviClick(){
         try{
             Parent worksView = FXMLLoader.load(
-                    getClass().getResource("/app/works.fxml")
+                    getClass().getResource("/app/thesis.fxml")
             );
 
             mainBorderPane.setCenter(worksView);

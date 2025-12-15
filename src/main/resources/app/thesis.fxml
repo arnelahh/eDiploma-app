@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.shape.Circle?>
+<?import org.controlsfx.control.textfield.CustomTextField?>
+
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            styleClass="root-container" stylesheets="@styles.css" fx:controller="controller.ThesisController" >
+
+
+    <!-- Main Content Area -->
+    <center>
+        <VBox styleClass="main-content" spacing="25">
+            <padding>
+                <Insets top="40" right="50" bottom="40" left="50"/>
+            </padding>
+
+            <!-- Page Header -->
+            <VBox spacing="8">
+                <Text text="Završni radovi" styleClass="page-title"/>
+                <Text text="Kompletan pregled i upravljanje završnim radovima" styleClass="page-subtitle"/>
+            </VBox>
+
+            <!-- Action Bar -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <!-- Search Field -->
+                <TextField fx:id="searchField" promptText="🔍 Pretražite radove po naslovu, studentu ili mentoru..."
+                           styleClass="search-field" prefWidth="450"/>
+
+                <!-- Status Filter -->
+                <ComboBox fx:id="statusFilter" promptText="Svi statusi" styleClass="status-filter" prefWidth="150">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Svi statusi"/>
+                            <String fx:value="Na čekanju"/>
+                            <String fx:value="U procesu"/>
+                            <String fx:value="Odbranjen"/>
+                            <String fx:value="Prvi ciklus"/>
+                            <String fx:value="Drugi ciklus"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Add New Button -->
+                <Button text="+ Dodaj novi rad" styleClass="add-button"/>
+            </HBox>
+
+            <!-- Thesis Cards Container (ScrollPane) -->
+            <ScrollPane fitToWidth="true" styleClass="cards-scroll-pane" VBox.vgrow="ALWAYS">
+                <VBox fx:id="thesisCardsContainer" spacing="20" styleClass="cards-container">
+
+                    <!-- Card 1 -->
+                    <VBox styleClass="thesis-card">
+                        <padding>
+                            <Insets top="20" right="25" bottom="20" left="25"/>
+                        </padding>
+                        <VBox spacing="15">
+                            <Text text="Razvoj web aplikacije za e-trgovinu korištenjem React i Node.js"
+                                  styleClass="card-title" wrappingWidth="800"/>
+
+                            <HBox spacing="30" alignment="CENTER_LEFT">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="user-icon"/>
+                                    <Text text="Hamo Hamić" styleClass="card-info"/>
+                                </HBox>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="doc-icon"/>
+                                    <Text text="Nervadin Kućalo" styleClass="card-info"/>
+                                </HBox>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="cycle-icon"/>
+                                    <Text text="Prvi ciklus" styleClass="card-info"/>
+                                </HBox>
+
+                                <Region HBox.hgrow="ALWAYS"/>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT" styleClass="status-badge status-waiting">
+                                    <padding>
+                                        <Insets top="6" right="12" bottom="6" left="12"/>
+                                    </padding>
+                                    <Circle radius="4" styleClass="status-indicator"/>
+                                    <Text text="Na čekanju" styleClass="status-text"/>
+                                </HBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Card 2 -->
+                    <VBox styleClass="thesis-card">
+                        <padding>
+                            <Insets top="20" right="25" bottom="20" left="25"/>
+                        </padding>
+                        <VBox spacing="15">
+                            <Text text="Implementacija sistema za upravljanje skladištem"
+                                  styleClass="card-title" wrappingWidth="800"/>
+
+                            <HBox spacing="30" alignment="CENTER_LEFT">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="user-icon"/>
+                                    <Text text="Hamo Hamić" styleClass="card-info"/>
+                                </HBox>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="doc-icon"/>
+                                    <Text text="Majo Hodžić" styleClass="card-info"/>
+                                </HBox>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="cycle-icon"/>
+                                    <Text text="Prvi ciklus" styleClass="card-info"/>
+                                </HBox>
+
+                                <Region HBox.hgrow="ALWAYS"/>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT" styleClass="status-badge status-inprogress">
+                                    <padding>
+                                        <Insets top="6" right="12" bottom="6" left="12"/>
+                                    </padding>
+                                    <Circle radius="4" styleClass="status-indicator"/>
+                                    <Text text="U procesu" styleClass="status-text"/>
+                                </HBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Card 3 -->
+                    <VBox styleClass="thesis-card">
+                        <padding>
+                            <Insets top="20" right="25" bottom="20" left="25"/>
+                        </padding>
+                        <VBox spacing="15">
+                            <Text text="Razvoj web aplikacije za e-trgovinu korištenjem React i Node.js"
+                                  styleClass="card-title" wrappingWidth="800"/>
+
+                            <HBox spacing="30" alignment="CENTER_LEFT">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="user-icon"/>
+                                    <Text text="Hamo Hamić" styleClass="card-info"/>
+                                </HBox>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="doc-icon"/>
+                                    <Text text="Adnan Dalmošević" styleClass="card-info"/>
+                                </HBox>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="cycle-icon"/>
+                                    <Text text="Drugi ciklus" styleClass="card-info"/>
+                                </HBox>
+
+                                <Region HBox.hgrow="ALWAYS"/>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT" styleClass="status-badge status-inprogress">
+                                    <padding>
+                                        <Insets top="6" right="12" bottom="6" left="12"/>
+                                    </padding>
+                                    <Circle radius="4" styleClass="status-indicator"/>
+                                    <Text text="U procesu" styleClass="status-text"/>
+                                </HBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Card 4 -->
+                    <VBox styleClass="thesis-card">
+                        <padding>
+                            <Insets top="20" right="25" bottom="20" left="25"/>
+                        </padding>
+                        <VBox spacing="15">
+                            <Text text="Razvoj web aplikacije za e-trgovinu korištenjem React i Node.js"
+                                  styleClass="card-title" wrappingWidth="800"/>
+
+                            <HBox spacing="30" alignment="CENTER_LEFT">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="user-icon"/>
+                                    <Text text="Hamo Hamić" styleClass="card-info"/>
+                                </HBox>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="doc-icon"/>
+                                    <Text text="Nenno Hodoić" styleClass="card-info"/>
+                                </HBox>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Circle radius="6" styleClass="cycle-icon"/>
+                                    <Text text="Prvi ciklus" styleClass="card-info"/>
+                                </HBox>
+
+                                <Region HBox.hgrow="ALWAYS"/>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT" styleClass="status-badge status-approved">
+                                    <padding>
+                                        <Insets top="6" right="12" bottom="6" left="12"/>
+                                    </padding>
+                                    <Circle radius="4" styleClass="status-indicator"/>
+                                    <Text text="Odbranjen" styleClass="status-text"/>
+                                </HBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+
+</BorderPane>
