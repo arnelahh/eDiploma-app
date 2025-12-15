@@ -34,7 +34,7 @@ public class DashboardController {
 
         switch (view) {
             case STUDENTS -> handleStudentiClick();
-            case WORKS -> handleRadoviClick();
+            case THESIS -> handleRadoviClick();
             case MENTORS -> handleMentoriClick();
             case HOME -> handlePocetnaClick();
         }
