@@ -2,20 +2,14 @@ package controller;
 
 import dao.AppUserDAO;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import model.AppUser;
 import org.mindrot.jbcrypt.BCrypt;
 import utils.SceneManager;
 import utils.SessionManager;
 import utils.UserSession;
-
-import java.io.IOException;
 
 
 public class LoginController {
@@ -58,10 +52,6 @@ public class LoginController {
 
         rootPane.setOnMouseMoved(e -> SessionManager.resetTimer());
         rootPane.setOnKeyPressed(e -> SessionManager.resetTimer());
-    }
-    private void showSuccess(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
-        alert.showAndWait();
     }
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message);

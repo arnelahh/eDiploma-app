@@ -43,16 +43,28 @@ public class SceneManager {
         }
     }
 
-    public static void show(FXMLLoader loader, String title) {
+    public static <T> void showWithData(
+            String fxmlPath,
+            String title,
+            java.util.function.Consumer<T> controllerConsumer
+    ) {
         try {
+            FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlPath));
             Parent root = loader.load();
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.show();
+
+            T controller = loader.getController();
+            controllerConsumer.accept(controller);
+
+            Scene scene = new Scene(root);
+            primaryStage.setScene(scene);
+            primaryStage.setTitle(title);
+            primaryStage.setMaximized(true);
+            primaryStage.show();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 }
+
