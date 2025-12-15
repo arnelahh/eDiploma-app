@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import model.Student;
 import utils.SceneManager;
 
@@ -18,7 +19,7 @@ import java.util.List;
 public class StudentsController {
 
     @FXML
-    private VBox studentsContainer;
+    private VBox studentsCardsContainer;
 
     @FXML
     private TextField searchField;
@@ -26,24 +27,29 @@ public class StudentsController {
     @FXML
     private ProgressIndicator loader;
 
+    @FXML
+    private Button addStudentButton;
+
     private final StudentDAO studentDAO = new StudentDAO();
 
     @FXML
     public void initialize() {
         loadStudentsAsync();
         setupSearch();
+        setupAddButton();
+    }
+
+    private void setupAddButton() {
+        if (addStudentButton != null) {
+            addStudentButton.setOnAction(e -> openAddStudentPage());
+        }
     }
 
     /* =========================================================
        ============ ASYNC LOAD STUDENATA =======================
        ========================================================= */
     private void loadStudentsAsync() {
-
-        studentsContainer.getChildren().clear();
-        studentsContainer.getChildren().addAll(
-                createHeader(),
-                createSearchBar()
-        );
+        studentsCardsContainer.getChildren().clear();
 
         Task<List<Student>> task = new Task<>() {
             @Override
@@ -56,7 +62,7 @@ public class StudentsController {
 
         task.setOnSucceeded(e -> {
             for (Student s : task.getValue()) {
-                studentsContainer.getChildren().add(createStudentCard(s));
+                studentsCardsContainer.getChildren().add(createStudentCard(s));
             }
         });
 
@@ -78,10 +84,7 @@ public class StudentsController {
     }
 
     private void performSearchAsync(String term) {
-
-        if (studentsContainer.getChildren().size() > 2) {
-            studentsContainer.getChildren().remove(2, studentsContainer.getChildren().size());
-        }
+        studentsCardsContainer.getChildren().clear();
 
         Task<List<Student>> task = new Task<>() {
             @Override
@@ -97,7 +100,7 @@ public class StudentsController {
 
         task.setOnSucceeded(e -> {
             for (Student s : task.getValue()) {
-                studentsContainer.getChildren().add(createStudentCard(s));
+                studentsCardsContainer.getChildren().add(createStudentCard(s));
             }
         });
 
@@ -109,102 +112,76 @@ public class StudentsController {
         new Thread(task).start();
     }
 
-    /* =========================================================
-       ================= UI KOMPONENTE =========================
-       ========================================================= */
-
-    private HBox createHeader() {
-        HBox header = new HBox(20);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(20, 30, 10, 30));
-
-        VBox titleBox = new VBox(5);
-
-        Label title = new Label("Studenti");
-        title.setStyle("-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: black;");
-
-        Label subtitle = new Label("Kompletan pregled i upravljanje studentima");
-        subtitle.setStyle("-fx-font-size: 14; -fx-text-fill: #666;");
-
-        titleBox.getChildren().addAll(title, subtitle);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        Button addButton = new Button("+ Dodaj novog studenta");
-        addButton.setStyle("""
-                -fx-background-color: #4f5dff;
-                -fx-text-fill: white;
-                -fx-font-size: 14;
-                -fx-font-weight: bold;
-                -fx-background-radius: 8;
-                -fx-cursor: hand;
-                -fx-padding: 10 20;
-                """);
-        addButton.setOnAction(e -> openAddStudentPage());
-
-        header.getChildren().addAll(titleBox, spacer, addButton);
-        return header;
-    }
-
-    private HBox createSearchBar() {
-        HBox searchBar = new HBox();
-        searchBar.setPadding(new Insets(10, 30, 20, 30));
-
-        searchField = new TextField();
-        searchField.setPromptText("🔍 Pretraži studente...");
-        searchField.setPrefHeight(40);
-        searchField.setStyle("""
-                -fx-background-radius: 8;
-                -fx-border-radius: 8;
-                -fx-border-color: #e0e0e0;
-                -fx-font-size: 14;
-                """);
-
-        HBox.setHgrow(searchField, Priority.ALWAYS);
-        searchBar.getChildren().add(searchField);
-        return searchBar;
-    }
 
     private HBox createStudentCard(Student student) {
-
-        HBox card = new HBox(15);
+        HBox card = new HBox(20);
         card.setAlignment(Pos.CENTER_LEFT);
-        card.setPadding(new Insets(20));
-        card.setStyle("""
-                -fx-background-color: white;
-                -fx-background-radius: 8;
-                -fx-border-color: #e0e0e0;
-                -fx-border-radius: 8;
-                """);
-        VBox.setMargin(card, new Insets(5, 30, 5, 30));
+        card.setPadding(new Insets(20, 25, 20, 25));
+        card.getStyleClass().add("thesis-card");
 
-        StackPane avatar = new StackPane();
-        Circle circle = new Circle(25);
-        circle.setStyle("-fx-fill: #e8eaff;");
+        // Avatar with initials
+        VBox avatar = new VBox();
+        avatar.setAlignment(Pos.CENTER);
+        avatar.getStyleClass().add("student-avatar");
+        avatar.setPrefSize(50, 50);
+        avatar.setMinSize(50, 50);
+        avatar.setMaxSize(50, 50);
 
-        Label initials = new Label(
+        Text initials = new Text(
                 student.getFirstName().substring(0, 1).toUpperCase() +
                         student.getLastName().substring(0, 1).toUpperCase()
         );
-        initials.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #4f5dff;");
+        initials.getStyleClass().add("avatar-text");
+        avatar.getChildren().add(initials);
 
-        avatar.getChildren().addAll(circle, initials);
+        // Student info section
+        VBox info = new VBox(8);
+        HBox.setHgrow(info, Priority.ALWAYS);
 
-        VBox info = new VBox(5);
-
-        Label name = new Label(
+        Text name = new Text(
                 student.getFirstName() + " " +
                         student.getLastName() + " (" +
                         String.format("%03d", student.getIndexNumber()) + ")"
         );
-        name.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
+        name.getStyleClass().add("card-title");
 
-        info.getChildren().add(name);
-        HBox.setHgrow(info, Priority.ALWAYS);
+        // Details row with icons
+        HBox detailsRow = new HBox(30);
+        detailsRow.setAlignment(Pos.CENTER_LEFT);
 
-        Button edit = new Button("✏️");
-        edit.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+        // Email with icon
+        HBox emailBox = new HBox(8);
+        emailBox.setAlignment(Pos.CENTER_LEFT);
+        Circle emailIcon = new Circle(6);
+        emailIcon.getStyleClass().add("user-icon");
+        Text emailText = new Text(student.getEmail());
+        emailText.getStyleClass().add("card-info");
+        emailBox.getChildren().addAll(emailIcon, emailText);
+
+        // Cycle with icon (if you add this field later)
+        HBox cycleBox = new HBox(8);
+        cycleBox.setAlignment(Pos.CENTER_LEFT);
+        Circle cycleIcon = new Circle(6);
+        cycleIcon.getStyleClass().add("cycle-icon");
+        Text cycleText = new Text("Prvi ciklus");
+        cycleText.getStyleClass().add("card-info");
+        cycleBox.getChildren().addAll(cycleIcon, cycleText);
+
+        // Program with icon (if you add this field later)
+        HBox programBox = new HBox(8);
+        programBox.setAlignment(Pos.CENTER_LEFT);
+        Circle programIcon = new Circle(6);
+        programIcon.getStyleClass().add("doc-icon");
+        Text programText = new Text("Softversko inženjerstvo");
+        programText.getStyleClass().add("card-info");
+        programBox.getChildren().addAll(programIcon, programText);
+
+        detailsRow.getChildren().addAll(emailBox, cycleBox, programBox);
+        info.getChildren().addAll(name, detailsRow);
+
+        // Edit button
+        Button edit = new Button("✎");
+        edit.getStyleClass().add("edit-button-icon");
         edit.setOnAction(e -> openEditStudentPage(student));
 
         card.getChildren().addAll(avatar, info, edit);
