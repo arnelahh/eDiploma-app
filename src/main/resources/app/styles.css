@@ -1,0 +1,252 @@
+/* Root Container */
+.root-container {
+    -fx-background-color: #f5f5f7;
+}
+
+/* Top Header */
+.top-header {
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 10, 0, 0, 2);
+}
+
+.app-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 600;
+    -fx-fill: #6c5ce7;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e8e8ea;
+    -fx-border-width: 0 1 0 0;
+}
+
+.nav-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.nav-item:hover {
+    -fx-background-color: #f5f5f7;
+}
+
+.nav-item-active {
+    -fx-background-color: #f0edff;
+}
+
+.nav-item-active:hover {
+    -fx-background-color: #e8e3ff;
+}
+
+.nav-arrow {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-fill: #2d3436;
+}
+
+.nav-label {
+    -fx-font-size: 15px;
+    -fx-text-fill: #2d3436;
+}
+
+.nav-item-active .nav-label {
+    -fx-font-weight: 600;
+    -fx-text-fill: #6c5ce7;
+}
+
+/* Main Content */
+.main-content {
+    -fx-background-color: #f5f5f7;
+}
+
+.page-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-fill: #2d3436;
+}
+
+.page-subtitle {
+    -fx-font-size: 15px;
+    -fx-fill: #636e72;
+}
+
+/* Search Field */
+.search-field {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-padding: 12 16 12 16;
+    -fx-font-size: 14px;
+    -fx-prompt-text-fill: #95a5a6;
+}
+
+.search-field:focused {
+    -fx-border-color: #6c5ce7;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(108, 92, 231, 0.2), 8, 0, 0, 0);
+}
+
+/* Status Filter */
+.status-filter {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-padding: 12 16 12 16;
+    -fx-font-size: 14px;
+}
+
+.status-filter:focused {
+    -fx-border-color: #6c5ce7;
+}
+
+/* Add Button */
+.add-button {
+    -fx-background-color: #6c5ce7;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 8px;
+    -fx-padding: 12 24 12 24;
+    -fx-cursor: hand;
+}
+
+.add-button:hover {
+    -fx-background-color: #5f50d9;
+    -fx-effect: dropshadow(gaussian, rgba(108, 92, 231, 0.3), 12, 0, 0, 4);
+}
+
+.add-button:pressed {
+    -fx-background-color: #5245c2;
+}
+
+/* Cards Container */
+.cards-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.cards-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.cards-container {
+    -fx-background-color: transparent;
+}
+
+/* Thesis Card */
+.thesis-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.06), 8, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.thesis-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.12), 16, 0, 0, 4);
+    -fx-translate-y: -2;
+}
+
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-fill: #2d3436;
+}
+
+.card-info {
+    -fx-font-size: 14px;
+    -fx-fill: #636e72;
+}
+
+/* Icon Circles */
+.user-icon {
+    -fx-fill: #74b9ff;
+}
+
+.doc-icon {
+    -fx-fill: #a29bfe;
+}
+
+.cycle-icon {
+    -fx-fill: #fd79a8;
+}
+
+/* Status Badges */
+.status-badge {
+    -fx-background-radius: 20px;
+}
+
+.status-waiting {
+    -fx-background-color: #fff4e6;
+}
+
+.status-inprogress {
+    -fx-background-color: #fff9e6;
+}
+
+.status-approved {
+    -fx-background-color: #e8f8f5;
+}
+
+.status-text {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.status-waiting .status-text {
+    -fx-fill: #e17055;
+}
+
+.status-waiting .status-indicator {
+    -fx-fill: #e17055;
+}
+
+.status-inprogress .status-text {
+    -fx-fill: #fdcb6e;
+}
+
+.status-inprogress .status-indicator {
+    -fx-fill: #fdcb6e;
+}
+
+.status-approved .status-text {
+    -fx-fill: #00b894;
+}
+
+.status-approved .status-indicator {
+    -fx-fill: #00b894;
+}
+
+/* ScrollBar Styling */
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #dfe6e9;
+    -fx-background-radius: 4px;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #b2bec3;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+}
