@@ -14,4 +14,5 @@ public class ThesisDTO {
     private int cycle;
     private String studentFullName;
     private String mentorFullName;
+    private String status;
 }

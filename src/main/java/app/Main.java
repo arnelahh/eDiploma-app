@@ -1,6 +1,7 @@
 package app;
 
 import dao.*;
+import dto.ThesisDTO;
 import model.Student;
 
 import java.sql.SQLException;
@@ -73,15 +74,22 @@ public class Main {
 //        thesisDao.insertThesis(thesis);
 
 
-        StudentStatusDAO studentStatusDAO = new StudentStatusDAO();
-        System.out.println(studentStatusDAO.getStatusById(1));
-
+//        StudentStatusDAO studentStatusDAO = new StudentStatusDAO();
+//        System.out.println(studentStatusDAO.getStatusById(1));
+//
+//        System.out.println("--------------------------");
+//        StudentDAO studentDAO = new StudentDAO();
+//        List<Student> students = studentDAO.getAllStudents();
+//        for(Student student : students){
+//            System.out.println(student);
+//        }
         System.out.println("--------------------------");
-        StudentDAO studentDAO = new StudentDAO();
-        List<Student> students = studentDAO.getAllStudents();
-        for(Student student : students){
-            System.out.println(student);
+        ThesisDAO thesisDAO = new ThesisDAO();
+        List<ThesisDTO> lista=thesisDAO.getAllThesisBySearch("amar");
+        for(ThesisDTO thesisDTO:lista){
+            System.out.println(thesisDTO);
         }
+
     }
 
 

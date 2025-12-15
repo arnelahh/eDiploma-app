@@ -10,10 +10,11 @@ import java.util.List;
 public class ThesisDAO {
     public List<ThesisDTO> getAllThesis(){
         List<ThesisDTO> thesis = new ArrayList<>();
-        String sql = "select T.Id,T.Title, CONCAT(S.FirstName,' ',S.LastName) as StudentFullName, CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName, S.Cycle\n" +
+        String sql = "select T.Id,T.Title, CONCAT(S.FirstName,' ',S.LastName) as StudentFullName, CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName, S.Cycle\n,TS.Name as Status" +
                 "  FROM Thesis T\n" +
                 "  JOIN Student S on S.Id=T.StudentId\n" +
-                "  join AcademicStaff A on A.Id=T.MentorId";
+                "  join AcademicStaff A on A.Id=T.MentorId"+
+                " join ThesisStatus TS on TS.Id=T.StatusId";
 
         try(Connection conn=CloudDatabaseConnection.Konekcija();
             Statement stmt=conn.createStatement();
@@ -26,6 +27,7 @@ public class ThesisDAO {
                 thesisDTO.setStudentFullName(rs.getString("StudentFullName"));
                 thesisDTO.setMentorFullName(rs.getString("MentorFullName"));
                 thesisDTO.setCycle(rs.getInt("Cycle"));
+                thesisDTO.setStatus(rs.getString("Status"));
                 thesis.add(thesisDTO);
             }
 
