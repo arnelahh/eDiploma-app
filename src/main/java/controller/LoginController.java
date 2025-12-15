@@ -1,11 +1,14 @@
 package controller;
 
 import dao.AppUserDAO;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -23,6 +26,7 @@ public class LoginController {
     private Pane rootPane;
     @FXML private TextField emailField;
     @FXML private TextField passwordField;
+    @FXML private ProgressIndicator loader;
 
     public AppUserDAO userDao = new AppUserDAO();
 
@@ -31,34 +35,61 @@ public class LoginController {
         String email = emailField.getText().trim();
         String password = passwordField.getText().trim();
 
-        AppUser user = userDao.findByEmail(email);
+        loader.setVisible(true);
+        emailField.setDisable(true);
+        passwordField.setDisable(true);
 
-        if (user == null) {
-            showError("User not found");
-            return;
-        }
-        if(!user.isActive()) {
-            showError("User is not active");
-            return;
-        }
-        if(!BCrypt.checkpw(password,user.getPasswordHash())) {
-            showError("Wrong password");
-            return;
-        }
+        Task<AppUser> loginTask = new Task<AppUser>() {
+            @Override
+            protected AppUser call() throws Exception {
+                return userDao.findByEmail(email);
+            }
+        };
 
-        UserSession.setUser(user);
+        loginTask.setOnSucceeded(e -> {
+            AppUser user = loginTask.getValue();
 
-        SceneManager.show("/app/dashboard.fxml", "Dashboard");
+            loader.setVisible(false);
+            emailField.setDisable(false);
+            passwordField.setDisable(false);
 
-        SessionManager.startSession(() -> {
-            System.out.println("Session expired!");
-            UserSession.clear();
-            SceneManager.show("/app/login.fxml", "Login");
+            if (user == null) {
+                showError("User not found");
+                return;
+            }
+            if(!user.isActive()) {
+                showError("User is not active");
+                return;
+            }
+            if(!BCrypt.checkpw(password, user.getPasswordHash())) {
+                showError("Wrong password");
+                return;
+            }
+
+            UserSession.setUser(user);
+
+            SceneManager.show("/app/dashboard.fxml", "Dashboard");
+
+            SessionManager.startSession(() -> {
+                System.out.println("Session expired!");
+                UserSession.clear();
+                SceneManager.show("/app/login.fxml", "Login");
+            });
+
+            rootPane.setOnMouseMoved(ev -> SessionManager.resetTimer());
+            rootPane.setOnKeyPressed(ev -> SessionManager.resetTimer());
         });
 
-        rootPane.setOnMouseMoved(e -> SessionManager.resetTimer());
-        rootPane.setOnKeyPressed(e -> SessionManager.resetTimer());
+        loginTask.setOnFailed(e -> {
+            loader.setVisible(false);
+            emailField.setDisable(false);
+            passwordField.setDisable(false);
+            showError("Login failed: " + loginTask.getException().getMessage());
+        });
+
+        new Thread(loginTask).start();
     }
+
     private void showSuccess(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
         alert.showAndWait();

@@ -5,8 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="rootPane" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController"
-            >
+<AnchorPane fx:id="rootPane" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
 
     <StackPane alignment="CENTER"
                AnchorPane.topAnchor="0"
@@ -43,6 +42,9 @@
                     onAction="#handleLogin"
                     style="-fx-background-color: #4f5dff; -fx-background-radius: 8; -fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold;"/>
         </VBox>
+
+        <!-- Added progress indicator for login loading state -->
+        <ProgressIndicator fx:id="loader" visible="false" style="-fx-progress-color: #4f5dff;"/>
 
     </StackPane>
 
