@@ -1,27 +1,190 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.shape.Circle?>
 
-<StackPane xmlns="http://javafx.com/javafx/17.0.12"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="controller.StudentsController"
-           style="-fx-background-color: #f9f9f9;">
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            styleClass="root-container" stylesheets="@styles.css" fx:controller="controller.StudentsController">
 
-    <!-- GLAVNI SADRŽAJ -->
-    <ScrollPane fx:id="scrollPane"
-                fitToWidth="true"
-                style="-fx-background-color: transparent; -fx-background: transparent;">
-        <VBox fx:id="studentsContainer"
-              spacing="0"
-              style="-fx-background-color: #f9f9f9;" />
-    </ScrollPane>
+    <!-- Main Content Area -->
+    <center>
+        <VBox styleClass="main-content" spacing="25">
+            <padding>
+                <Insets top="40" right="50" bottom="40" left="50"/>
+            </padding>
 
-    <!-- LOADING SPINNER (OVERLAY) -->
-    <ProgressIndicator fx:id="loader"
-                       visible="false"
-                       maxWidth="60"
-                       maxHeight="60" />
+            <!-- Page Header -->
+            <VBox spacing="8">
+                <Text text="Studenti" styleClass="page-title"/>
+                <Text text="Kompletan pregled i upravljanje studentima" styleClass="page-subtitle"/>
+            </VBox>
 
-</StackPane>
+            <!-- Action Bar -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <!-- Search Field -->
+                <TextField fx:id="searchField" promptText="🔍 Pretražite studente..."
+                           styleClass="search-field" prefWidth="450"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Add New Button -->
+                <Button fx:id="addStudentButton" text="+ Dodaj novog studenta" styleClass="add-button"/>
+            </HBox>
+
+            <!-- Student Cards Container (ScrollPane) -->
+            <StackPane VBox.vgrow="ALWAYS">
+                <ScrollPane fitToWidth="true" styleClass="cards-scroll-pane">
+                    <VBox fx:id="studentsCardsContainer" spacing="20" styleClass="cards-container">
+
+                        <!-- Student Card 1 -->
+                        <HBox styleClass="thesis-card" alignment="CENTER_LEFT" spacing="20">
+                            <padding>
+                                <Insets top="20" right="25" bottom="20" left="25"/>
+                            </padding>
+
+                            <!-- Avatar/Initials -->
+                            <VBox alignment="CENTER" styleClass="student-avatar" prefWidth="50" prefHeight="50">
+                                <Text text="H.H." styleClass="avatar-text"/>
+                            </VBox>
+
+                            <!-- Student Info -->
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Text text="Hamo Hamić (001)" styleClass="card-title"/>
+
+                                <HBox spacing="30" alignment="CENTER_LEFT">
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="user-icon"/>
+                                        <Text text="hamo.hamic.1@ibu.ba" styleClass="card-info"/>
+                                    </HBox>
+
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="cycle-icon"/>
+                                        <Text text="Prvi ciklus" styleClass="card-info"/>
+                                    </HBox>
+
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="doc-icon"/>
+                                        <Text text="Softversko inženjerstvo" styleClass="card-info"/>
+                                    </HBox>
+                                </HBox>
+                            </VBox>
+
+                            <!-- Edit Button -->
+                            <Button text="✎" styleClass="edit-button-icon"/>
+                        </HBox>
+
+                        <!-- Student Card 2 -->
+                        <HBox styleClass="thesis-card" alignment="CENTER_LEFT" spacing="20">
+                            <padding>
+                                <Insets top="20" right="25" bottom="20" left="25"/>
+                            </padding>
+
+                            <VBox alignment="CENTER" styleClass="student-avatar" prefWidth="50" prefHeight="50">
+                                <Text text="N.N." styleClass="avatar-text"/>
+                            </VBox>
+
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Text text="Niko Nikić (002)" styleClass="card-title"/>
+
+                                <HBox spacing="30" alignment="CENTER_LEFT">
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="user-icon"/>
+                                        <Text text="niko.nikic.18@ibu.ba" styleClass="card-info"/>
+                                    </HBox>
+
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="cycle-icon"/>
+                                        <Text text="Prvi ciklus" styleClass="card-info"/>
+                                    </HBox>
+
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="doc-icon"/>
+                                        <Text text="Softversko inženjerstvo" styleClass="card-info"/>
+                                    </HBox>
+                                </HBox>
+                            </VBox>
+
+                            <Button text="✎" styleClass="edit-button-icon"/>
+                        </HBox>
+
+                        <!-- Student Card 3 -->
+                        <HBox styleClass="thesis-card" alignment="CENTER_LEFT" spacing="20">
+                            <padding>
+                                <Insets top="20" right="25" bottom="20" left="25"/>
+                            </padding>
+
+                            <VBox alignment="CENTER" styleClass="student-avatar" prefWidth="50" prefHeight="50">
+                                <Text text="M.B." styleClass="avatar-text"/>
+                            </VBox>
+
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Text text="Meho Balić (457)" styleClass="card-title"/>
+
+                                <HBox spacing="30" alignment="CENTER_LEFT">
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="user-icon"/>
+                                        <Text text="meho.balic.g@ibu.ba" styleClass="card-info"/>
+                                    </HBox>
+
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="cycle-icon"/>
+                                        <Text text="Prvi ciklus" styleClass="card-info"/>
+                                    </HBox>
+
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="doc-icon"/>
+                                        <Text text="Softversko inženjerstvo" styleClass="card-info"/>
+                                    </HBox>
+                                </HBox>
+                            </VBox>
+
+                            <Button text="✎" styleClass="edit-button-icon"/>
+                        </HBox>
+
+                        <!-- Student Card 4 -->
+                        <HBox styleClass="thesis-card" alignment="CENTER_LEFT" spacing="20">
+                            <padding>
+                                <Insets top="20" right="25" bottom="20" left="25"/>
+                            </padding>
+
+                            <VBox alignment="CENTER" styleClass="student-avatar" prefWidth="50" prefHeight="50">
+                                <Text text="A.H." styleClass="avatar-text"/>
+                            </VBox>
+
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Text text="Arnela Hodžić (426)" styleClass="card-title"/>
+
+                                <HBox spacing="30" alignment="CENTER_LEFT">
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="user-icon"/>
+                                        <Text text="arnela.hodzic.23@ibu.ba" styleClass="card-info"/>
+                                    </HBox>
+
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="cycle-icon"/>
+                                        <Text text="Prvi ciklus" styleClass="card-info"/>
+                                    </HBox>
+
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Circle radius="6" styleClass="doc-icon"/>
+                                        <Text text="Softversko inženjerstvo" styleClass="card-info"/>
+                                    </HBox>
+                                </HBox>
+                            </VBox>
+
+                            <Button text="✎" styleClass="edit-button-icon"/>
+                        </HBox>
+
+                    </VBox>
+                </ScrollPane>
+
+                <!-- Loader (ProgressIndicator) for loading state -->
+                <ProgressIndicator fx:id="loader" visible="false" prefWidth="50" prefHeight="50"/>
+            </StackPane>
+        </VBox>
+    </center>
+
+</BorderPane>
