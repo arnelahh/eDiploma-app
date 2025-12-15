@@ -14,6 +14,7 @@ module main.ediploma {
     requires io.github.cdimascio.dotenv.java;
     requires static lombok;
     requires jbcrypt;
+    requires java.desktop;
 
 
     opens main.ediploma to javafx.fxml;

@@ -2,6 +2,7 @@ package controller;
 
 import Factory.ThesisCardFactory;
 import dao.ThesisDAO;
+import dao.ThesisStatusDAO;
 import dto.ThesisDTO;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -22,12 +23,14 @@ public class ThesisController {
 
     private final ThesisDAO dao;
     private final ThesisCardFactory factory;
+    private final ThesisStatusDAO statusDAO;
 
     private List<ThesisDTO> masterList = new ArrayList<>();
 
     public ThesisController() {
         this.dao = new ThesisDAO();
         this.factory = new ThesisCardFactory();
+        this.statusDAO = new ThesisStatusDAO();
     }
 
     @FXML
@@ -37,9 +40,38 @@ public class ThesisController {
         loadThesises();
     }
     private void initStatusFilter() {
-        statusFilter.getItems().addAll("Svi statusi", "Na čekanju", "U procesu", "Odbranjen");
-        statusFilter.setValue("Svi statusi");
         statusFilter.setOnAction(e -> filterThesis());
+        Task<List<String>> task = new Task<>() {
+            @Override
+            protected List<String> call() throws Exception {
+                return statusDAO.getAllStatuses(); // Pozivamo novu DAO metodu
+            }
+        };
+        task.setOnSucceeded(e -> {
+            List<String> statusiIzBaze = task.getValue();
+
+            // Očistimo ComboBox ako ima nešto
+            statusFilter.getItems().clear();
+
+            // PRVO dodamo "Svi statusi" (jer to ne dolazi iz baze)
+            statusFilter.getItems().add("Svi statusi");
+
+            // Zatim dodamo ono što smo dobili iz baze
+            statusFilter.getItems().addAll(statusiIzBaze);
+
+            // Selektujemo prvu opciju (default)
+            statusFilter.getSelectionModel().selectFirst();
+        });
+
+        task.setOnFailed(e -> {
+            System.out.println("Greška pri učitavanju statusa: " + task.getException().getMessage());
+            // Fallback: Ako baza pukne, dodaj bar osnovne ručno da aplikacija radi
+            statusFilter.getItems().addAll("Svi statusi", "Greška u učitavanju");
+            statusFilter.getSelectionModel().selectFirst();
+        });
+
+        // 4. Pokretanje
+        new Thread(task).start();
     }
 
     private void filterThesis() {
@@ -56,10 +88,12 @@ public class ThesisController {
                             rad.getTitle().toLowerCase().contains(searchText) ||
                             rad.getStudentFullName().toLowerCase().contains(searchText) || // Pretpostavka da imaš ovu metodu
                             rad.getMentorFullName().toLowerCase().contains(searchText);
-
+                    boolean matchesStatus = selectedStatus == null ||
+                            selectedStatus.equals("Svi statusi") ||
+                            rad.getStatus().equalsIgnoreCase(selectedStatus);
 
                     // Vrati true samo ako OBA uslova važe
-                    return matchesSearch;
+                    return matchesSearch && matchesStatus;
                 })
                 .collect(Collectors.toList());
 
