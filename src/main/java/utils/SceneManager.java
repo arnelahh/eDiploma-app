@@ -42,4 +42,17 @@ public class SceneManager {
             e.printStackTrace();
         }
     }
+
+    public static void show(FXMLLoader loader, String title) {
+        try {
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
