@@ -1,11 +1,13 @@
 package model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
+@Builder
 public class Student {
     private int Id;
     private String FirstName;
