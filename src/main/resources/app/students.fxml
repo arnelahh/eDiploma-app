@@ -5,8 +5,10 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            styleClass="root-container" stylesheets="@styles.css" fx:controller="controller.StudentsController">
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            styleClass="root-container" stylesheets="@styles.css"
+            fx:controller="controller.StudentsController">
 
     <!-- Main Content Area -->
     <center>
@@ -36,7 +38,7 @@
             <!-- Student Cards Container (ScrollPane) -->
             <StackPane VBox.vgrow="ALWAYS">
                 <ScrollPane fitToWidth="true" styleClass="cards-scroll-pane">
-                    <VBox fx:id="studentsCardsContainer" spacing="20" styleClass="cards-container"/>
+                    <VBox fx:id="studentsCardsContainer" spacing="15" styleClass="cards-container"/>
                 </ScrollPane>
 
                 <!-- Loader (ProgressIndicator) for loading state -->
