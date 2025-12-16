@@ -15,6 +15,7 @@ module main.ediploma {
     requires static lombok;
     requires jbcrypt;
     requires java.desktop;
+    requires com.zaxxer.hikari;
 
 
     opens main.ediploma to javafx.fxml;

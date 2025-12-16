@@ -4,81 +4,85 @@ import model.AcademicStaff;
 import model.AppUser;
 import model.UserRole;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class AppUserDAO {
-    private final UserRoleDAO roleDAO = new UserRoleDAO();
-    private final AcademicStaffDAO staffDAO = new AcademicStaffDAO();
 
-    public List<AppUser> getAllUsers() {
-        List<AppUser> users = new ArrayList<>();
-        String sql = "SELECT * FROM AppUser";
+    private static final String FIND_BY_EMAIL_SQL = """
+        SELECT
+            u.Id AS user_id,
+            u.Username,
+            u.Email,
+            u.PasswordHash,
+            u.IsActive,
+            u.AppPassword,
+            u.CreatedAt,
+            u.UpdatedAt,
 
-        try (Connection conn = CloudDatabaseConnection.Konekcija();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+            r.Id AS role_id,
+            r.Name AS role_name,
 
-            while (rs.next()) {
+            s.Id AS staff_id,
+            s.FirstName AS staff_first_name,
+            s.LastName AS staff_last_name,
+            s.Title AS staff_title
 
-                UserRole role = roleDAO.getRoleById(rs.getInt("RoleId"));
-                AcademicStaff staff = staffDAO.getStaffById(rs.getInt("AcademicStaffId"));
-                AppUser user = new AppUser(
-                        rs.getInt("Id"),
-                        role,
-                        rs.getString("Username"),
-                        rs.getString("Email"),
-                        rs.getString("PasswordHash"),
-                        rs.getTimestamp("CreatedAt").toLocalDateTime(),
-                        rs.getTimestamp("UpdatedAt").toLocalDateTime(),
-                        rs.getBoolean("IsActive"),
-                        rs.getString("AppPassword"),
-                        staff
-                );
+        FROM AppUser u
+        JOIN UserRole r ON u.RoleId = r.Id
+        LEFT JOIN AcademicStaff s ON u.AcademicStaffId = s.Id
+        WHERE u.Email = ?
+        LIMIT 1
+        """;
 
-                users.add(user);
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return users;
-    }
     public AppUser findByEmail(String email) {
 
-        String sql = "SELECT * FROM AppUser WHERE Email = ?";
-
         try (Connection conn = CloudDatabaseConnection.Konekcija();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(FIND_BY_EMAIL_SQL)) {
 
-            stmt.setString(1, email);
+            ps.setString(1, email);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    UserRole role = roleDAO.getRoleById(rs.getInt("RoleId"));
-                    AcademicStaff staff = staffDAO.getStaffById(rs.getInt("AcademicStaffId"));
-
-                    return new AppUser(
-                            rs.getInt("Id"),
-                            role,
-                            rs.getString("Username"),
-                            rs.getString("Email"),
-                            rs.getString("PasswordHash"),
-                            rs.getTimestamp("CreatedAt").toLocalDateTime(),
-                            rs.getTimestamp("UpdatedAt").toLocalDateTime(),
-                            rs.getBoolean("IsActive"),
-                            rs.getString("AppPassword"),
-                            staff
-                    );
+                    return mapRowToUser(rs);
                 }
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to load user by email", e);
         }
-        return null; // korisnik ne postoji
+        return null;
+    }
+
+    private AppUser mapRowToUser(ResultSet rs) throws SQLException {
+        UserRole role = new UserRole(
+                rs.getInt("role_id"),
+                rs.getString("role_name")
+        );
+
+        AcademicStaff staff = null;
+        int staffId = rs.getInt("staff_id");
+        if (!rs.wasNull()) {
+            staff = AcademicStaff.builder()
+                    .Id(staffId)
+                    .FirstName(rs.getString("staff_first_name"))
+                    .LastName(rs.getString("staff_last_name"))
+                    .Title(rs.getString("staff_title"))
+                    .build();
+        }
+        return new AppUser(
+                rs.getInt("user_id"),
+                role,
+                rs.getString("Username"),
+                rs.getString("Email"),
+                rs.getString("PasswordHash"),
+                rs.getTimestamp("CreatedAt").toLocalDateTime(),
+                rs.getTimestamp("UpdatedAt").toLocalDateTime(),
+                rs.getBoolean("IsActive"),
+                rs.getString("AppPassword"),
+                staff
+        );
     }
 }

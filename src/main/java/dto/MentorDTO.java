@@ -1,29 +1,15 @@
 package dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import model.AcademicStaff;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 
 public class MentorDTO {
     private AcademicStaff mentor;
     private int studentCount;
-
-    public MentorDTO(AcademicStaff mentor, int studentCount) {
-        this.mentor = mentor;
-        this.studentCount = studentCount;
-    }
-
-    public AcademicStaff getMentor() {
-        return mentor;
-    }
-
-    public void setMentor(AcademicStaff mentor) {
-        this.mentor = mentor;
-    }
-
-    public int getStudentCount() {
-        return studentCount;
-    }
-
-    public void setStudentCount(int studentCount) {
-        this.studentCount = studentCount;
-    }
 }
