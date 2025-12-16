@@ -140,4 +140,18 @@ public class StudentDAO {
         ps.setInt(13, s.getStatus() != null ? s.getStatus().getId() : 1);
         ps.setString(14, s.getEmail());
     }
+
+    public void deleteStudent(int id) {
+        String sql = "DELETE FROM Student WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

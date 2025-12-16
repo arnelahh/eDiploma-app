@@ -2,7 +2,6 @@ package controller;
 
 import Factory.StudentCardFactory;
 import dao.StudentDAO;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -43,7 +42,6 @@ public class StudentsController {
     }
 
     private void loadStudentsAsync() {
-
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() {
@@ -124,9 +122,7 @@ public class StudentsController {
         );
     }
 
-    private void showError(String msg) {
-        Platform.runLater(() ->
-                new Alert(Alert.AlertType.ERROR, msg).showAndWait()
-        );
+    private void showError(String message) {
+        new Alert(Alert.AlertType.ERROR, message).showAndWait();
     }
 }
