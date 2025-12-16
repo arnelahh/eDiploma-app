@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.MentorFormController"
+            style="-fx-background-color: #f9f9f9;"
+            stylesheets="@styles.css">
+
+    <BorderPane prefWidth="1200" prefHeight="800"
+                AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <!-- TOP BAR -->
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="20"
+                  style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                <padding>
+                    <Insets top="20" left="20" bottom="20"/>
+                </padding>
+
+                <Button text="←"
+                        onAction="#back"
+                        style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;"/>
+
+                <Label text="eDiploma"
+                       style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #6c5ce7;"/>
+            </HBox>
+        </top>
+
+        <!-- CONTENT -->
+        <center>
+            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                <VBox spacing="20" style="-fx-background-color: #f9f9f9;">
+                    <padding>
+                        <Insets top="30" right="50" bottom="30" left="50"/>
+                    </padding>
+
+                    <!-- TITLE -->
+                    <VBox spacing="5">
+                        <Label fx:id="formTitle"
+                               text="Dodaj novog mentora"
+                               style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+
+                        <Label fx:id="formSubtitle"
+                               text="Unesite podatke o novom mentoru"
+                               style="-fx-font-size: 14; -fx-text-fill: #666;"/>
+                    </VBox>
+
+                    <!-- FORM CARD -->
+                    <VBox spacing="20" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 30;">
+
+                        <!-- Section Title -->
+                        <VBox spacing="5">
+                            <Label text="Osnovni podaci"
+                                   style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                            <Label text="Osnovni podaci o mentoru"
+                                   style="-fx-font-size: 12; -fx-text-fill: #888;"/>
+                        </VBox>
+
+                        <!-- Form Fields -->
+                        <VBox spacing="15">
+                            <!-- Ime -->
+                            <VBox spacing="5">
+                                <Label text="Ime" style="-fx-font-size: 13; -fx-text-fill: #555;"/>
+                                <TextField fx:id="firstNameField"
+                                           promptText="Unesite ime profesora"
+                                           styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Prezime -->
+                            <VBox spacing="5">
+                                <Label text="Prezime" style="-fx-font-size: 13; -fx-text-fill: #555;"/>
+                                <TextField fx:id="lastNameField"
+                                           promptText="Unesite prezime profesora"
+                                           styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Zvanje -->
+                            <VBox spacing="5">
+                                <Label text="Zvanje" style="-fx-font-size: 13; -fx-text-fill: #555;"/>
+                                <TextField fx:id="titleField"
+                                           promptText="Unesite zvanje profesora"
+                                           styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Email -->
+                            <VBox spacing="5">
+                                <Label text="Email adresa" style="-fx-font-size: 13; -fx-text-fill: #555;"/>
+                                <TextField fx:id="emailField"
+                                           promptText="Unesite email adresu profesora"
+                                           styleClass="form-field"/>
+                            </VBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- ACTIONS -->
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <!-- Delete button (left side, only in edit mode) -->
+                        <HBox fx:id="deleteButtonContainer">
+                            <Button fx:id="deleteButton"
+                                    text="Obriši"
+                                    onAction="#handleDelete"
+                                    styleClass="delete-button"/>
+                        </HBox>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <!-- Cancel and Save buttons (right side) -->
+                        <Button text="Odustani"
+                                onAction="#back"
+                                styleClass="cancel-button"/>
+
+                        <Button text="Sačuvaj"
+                                onAction="#handleSave"
+                                styleClass="save-button"/>
+                    </HBox>
+                </VBox>
+            </ScrollPane>
+        </center>
+
+    </BorderPane>
+
+</AnchorPane>

@@ -1,8 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MentorsController">
-    <Label alignment="CENTER" contentDisplay="CENTER" style="-fx-font-size: 18; -fx-font-weight: bold;" text="Lista mentora" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20" />
-</AnchorPane>
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            styleClass="root-container" stylesheets="@styles.css" fx:controller="controller.MentorsController">
+
+    <!-- Main Content Area -->
+    <center>
+        <VBox styleClass="main-content" spacing="25">
+            <padding>
+                <Insets top="40" right="50" bottom="40" left="50"/>
+            </padding>
+
+            <!-- Page Header -->
+            <VBox spacing="8">
+                <Text text="Mentori" styleClass="page-title"/>
+                <Text text="Kompletan pregled i upravljanje mentorima" styleClass="page-subtitle"/>
+            </VBox>
+
+            <!-- Action Bar -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <!-- Search Field -->
+                <TextField fx:id="searchField" promptText="🔍 Pretražite mentore..."
+                           styleClass="search-field" prefWidth="450"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Add New Button -->
+                <Button fx:id="addMentorButton" text="+ Dodaj novog mentora" styleClass="add-button"/>
+            </HBox>
+
+            <!-- Mentor Cards Container (ScrollPane) -->
+            <StackPane VBox.vgrow="ALWAYS">
+                <ScrollPane fitToWidth="true" styleClass="cards-scroll-pane">
+                    <VBox fx:id="mentorsCardsContainer" spacing="20" styleClass="cards-container"/>
+                </ScrollPane>
+
+                <!-- Loader (ProgressIndicator) for loading state -->
+                <ProgressIndicator fx:id="loader" visible="false" prefWidth="50" prefHeight="50"/>
+            </StackPane>
+        </VBox>
+    </center>
+
+</BorderPane>
