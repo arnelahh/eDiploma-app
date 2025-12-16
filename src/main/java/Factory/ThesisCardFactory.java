@@ -30,7 +30,10 @@ public class ThesisCardFactory {
         // CSS: -fx-font-size: 16px; -fx-fill: #2d3436;
         Text title = new Text(rad.getTitle()); // Pazi: getTitle() ili getNaslov()
         title.getStyleClass().add("card-title");
-        title.setWrappingWidth(750); // Prelamanje teksta ako je dug
+        title.setWrappingWidth(700);
+        HBox.setHgrow(title, Priority.ALWAYS);
+
+
 
         // 3. Donji red (ikone i status)
         HBox infoRow = new HBox(30);
@@ -49,6 +52,7 @@ public class ThesisCardFactory {
 
         // 4. Status Badge
         HBox statusBadge = createStatusBadge(rad.getStatus());
+
 
         // Spajanje
         infoRow.getChildren().addAll(studentInfo, mentorInfo, cycleInfo, spacer, statusBadge);

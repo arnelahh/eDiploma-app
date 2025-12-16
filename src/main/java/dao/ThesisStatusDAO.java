@@ -1,38 +1,70 @@
 package dao;
 
 import model.ThesisStatus;
-import model.UserRole;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;;
+import java.util.List;
 
 public class ThesisStatusDAO {
-    public List<String> getAllStatuses(){
+
+    // Postojeća metoda koja vraća samo stringove - ostavi je
+    public List<String> getAllStatuses() {
         List<String> thesisStatuses = new ArrayList<>();
-        String sql = "select Name from ThesisStatus";
+        String sql = "SELECT Name FROM ThesisStatus ORDER BY Id";
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(sql)) {
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                String thesisStatus = new String();
-                thesisStatus = rs.getString("Name");
-                thesisStatuses.add(thesisStatus);
+                thesisStatuses.add(rs.getString("Name"));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Greška pri učitavanju statusa: " + e.getMessage(), e);
         }
-        return  thesisStatuses;
+        return thesisStatuses;
     }
 
+    // Nova metoda koja vraća ThesisStatus objekte
+    public List<ThesisStatus> getAllThesisStatuses() {
+        List<ThesisStatus> statuses = new ArrayList<>();
+        String sql = "SELECT * FROM ThesisStatus ORDER BY Id";
 
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
+            while (rs.next()) {
+                ThesisStatus status = new ThesisStatus();
+                status.setId(rs.getInt("Id"));
+                status.setName(rs.getString("Name"));
+                statuses.add(status);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri učitavanju statusa: " + e.getMessage(), e);
+        }
+        return statuses;
+    }
 
+    public ThesisStatus getStatusById(int id) {
+        String sql = "SELECT * FROM ThesisStatus WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                ThesisStatus status = new ThesisStatus();
+                status.setId(rs.getInt("Id"));
+                status.setName(rs.getString("Name"));
+                return status;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri dohvatanju statusa: " + e.getMessage(), e);
+        }
+        return null;
+    }
 }
-
-

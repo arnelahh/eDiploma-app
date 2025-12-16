@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.ThesisFormController"
+            stylesheets="@styles.css"
+            styleClass="root-container">
+
+    <BorderPane prefWidth="1200" prefHeight="800"
+                AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <!-- TOP BAR -->
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="20" styleClass="top-header">
+                <padding>
+                    <Insets top="20" bottom="20" left="30" right="30"/>
+                </padding>
+
+                <Button text="←" onAction="#back"
+                        style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;"/>
+
+                <Text text="eDiploma" styleClass="app-title"/>
+            </HBox>
+        </top>
+
+        <!-- CONTENT -->
+        <center>
+            <ScrollPane fitToWidth="true" styleClass="cards-scroll-pane">
+                <VBox spacing="25" styleClass="main-content">
+                    <padding>
+                        <Insets top="40" right="50" bottom="40" left="50"/>
+                    </padding>
+
+                    <!-- TITLE -->
+                    <VBox spacing="5">
+                        <Text fx:id="formTitle" text="Dodaj novi završni rad" styleClass="page-title"/>
+                        <Text fx:id="formSubtitle" text="Unesite podatke o novom završnom radu" styleClass="page-subtitle"/>
+                    </VBox>
+
+                    <!-- FORM SECTION 1: Osnovni podaci -->
+                    <VBox spacing="20" styleClass="form-section">
+                        <padding>
+                            <Insets top="25" right="30" bottom="25" left="30"/>
+                        </padding>
+
+                        <VBox spacing="3">
+                            <Text text="Osnovni podaci" styleClass="section-title"/>
+                            <Text text="Osnovne informacije o završnom radu" styleClass="page-subtitle"/>
+                        </VBox>
+
+                        <GridPane hgap="20" vgap="15">
+                            <!-- Naslov rada -->
+                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2">
+                                <Label text="Naslov rada *" styleClass="field-label"/>
+                                <TextField fx:id="titleField" promptText="Unesite naslov završnog rada"
+                                           styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Datum prijave -->
+                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <Label text="Datum prijave *" styleClass="field-label"/>
+                                <DatePicker fx:id="applicationDatePicker" prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Datum odobrenja -->
+                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                <Label text="Datum odobrenja" styleClass="field-label"/>
+                                <DatePicker fx:id="approvalDatePicker" prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Datum odbrane -->
+                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                <Label text="Datum odbrane" styleClass="field-label"/>
+                                <DatePicker fx:id="defenseDatePicker" prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Ocjena -->
+                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                <Label text="Ocjena (6-10)" styleClass="field-label"/>
+                                <TextField fx:id="gradeField" promptText="Unesite ocjenu"
+                                           styleClass="form-field"/>
+                            </VBox>
+
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50"/>
+                                <ColumnConstraints percentWidth="50"/>
+                            </columnConstraints>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- FORM SECTION 2: Učesnici -->
+                    <VBox spacing="20" styleClass="form-section">
+                        <padding>
+                            <Insets top="25" right="30" bottom="25" left="30"/>
+                        </padding>
+
+                        <VBox spacing="3">
+                            <Text text="Učesnici" styleClass="section-title"/>
+                            <Text text="Student, mentor i sekretar" styleClass="page-subtitle"/>
+                        </VBox>
+
+                        <GridPane hgap="20" vgap="15">
+                            <!-- Student -->
+                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label text="Student *" styleClass="field-label"/>
+                                <ComboBox fx:id="studentComboBox" promptText="Izaberite studenta"
+                                          prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Mentor -->
+                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label text="Mentor *" styleClass="field-label"/>
+                                <ComboBox fx:id="mentorComboBox" promptText="Izaberite mentora"
+                                          prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Sekretar -->
+                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <Label text="Sekretar *" styleClass="field-label"/>
+                                <ComboBox fx:id="secretaryComboBox" promptText="Izaberite sekretara"
+                                          prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50"/>
+                                <ColumnConstraints percentWidth="50"/>
+                            </columnConstraints>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- FORM SECTION 3: Administrativni podaci -->
+                    <VBox spacing="20" styleClass="form-section">
+                        <padding>
+                            <Insets top="25" right="30" bottom="25" left="30"/>
+                        </padding>
+
+                        <VBox spacing="3">
+                            <Text text="Administrativni podaci" styleClass="section-title"/>
+                            <Text text="Odjel, predmet i status rada" styleClass="page-subtitle"/>
+                        </VBox>
+
+                        <GridPane hgap="20" vgap="15">
+                            <!-- Odjel -->
+                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label text="Odjel *" styleClass="field-label"/>
+                                <ComboBox fx:id="departmentComboBox" promptText="Izaberite odjel"
+                                          prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Predmet -->
+                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label text="Predmet *" styleClass="field-label"/>
+                                <ComboBox fx:id="subjectComboBox" promptText="Izaberite predmet"
+                                          prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Status -->
+                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <Label text="Status *" styleClass="field-label"/>
+                                <ComboBox fx:id="statusComboBox" promptText="Izaberite status"
+                                          prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50"/>
+                                <ColumnConstraints percentWidth="50"/>
+                            </columnConstraints>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- ACTIONS -->
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <!-- Delete button (left side, only in edit mode) -->
+                        <HBox fx:id="deleteButtonContainer">
+                            <Button fx:id="deleteButton"
+                                    text="Obriši"
+                                    onAction="#handleDelete"
+                                    styleClass="delete-button"/>
+                        </HBox>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <!-- Cancel and Save buttons (right side) -->
+                        <Button text="Odustani"
+                                onAction="#back"
+                                styleClass="cancel-button"/>
+
+                        <Button text="Sačuvaj"
+                                onAction="#handleSave"
+                                styleClass="save-button"/>
+                    </HBox>
+                </VBox>
+            </ScrollPane>
+        </center>
+
+    </BorderPane>
+
+</AnchorPane>
