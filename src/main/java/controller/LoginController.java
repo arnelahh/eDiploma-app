@@ -1,8 +1,10 @@
 package controller;
 
 import dao.AppUserDAO;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
@@ -81,5 +83,26 @@ public class LoginController {
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message);
         alert.showAndWait();
+    }
+
+    @FXML
+    private TextField passwordTextField;
+
+    @FXML
+    private Button togglePasswordButton;
+
+    @FXML
+    private void togglePasswordVisibility() {
+        if (passwordTextField.isVisible()) {
+            // Sakrij textField, pokaži passwordField
+            passwordField.setText(passwordTextField.getText());
+            passwordTextField.setVisible(false);
+            passwordField.setVisible(true);
+        } else {
+            // Pokaži textField, sakrij passwordField
+            passwordTextField.setText(passwordField.getText());
+            passwordTextField.setVisible(true);
+            passwordField.setVisible(false);
+        }
     }
 }

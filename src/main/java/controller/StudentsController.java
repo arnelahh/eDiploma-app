@@ -75,11 +75,12 @@ public class StudentsController {
             filteredList.setPredicate(student -> {
                 if (term.isEmpty()) return true;
 
-                return student.getFirstName().toLowerCase().contains(term)
+                String fullName = (student.getFirstName() + " " + student.getLastName()).toLowerCase();
+                return fullName.contains(term)
+                        || student.getFirstName().toLowerCase().contains(term)
                         || student.getLastName().toLowerCase().contains(term)
                         || String.valueOf(student.getIndexNumber()).contains(term)
-                        || (student.getEmail() != null &&
-                        student.getEmail().toLowerCase().contains(term));
+                        || (student.getEmail() != null && student.getEmail().toLowerCase().contains(term));
             });
 
             renderStudents(filteredList);
