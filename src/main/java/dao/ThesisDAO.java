@@ -15,7 +15,7 @@ public class ThesisDAO {
                 "  JOIN Student S on S.Id=T.StudentId\n" +
                 "  join AcademicStaff A on A.Id=T.MentorId"+
                 " join ThesisStatus TS on TS.Id=T.StatusId"+
-                " where T.IsActive=1";
+                " where T.IsActive=1 ORDER BY T.Id DESC;";
 
         try(Connection conn=CloudDatabaseConnection.Konekcija();
             Statement stmt=conn.createStatement();
