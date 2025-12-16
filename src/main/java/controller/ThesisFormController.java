@@ -13,6 +13,7 @@ import utils.SceneManager;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ThesisFormController {
 
@@ -20,6 +21,9 @@ public class ThesisFormController {
 
     private Mode mode;
     private Thesis thesis;
+
+    private final AtomicInteger loadedCount = new AtomicInteger(0);
+    private static final int TOTAL_LOADERS = 6; // students, mentors, departments, subjects, statuses, secretaries
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final StudentDAO studentDAO = new StudentDAO();
@@ -47,39 +51,36 @@ public class ThesisFormController {
 
     @FXML
     public void initialize() {
+        setupComboBoxConverters();
         loadStudents();
         loadMentors();
         loadDepartments();
         loadSubjects();
         loadStatuses();
         loadSecretaries();
-        setupComboBoxConverters();
     }
 
     private void loadStudents() {
-//        List<Student> students = studentDAO.getAllStudents();
-//        studentComboBox.getItems().addAll(students);
-
-            Task<List<Student>> task = new Task<List<Student>>() {
+        Task<List<Student>> task = new Task<List<Student>>() {
             @Override
             protected List<Student> call() throws Exception {
                 return studentDAO.getAllStudents();
             }
         };
-            task.setOnSucceeded(event -> {
-                studentComboBox.getItems().clear();
-                studentComboBox.getItems().addAll(task.getValue());
-            });
-            task.setOnFailed(event -> {
-                Throwable ex = event.getSource().getException();
-                System.out.println(ex);
-            });
-            new Thread(task).start();
+        task.setOnSucceeded(event -> {
+            studentComboBox.getItems().clear();
+            studentComboBox.getItems().addAll(task.getValue());
+            onDataLoaded();
+        });
+        task.setOnFailed(event -> {
+            Throwable ex = event.getSource().getException();
+            System.out.println(ex);
+            onDataLoaded();
+        });
+        new Thread(task).start();
     }
 
     private void loadMentors() {
-//        List<AcademicStaff> mentors = mentorDAO.getAllAcademicStaff();
-//        mentorComboBox.getItems().addAll(mentors);
         Task<List<AcademicStaff>> task = new  Task<List<AcademicStaff>>() {
             @Override
             protected List<AcademicStaff> call() throws Exception {
@@ -89,93 +90,102 @@ public class ThesisFormController {
         task.setOnSucceeded(event -> {
             mentorComboBox.getItems().clear();
             mentorComboBox.getItems().addAll(task.getValue());
+            onDataLoaded();
         });
         task.setOnFailed(event -> {
             Throwable ex = event.getSource().getException();
             System.out.println(ex);
+            onDataLoaded();
         });
         new Thread(task).start();
     }
 
     private void loadDepartments() {
-//        List<Department> departments = departmentDAO.getAllDepartments();
-//        departmentComboBox.getItems().addAll(departments);
-          Task<List<Department>> task=new  Task<List<Department>>() {
-              @Override
-              protected List<Department> call() throws Exception {
-                  return departmentDAO.getAllDepartments();
-              }
-          };
-          task.setOnSucceeded(event -> {
-              departmentComboBox.getItems().clear();
-              departmentComboBox.getItems().addAll(task.getValue());
-          });
-          task.setOnFailed(event -> {
-              Throwable ex = event.getSource().getException();
-              System.out.println(ex);
-          });
-          new Thread(task).start();
+        Task<List<Department>> task=new  Task<List<Department>>() {
+            @Override
+            protected List<Department> call() throws Exception {
+                return departmentDAO.getAllDepartments();
+            }
+        };
+        task.setOnSucceeded(event -> {
+            departmentComboBox.getItems().clear();
+            departmentComboBox.getItems().addAll(task.getValue());
+            onDataLoaded();
+        });
+        task.setOnFailed(event -> {
+            Throwable ex = event.getSource().getException();
+            System.out.println(ex);
+            onDataLoaded();
+        });
+        new Thread(task).start();
     }
 
     private void loadSubjects() {
-//        List<Subject> subjects = subjectDAO.getAllSubjects();
-//        subjectComboBox.getItems().addAll(subjects);
-          Task<List<Subject>> task = new   Task<List<Subject>>() {
-              @Override
-              protected List<Subject> call() throws Exception {
-                  return subjectDAO.getAllSubjects();
-              }
-          };
-          task.setOnSucceeded(event -> {
-              subjectComboBox.getItems().clear();
-              subjectComboBox.getItems().addAll(task.getValue());
-          });
-          task.setOnFailed(event -> {
-              Throwable ex = event.getSource().getException();
-              System.out.println(ex);
-          });
-          new Thread(task).start();
+        Task<List<Subject>> task = new   Task<List<Subject>>() {
+            @Override
+            protected List<Subject> call() throws Exception {
+                return subjectDAO.getAllSubjects();
+            }
+        };
+        task.setOnSucceeded(event -> {
+            subjectComboBox.getItems().clear();
+            subjectComboBox.getItems().addAll(task.getValue());
+            onDataLoaded();
+        });
+        task.setOnFailed(event -> {
+            Throwable ex = event.getSource().getException();
+            System.out.println(ex);
+            onDataLoaded();
+        });
+        new Thread(task).start();
     }
 
     private void loadStatuses() {
-//        List<ThesisStatus> statuses = statusDAO.getAllThesisStatuses();
-//        statusComboBox.getItems().addAll(statuses);
-          Task<List<ThesisStatus>> task = new  Task<List<ThesisStatus>>() {
-              @Override
-              protected List<ThesisStatus> call() throws Exception {
-                  return statusDAO.getAllThesisStatuses();
-              }
-          };
-          task.setOnSucceeded(event -> {
-              statusComboBox.getItems().clear();
-              statusComboBox.getItems().addAll(task.getValue());
-          });
-          task.setOnFailed(event -> {
-              Throwable ex = event.getSource().getException();
-              System.out.println(ex);
-          });
-          new Thread(task).start();
-
+        Task<List<ThesisStatus>> task = new  Task<List<ThesisStatus>>() {
+            @Override
+            protected List<ThesisStatus> call() throws Exception {
+                return statusDAO.getAllThesisStatuses();
+            }
+        };
+        task.setOnSucceeded(event -> {
+            statusComboBox.getItems().clear();
+            statusComboBox.getItems().addAll(task.getValue());
+            onDataLoaded();
+        });
+        task.setOnFailed(event -> {
+            Throwable ex = event.getSource().getException();
+            System.out.println(ex);
+            onDataLoaded();
+        });
+        new Thread(task).start();
     }
 
     private void loadSecretaries() {
-//        List<AppUser> secretaries = secretaryDAO.getAllUsers();
-//        secretaryComboBox.getItems().addAll(secretaries);
-          Task<List<AppUser>> task = new   Task<List<AppUser>>() {
-              @Override
-              protected List<AppUser> call() throws Exception {
-                  return secretaryDAO.getAllAppUsers();
-              }
-          };
-          task.setOnSucceeded(event -> {
-              secretaryComboBox.getItems().clear();
-              secretaryComboBox.getItems().addAll(task.getValue());
-          });
-          task.setOnFailed(event -> {
-              Throwable ex = event.getSource().getException();
-              System.out.println(ex);
-          });
-          new Thread(task).start();
+        Task<List<AppUser>> task = new   Task<List<AppUser>>() {
+            @Override
+            protected List<AppUser> call() throws Exception {
+                return secretaryDAO.getAllAppUsers();
+            }
+        };
+        task.setOnSucceeded(event -> {
+            secretaryComboBox.getItems().clear();
+            secretaryComboBox.getItems().addAll(task.getValue());
+            onDataLoaded();
+        });
+        task.setOnFailed(event -> {
+            Throwable ex = event.getSource().getException();
+            System.out.println(ex);
+            onDataLoaded();
+        });
+        new Thread(task).start();
+    }
+
+    private void onDataLoaded() {
+        int count = loadedCount.incrementAndGet();
+        if (count == TOTAL_LOADERS && mode == Mode.EDIT && thesis != null) {
+            // All data loaded, now we can fill the fields
+            javafx.application.Platform.runLater(this::fillFields);
+        }
     }
 
     private void setupComboBoxConverters() {
@@ -262,7 +272,7 @@ public class ThesisFormController {
             deleteButtonContainer.setManaged(true);
         }
 
-        fillFields();
+        // fillFields() will be called automatically by onDataLoaded() when all ComboBoxes are populated
     }
 
     private void fillFields() {
@@ -323,6 +333,7 @@ public class ThesisFormController {
                 thesisDAO.updateThesis(thesis);
                 show("Završni rad je uspješno ažuriran!", Alert.AlertType.INFORMATION);
             }
+            MentorsController.requestRefresh();
             back();
         } catch (Exception e) {
             show("Greška: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -393,6 +404,7 @@ public class ThesisFormController {
                 try {
                     thesisDAO.deleteThesis(thesis.getId());
                     show("Završni rad je uspješno obrisan!", Alert.AlertType.INFORMATION);
+                    MentorsController.requestRefresh();
                     back();
                 } catch (Exception e) {
                     show("Greška pri brisanju: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -446,7 +458,7 @@ public class ThesisFormController {
     @FXML
     private void back() {
         NavigationContext.setTargetView(DashboardView.THESIS);
-        SceneManager.show("/app/dashboard.fxml", "Dashboard");
+        SceneManager.show("/app/dashboard.fxml", "eDiploma");
     }
 
     private void show(String msg, Alert.AlertType type) {

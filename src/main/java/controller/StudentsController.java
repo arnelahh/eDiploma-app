@@ -105,7 +105,7 @@ public class StudentsController {
     private void openAddStudentPage() {
         SceneManager.showWithData(
                 "/app/studentForm.fxml",
-                "Dodaj studenta",
+                "eDiploma",
                 (StudentFormController controller) -> {
                     controller.initCreate();
                 }
@@ -115,7 +115,7 @@ public class StudentsController {
     private void openEditStudentPage(Student student) {
         SceneManager.showWithData(
                 "/app/studentForm.fxml",
-                "Uredi studenta",
+                "eDiploma",
                 (StudentFormController controller) -> {
                     controller.initEdit(student);
                 }

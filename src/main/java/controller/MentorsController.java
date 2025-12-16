@@ -36,11 +36,25 @@ public class MentorsController {
 
     private FilteredList<MentorDTO> filteredList;
 
+    private static boolean needsRefresh = false;
+
     @FXML
     public void initialize() {
         setupAddButton();
         setupSearch();
         loadMentorsAsync();
+
+        if(needsRefresh){
+            needsRefresh=false;
+        }
+    }
+
+    public void refresh(){
+        loadMentorsAsync();
+    }
+
+    public static void requestRefresh() {
+        needsRefresh = true;
     }
 
     private void loadMentorsAsync() {
