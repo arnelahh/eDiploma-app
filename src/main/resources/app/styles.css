@@ -250,3 +250,97 @@
     -fx-background-color: transparent;
     -fx-pref-height: 0;
 }
+
+
+/* Student/Mentor Avatar */
+.student-avatar {
+    -fx-background-color: #e8e3ff;
+    -fx-background-radius: 25;
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+    -fx-max-width: 50;
+    -fx-max-height: 50;
+}
+
+.avatar-text {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-fill: #6c5ce7;
+}
+
+/* Edit Button Icon */
+.edit-button-icon {
+    -fx-background-color: #e8f4fd;
+    -fx-text-fill: #3498db;
+    -fx-font-size: 16px;
+    -fx-background-radius: 8;
+    -fx-padding: 10 15 10 15;
+    -fx-cursor: hand;
+}
+
+.edit-button-icon:hover {
+    -fx-background-color: #d4ebf9;
+}
+
+/* Form Fields */
+.form-field {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 8;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-padding: 12 16 12 16;
+    -fx-font-size: 14px;
+}
+
+.form-field:focused {
+    -fx-border-color: #6c5ce7;
+    -fx-border-width: 2;
+}
+
+/* Save Button */
+.save-button {
+    -fx-background-color: #6c5ce7;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 8;
+    -fx-padding: 12 24 12 24;
+    -fx-cursor: hand;
+}
+
+.save-button:hover {
+    -fx-background-color: #5f50d9;
+}
+
+/* Cancel Button */
+.cancel-button {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #2d3436;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-padding: 12 24 12 24;
+    -fx-cursor: hand;
+}
+
+.cancel-button:hover {
+    -fx-background-color: #f8f9fa;
+}
+
+/* Delete Button */
+.delete-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 8;
+    -fx-padding: 12 24 12 24;
+    -fx-cursor: hand;
+}
+
+.delete-button:hover {
+    -fx-background-color: #c0392b;
+}

@@ -1,29 +1,20 @@
 package controller;
 
 import Factory.MentorCardFactory;
-import dao.AcademicStaffDAO;
+import dao.MentorDAO;
+import dto.MentorDTO;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import model.AcademicStaff;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import utils.SceneManager;
 
 public class MentorsController {
-    private final AcademicStaffDAO academicStaffDAO = new AcademicStaffDAO();
-    private final ObservableList<AcademicStaff> masterList = FXCollections.observableArrayList();
-    private FilteredList<AcademicStaff> filteredList;
-    private final MentorCardFactory cardFactory = new MentorCardFactory();
 
     @FXML
     private VBox mentorsCardsContainer;
@@ -37,6 +28,14 @@ public class MentorsController {
     @FXML
     private Button addMentorButton;
 
+    private final MentorDAO mentorDAO = new MentorDAO();
+    private final MentorCardFactory cardFactory = new MentorCardFactory();
+
+    private final ObservableList<MentorDTO> masterList =
+            FXCollections.observableArrayList();
+
+    private FilteredList<MentorDTO> filteredList;
+
     @FXML
     public void initialize() {
         setupAddButton();
@@ -49,7 +48,7 @@ public class MentorsController {
             @Override
             protected Void call() {
                 masterList.clear();
-                masterList.addAll(academicStaffDAO.getAllAcademicStaff());
+                masterList.addAll(mentorDAO.getAllMentors());
                 return null;
             }
         };
@@ -57,7 +56,7 @@ public class MentorsController {
         loader.visibleProperty().bind(task.runningProperty());
 
         task.setOnSucceeded(e -> {
-            filteredList = new FilteredList<>(masterList, m -> true);
+            filteredList = new FilteredList<>(masterList, s -> true);
             renderMentors(filteredList);
         });
 
@@ -75,25 +74,26 @@ public class MentorsController {
 
             String term = newVal == null ? "" : newVal.toLowerCase().trim();
 
-            filteredList.setPredicate(mentor -> {
+            filteredList.setPredicate(dto -> {
                 if (term.isEmpty()) return true;
+                AcademicStaff mentor = dto.getMentor();
 
-                String fullName = (mentor.getFirstName() + " " + mentor.getLastName()).toLowerCase();
-                String email = mentor.getEmail() != null ? mentor.getEmail().toLowerCase() : "";
-
-                return fullName.contains(term) || email.contains(term);
+                return (mentor.getFirstName() != null && mentor.getFirstName().toLowerCase().contains(term))
+                        || (mentor.getLastName() != null && mentor.getLastName().toLowerCase().contains(term))
+                        || (mentor.getEmail() != null && mentor.getEmail().toLowerCase().contains(term))
+                        || (mentor.getTitle() != null && mentor.getTitle().toLowerCase().contains(term));
             });
 
             renderMentors(filteredList);
         });
     }
 
-    private void renderMentors(Iterable<AcademicStaff> mentors) {
+    private void renderMentors(Iterable<MentorDTO> mentors) {
         mentorsCardsContainer.getChildren().clear();
 
-        for (AcademicStaff mentor : mentors) {
+        for (MentorDTO mentorDTO : mentors) {
             mentorsCardsContainer.getChildren().add(
-                    cardFactory.create(mentor, this::openEditMentorPage)
+                    cardFactory.create(mentorDTO, this::openEditMentorPage)
             );
         }
     }
@@ -105,11 +105,23 @@ public class MentorsController {
     }
 
     private void openAddMentorPage() {
-        System.out.println("Opening add mentor form...");
+        SceneManager.showWithData(
+                "/app/mentorForm.fxml",
+                "Dodaj novog mentora",
+                (MentorFormController controller) -> {
+                    controller.initCreate();
+                }
+        );
     }
 
     private void openEditMentorPage(AcademicStaff mentor) {
-        System.out.println("Editing mentor: " + mentor.getFirstName() + " " + mentor.getLastName());
+        SceneManager.showWithData(
+                "/app/mentorForm.fxml",
+                "Uredi mentora",
+                (MentorFormController controller) -> {
+                    controller.initEdit(mentor);
+                }
+        );
     }
 
     private void showError(String msg) {

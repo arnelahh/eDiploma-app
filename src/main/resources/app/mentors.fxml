@@ -4,7 +4,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.shape.Circle?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             styleClass="root-container" stylesheets="@styles.css" fx:controller="controller.MentorsController">
@@ -37,91 +36,7 @@
             <!-- Mentor Cards Container (ScrollPane) -->
             <StackPane VBox.vgrow="ALWAYS">
                 <ScrollPane fitToWidth="true" styleClass="cards-scroll-pane">
-                    <VBox fx:id="mentorsCardsContainer" spacing="20" styleClass="cards-container">
-
-                        <!-- Mentor Card 1 (Example) -->
-                        <HBox styleClass="thesis-card" alignment="CENTER_LEFT" spacing="20">
-                            <padding>
-                                <Insets top="20" right="25" bottom="20" left="25"/>
-                            </padding>
-
-                            <!-- Mentor Info -->
-                            <VBox spacing="8" HBox.hgrow="ALWAYS">
-                                <Text text="Doc. dr. Adnan Dželihodžić" styleClass="card-title"/>
-
-                                <HBox spacing="30" alignment="CENTER_LEFT">
-                                    <HBox spacing="8" alignment="CENTER_LEFT">
-                                        <Circle radius="6" styleClass="user-icon"/>
-                                        <Text text="adnan.dzelihodzic@unze.ba" styleClass="card-info"/>
-                                    </HBox>
-                                </HBox>
-                            </VBox>
-
-                            <!-- Edit Button -->
-                            <Button text="✎" styleClass="edit-button-icon"/>
-                        </HBox>
-
-                        <!-- Mentor Card 2 (Example) -->
-                        <HBox styleClass="thesis-card" alignment="CENTER_LEFT" spacing="20">
-                            <padding>
-                                <Insets top="20" right="25" bottom="20" left="25"/>
-                            </padding>
-
-                            <VBox spacing="8" HBox.hgrow="ALWAYS">
-                                <Text text="V. prof. dr. Almir Huskanović" styleClass="card-title"/>
-
-                                <HBox spacing="30" alignment="CENTER_LEFT">
-                                    <HBox spacing="8" alignment="CENTER_LEFT">
-                                        <Circle radius="6" styleClass="user-icon"/>
-                                        <Text text="almir.huskanovic@unze.ba" styleClass="card-info"/>
-                                    </HBox>
-                                </HBox>
-                            </VBox>
-
-                            <Button text="✎" styleClass="edit-button-icon"/>
-                        </HBox>
-
-                        <!-- Mentor Card 3 (Example) -->
-                        <HBox styleClass="thesis-card" alignment="CENTER_LEFT" spacing="20">
-                            <padding>
-                                <Insets top="20" right="25" bottom="20" left="25"/>
-                            </padding>
-
-                            <VBox spacing="8" HBox.hgrow="ALWAYS">
-                                <Text text="V. prof. dr. Nevzudin Buzadija" styleClass="card-title"/>
-
-                                <HBox spacing="30" alignment="CENTER_LEFT">
-                                    <HBox spacing="8" alignment="CENTER_LEFT">
-                                        <Circle radius="6" styleClass="user-icon"/>
-                                        <Text text="nevzudin.buzadija@unze.ba" styleClass="card-info"/>
-                                    </HBox>
-                                </HBox>
-                            </VBox>
-
-                            <Button text="✎" styleClass="edit-button-icon"/>
-                        </HBox>
-
-                        <!-- Mentor Card 4 (Example) -->
-                        <HBox styleClass="thesis-card" alignment="CENTER_LEFT" spacing="20">
-                            <padding>
-                                <Insets top="20" right="25" bottom="20" left="25"/>
-                            </padding>
-
-                            <VBox spacing="8" HBox.hgrow="ALWAYS">
-                                <Text text="Doc. dr. Dulaga Hadžić" styleClass="card-title"/>
-
-                                <HBox spacing="30" alignment="CENTER_LEFT">
-                                    <HBox spacing="8" alignment="CENTER_LEFT">
-                                        <Circle radius="6" styleClass="user-icon"/>
-                                        <Text text="djulaga.hadzic@unze.ba" styleClass="card-info"/>
-                                    </HBox>
-                                </HBox>
-                            </VBox>
-
-                            <Button text="✎" styleClass="edit-button-icon"/>
-                        </HBox>
-
-                    </VBox>
+                    <VBox fx:id="mentorsCardsContainer" spacing="20" styleClass="cards-container"/>
                 </ScrollPane>
 
                 <!-- Loader (ProgressIndicator) for loading state -->

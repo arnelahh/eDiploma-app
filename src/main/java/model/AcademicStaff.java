@@ -15,4 +15,8 @@ public class AcademicStaff {
     private boolean IsActive;
     private LocalDateTime CreatedAt;
     private LocalDateTime UpdatedAt;
+
+    public boolean isDean() {
+        return false;
+    }
 }

@@ -1,12 +1,10 @@
 package Factory;
 
-import dao.AcademicStaffDAO;
+import dto.MentorDTO;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import model.AcademicStaff;
@@ -15,77 +13,87 @@ import java.util.function.Consumer;
 
 public class MentorCardFactory {
 
-    private final AcademicStaffDAO academicStaffDAO = new AcademicStaffDAO();
+    public HBox create(MentorDTO mentorDTO, Consumer<AcademicStaff> onEdit) {
+        AcademicStaff mentor = mentorDTO.getMentor();
 
-    /**
-     * Creates a mentor card UI component
-     * @param mentor The academic staff member to display
-     * @param onEdit Callback function when edit button is clicked
-     * @return HBox containing the complete mentor card
-     */
-    public HBox create(AcademicStaff mentor, Consumer<AcademicStaff> onEdit) {
         HBox card = new HBox(20);
         card.setAlignment(Pos.CENTER_LEFT);
         card.setPadding(new Insets(20, 25, 20, 25));
         card.getStyleClass().add("thesis-card");
 
-        // Mentor info section
-        VBox info = createInfoSection(mentor);
+        VBox avatar = new VBox();
+        avatar.setAlignment(Pos.CENTER);
+        avatar.getStyleClass().add("student-avatar");
+        avatar.setPrefSize(50, 50);
+
+        String initials = "";
+        if (mentor.getFirstName() != null && !mentor.getFirstName().isEmpty()) {
+            initials += mentor.getFirstName().substring(0, 1).toUpperCase();
+        }
+        if (mentor.getLastName() != null && !mentor.getLastName().isEmpty()) {
+            initials += "." + mentor.getLastName().substring(0, 1).toUpperCase() + ".";
+        }
+
+        Text initialsText = new Text(initials);
+        initialsText.getStyleClass().add("avatar-text");
+        avatar.getChildren().add(initialsText);
+
+
+        VBox info = new VBox(8);
         HBox.setHgrow(info, Priority.ALWAYS);
 
-        // Edit button
-        Button editBtn = createEditButton(mentor, onEdit);
-
-        card.getChildren().addAll(info, editBtn);
-        return card;
-    }
-
-    private VBox createInfoSection(AcademicStaff mentor) {
-        VBox info = new VBox(8);
-
-        // Full name with academic title
-        String fullName = mentor.getFirstName() + " " + mentor.getLastName();
+        String fullName = (mentor.getTitle() != null ? mentor.getTitle() + " " : "") +
+                mentor.getFirstName() + " " + mentor.getLastName();
         Text name = new Text(fullName);
         name.getStyleClass().add("card-title");
 
-        // Details row with email and student count
-        HBox detailsRow = createDetailsRow(mentor);
+        HBox details = new HBox(20);
+        details.setAlignment(Pos.CENTER_LEFT);
 
-        info.getChildren().addAll(name, detailsRow);
-        return info;
+        details.getChildren().add(createInfo("user-icon", mentor.getEmail()));
+
+        int count = mentorDTO.getStudentCount();
+        String studentText = count + " " + getStudentLabel(count);
+        HBox studentInfo = new HBox(6);
+        studentInfo.setAlignment(Pos.CENTER_LEFT);
+        Circle greenDot = new Circle(4);
+        greenDot.setStyle("-fx-fill: #00b894;");
+        Text studentCountText = new Text(studentText);
+        studentCountText.getStyleClass().add("card-info");
+        studentInfo.getChildren().addAll(greenDot, studentCountText);
+        details.getChildren().add(studentInfo);
+
+        info.getChildren().addAll(name, details);
+
+        Button edit = new Button("✎");
+        edit.getStyleClass().add("edit-button-icon");
+        edit.setOnAction(e -> onEdit.accept(mentor));
+
+        card.getChildren().addAll(avatar, info, edit);
+        return card;
     }
 
-    private HBox createDetailsRow(AcademicStaff mentor) {
-        HBox detailsRow = new HBox(30);
-        detailsRow.setAlignment(Pos.CENTER_LEFT);
+    private HBox createInfo(String iconClass, String textValue) {
+        HBox box = new HBox(8);
+        box.setAlignment(Pos.CENTER_LEFT);
 
-        // Email with icon
-        if (mentor.getEmail() != null && !mentor.getEmail().isEmpty()) {
-            HBox emailBox = createEmailBox(mentor.getEmail());
-            detailsRow.getChildren().add(emailBox);
+        Circle icon = new Circle(6);
+        icon.getStyleClass().add(iconClass);
+
+        Text text = new Text(textValue != null ? textValue : "");
+        text.getStyleClass().add("card-info");
+
+        box.getChildren().addAll(icon, text);
+        return box;
+    }
+
+    private String getStudentLabel(int count) {
+        if (count == 1) {
+            return "student";
+        } else if (count >= 2 && count <= 4) {
+            return "studenta";
+        } else {
+            return "studenata";
         }
-
-        return detailsRow;
-    }
-
-    private HBox createEmailBox(String email) {
-        HBox emailBox = new HBox(8);
-        emailBox.setAlignment(Pos.CENTER_LEFT);
-
-        Circle emailIcon = new Circle(6);
-        emailIcon.getStyleClass().add("user-icon");
-
-        Text emailText = new Text(email);
-        emailText.getStyleClass().add("card-info");
-
-        emailBox.getChildren().addAll(emailIcon, emailText);
-        return emailBox;
-    }
-
-    private Button createEditButton(AcademicStaff mentor, Consumer<AcademicStaff> onEdit) {
-        Button editBtn = new Button("✎");
-        editBtn.getStyleClass().add("edit-button-icon");
-        editBtn.setOnAction(e -> onEdit.accept(mentor));
-        return editBtn;
     }
 }
