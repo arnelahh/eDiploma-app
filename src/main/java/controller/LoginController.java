@@ -57,12 +57,12 @@ public class LoginController {
             }
 
             UserSession.setUser(user);
-            SceneManager.show("/app/dashboard.fxml", "Dashboard");
+            SceneManager.show("/app/dashboard.fxml", "eDiploma");
 
             SessionManager.startSession(() -> {
                 System.out.println("Session expired!");
                 UserSession.clear();
-                SceneManager.show("/app/login.fxml", "Login");
+                SceneManager.show("/app/login.fxml", "eDiploma");
             });
 
             rootPane.setOnMouseMoved(ev -> SessionManager.resetTimer());
