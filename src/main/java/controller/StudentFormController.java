@@ -2,6 +2,7 @@ package controller;
 
 import dao.StudentDAO;
 import dao.StudentStatusDAO;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
@@ -10,10 +11,12 @@ import model.StudentStatus;
 import utils.DashboardView;
 import utils.NavigationContext;
 import utils.SceneManager;
+import utils.StudentValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class StudentFormController {
 
@@ -24,6 +27,7 @@ public class StudentFormController {
 
     private final StudentDAO studentDAO = new StudentDAO();
     private final StudentStatusDAO statusDAO = new StudentStatusDAO();
+    private final StudentValidator validator = new StudentValidator();
 
     @FXML private Text formTitle;
     @FXML private Text formSubtitle;
@@ -42,6 +46,7 @@ public class StudentFormController {
     @FXML private TextField cycleDurationField;
     @FXML private ComboBox<StudentStatus> statusComboBox;
     @FXML private Button deleteButton;
+    @FXML private ProgressIndicator loader;
 
     @FXML
     public void initialize() {
@@ -58,13 +63,10 @@ public class StudentFormController {
                 "Treći ciklus"
         );
 
-        // Status dropdown
         List<StudentStatus> statuses = statusDAO.getAllStatuses();
         statusComboBox.getItems().addAll(statuses);
         statusComboBox.setConverter(new javafx.util.StringConverter<>() {
-            public String toString(StudentStatus s) {
-                return s != null ? s.getName() : "";
-            }
+            public String toString(StudentStatus s) { return s != null ? s.getName() : ""; }
             public StudentStatus fromString(String s) { return null; }
         });
     }
@@ -109,14 +111,53 @@ public class StudentFormController {
     @FXML
     private void handleSave() {
         try {
-            if (mode == Mode.CREATE) {
-                studentDAO.insertStudent(buildStudent());
-            } else {
-                updateStudent();
-                studentDAO.updateStudent(student);
+            Student studentToSave = buildStudent();
+
+            // Synchronous validation
+            List<String> errors = StudentValidator.validateBasic(studentToSave);
+            if (!errors.isEmpty()) {
+                show(String.join("\n", errors), Alert.AlertType.ERROR);
+                return;
             }
-            back();
-        } catch (Exception e) {
+
+            // Async uniqueness check
+            loader.setVisible(true);
+            emailField.setDisable(true);
+            indexNumberField.setDisable(true);
+
+            CompletableFuture<List<String>> uniquenessFuture = StudentValidator.validateUniqueness(studentToSave);
+            uniquenessFuture.thenAccept(asyncErrors -> {
+                javafx.application.Platform.runLater(() -> {
+
+                    loader.setVisible(false);
+                    emailField.setDisable(false);
+                    indexNumberField.setDisable(false);
+
+                    if (!asyncErrors.isEmpty()) {
+                        show(String.join("\n", asyncErrors), Alert.AlertType.ERROR);
+                        return;
+                    }
+
+                    if (mode == Mode.CREATE) {
+                        studentDAO.insertStudent(studentToSave);
+                    } else {
+                        updateStudent();
+                        studentDAO.updateStudent(student);
+                    }
+                    back();
+                });
+            }).exceptionally(ex -> {
+            javafx.application.Platform.runLater(() -> {
+                loader.setVisible(false);
+                emailField.setDisable(false);
+                indexNumberField.setDisable(false);
+                show("Greška pri validaciji: " + ex.getMessage(), Alert.AlertType.ERROR);
+            });
+            return null;
+        });
+
+
+    } catch (Exception e) {
             show("Greška: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
@@ -154,7 +195,7 @@ public class StudentFormController {
 
     private Student buildStudent() {
         return new Student(
-                0,
+                mode == Mode.EDIT ? student.getId() : 0,
                 firstNameField.getText(),
                 lastNameField.getText(),
                 fatherNameField.getText(),

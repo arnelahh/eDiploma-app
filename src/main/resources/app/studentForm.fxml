@@ -32,145 +32,156 @@
         <!-- CONTENT -->
         <center>
             <ScrollPane fitToWidth="true" styleClass="cards-scroll-pane">
-                <VBox spacing="25" styleClass="main-content">
-                    <padding>
-                        <Insets top="40" right="50" bottom="40" left="50"/>
-                    </padding>
+                <content>
+                    <StackPane>
 
-                    <!-- TITLE -->
-                    <VBox spacing="5">
-                        <Text fx:id="formTitle" text="Dodaj novog studenta" styleClass="page-title"/>
-                        <Text fx:id="formSubtitle" text="Unesite podatke o novom studentu" styleClass="page-subtitle"/>
-                    </VBox>
+                        <VBox spacing="25" styleClass="main-content">
+                            <padding>
+                                <Insets top="40" right="50" bottom="40" left="50"/>
+                            </padding>
 
-                    <!-- FORM SECTION -->
-                    <VBox spacing="20" styleClass="form-section">
-                        <padding>
-                            <Insets top="25" right="30" bottom="25" left="30"/>
-                        </padding>
+                            <!-- TITLE -->
+                            <VBox spacing="5">
+                                <Text fx:id="formTitle" text="Dodaj novog studenta" styleClass="page-title"/>
+                                <Text fx:id="formSubtitle" text="Unesite podatke o novom studentu" styleClass="page-subtitle"/>
+                            </VBox>
 
-                        <!-- Section Header -->
-                        <VBox spacing="3">
-                            <Text text="Osnovni podaci" styleClass="section-title"/>
-                            <Text text="Osnovni podaci o studentu" styleClass="page-subtitle"/>
+                            <!-- FORM SECTION -->
+                            <VBox spacing="20" styleClass="form-section">
+                                <padding>
+                                    <Insets top="25" right="30" bottom="25" left="30"/>
+                                </padding>
+
+                                <!-- Section Header -->
+                                <VBox spacing="3">
+                                    <Text text="Osnovni podaci" styleClass="section-title"/>
+                                    <Text text="Osnovni podaci o studentu" styleClass="page-subtitle"/>
+                                </VBox>
+
+                                <GridPane hgap="20" vgap="15">
+                                    <!-- ROW 1 -->
+                                    <!-- Updated label to "Ime studenta" -->
+                                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                        <Label text="Ime studenta" styleClass="field-label"/>
+                                        <TextField fx:id="firstNameField" promptText="Unesite ime studenta"
+                                                   styleClass="form-field"/>
+                                    </VBox>
+
+                                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                        <Label text="Ime oca" styleClass="field-label"/>
+                                        <TextField fx:id="fatherNameField" promptText="Unesite ime oca"
+                                                   styleClass="form-field"/>
+                                    </VBox>
+
+                                    <!-- ROW 2 -->
+                                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                        <Label text="Prezime" styleClass="field-label"/>
+                                        <TextField fx:id="lastNameField" promptText="Unesite prezime studenta"
+                                                   styleClass="form-field"/>
+                                    </VBox>
+
+                                    <!-- Updated label to "Email adresa" -->
+                                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                        <Label text="Email adresa" styleClass="field-label"/>
+                                        <TextField fx:id="emailField" promptText="Unesite email adresu profesora"
+                                                   styleClass="form-field"/>
+                                    </VBox>
+
+                                    <!-- ROW 3 -->
+                                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                        <Label text="Datum rođenja" styleClass="field-label"/>
+                                        <DatePicker fx:id="birthDatePicker" prefWidth="9999" styleClass="form-field"/>
+                                    </VBox>
+
+                                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                        <Label text="Mjesto rođenja" styleClass="field-label"/>
+                                        <TextField fx:id="birthPlaceField" promptText="Unesite mjesto rođenja studenta"
+                                                   styleClass="form-field"/>
+                                    </VBox>
+
+                                    <!-- ROW 4 -->
+                                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                        <Label text="Općina" styleClass="field-label"/>
+                                        <TextField fx:id="municipalityField" promptText="Unesite općinu"
+                                                   styleClass="form-field"/>
+                                    </VBox>
+
+                                    <!-- Updated label to "Državu" -->
+                                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                        <Label text="Državu" styleClass="field-label"/>
+                                        <TextField fx:id="countryField" promptText="Unesite državu"
+                                                   styleClass="form-field"/>
+                                    </VBox>
+
+                                    <!-- ROW 5 -->
+                                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="4">
+                                        <Label text="Broj indeksa" styleClass="field-label"/>
+                                        <TextField fx:id="indexNumberField" promptText="Unesite broj indeksa"
+                                                   styleClass="form-field"/>
+                                    </VBox>
+
+                                    <!-- Changed to ComboBox for Studijski program -->
+                                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                        <Label text="Studijski program" styleClass="field-label"/>
+                                        <ComboBox fx:id="studyProgramComboBox" promptText="Izaberite program"
+                                                  prefWidth="9999" styleClass="form-field"/>
+                                    </VBox>
+
+                                    <!-- ROW 6 -->
+                                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="5">
+                                        <Label text="ECTS" styleClass="field-label"/>
+                                        <TextField fx:id="ectsField" promptText="Unesite ECTS bodove"
+                                                   styleClass="form-field"/>
+                                    </VBox>
+
+                                    <!-- Changed to ComboBox for Ciklus studija -->
+                                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                        <Label text="Ciklus studija" styleClass="field-label"/>
+                                        <ComboBox fx:id="cycleComboBox" promptText="Izaberite ciklus"
+                                                  prefWidth="9999" styleClass="form-field"/>
+                                    </VBox>
+
+                                    <!-- ROW 7 -->
+                                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="6">
+                                        <Label text="Trajanje ciklusa" styleClass="field-label"/>
+                                        <TextField fx:id="cycleDurationField" promptText="Unesite trajanje ciklusa studija"
+                                                   styleClass="form-field"/>
+                                    </VBox>
+
+                                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                                        <Label text="Status" styleClass="field-label"/>
+                                        <ComboBox fx:id="statusComboBox" promptText="Izaberite status studenta"
+                                                  prefWidth="9999" styleClass="form-field"/>
+                                    </VBox>
+
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="50"/>
+                                        <ColumnConstraints percentWidth="50"/>
+                                    </columnConstraints>
+                                </GridPane>
+                            </VBox>
+
+                            <!-- ACTIONS -->
+                            <HBox alignment="CENTER_LEFT" spacing="15">
+                                <!-- Delete button (left side, visible only in edit mode) -->
+                                <Button fx:id="deleteButton" text="Obriši" onAction="#handleDelete"
+                                        styleClass="delete-button" visible="false" managed="false"/>
+
+                                <Region HBox.hgrow="ALWAYS"/>
+
+                                <!-- Cancel and Save buttons (right side) -->
+                                <Button text="Odustani" onAction="#back" styleClass="cancel-button"/>
+                                <Button text="Sačuvaj" onAction="#handleSave" styleClass="save-button"/>
+                            </HBox>
                         </VBox>
 
-                        <GridPane hgap="20" vgap="15">
-                            <!-- ROW 1 -->
-                            <!-- Updated label to "Ime studenta" -->
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <Label text="Ime studenta" styleClass="field-label"/>
-                                <TextField fx:id="firstNameField" promptText="Unesite ime studenta"
-                                           styleClass="form-field"/>
-                            </VBox>
-
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label text="Ime oca" styleClass="field-label"/>
-                                <TextField fx:id="fatherNameField" promptText="Unesite ime oca"
-                                           styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- ROW 2 -->
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                <Label text="Prezime" styleClass="field-label"/>
-                                <TextField fx:id="lastNameField" promptText="Unesite prezime studenta"
-                                           styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- Updated label to "Email adresa" -->
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                <Label text="Email adresa" styleClass="field-label"/>
-                                <TextField fx:id="emailField" promptText="Unesite email adresu profesora"
-                                           styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- ROW 3 -->
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                <Label text="Datum rođenja" styleClass="field-label"/>
-                                <DatePicker fx:id="birthDatePicker" prefWidth="9999" styleClass="form-field"/>
-                            </VBox>
-
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                <Label text="Mjesto rođenja" styleClass="field-label"/>
-                                <TextField fx:id="birthPlaceField" promptText="Unesite mjesto rođenja studenta"
-                                           styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- ROW 4 -->
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3">
-                                <Label text="Općina" styleClass="field-label"/>
-                                <TextField fx:id="municipalityField" promptText="Unesite općinu"
-                                           styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- Updated label to "Državu" -->
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                <Label text="Državu" styleClass="field-label"/>
-                                <TextField fx:id="countryField" promptText="Unesite državu"
-                                           styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- ROW 5 -->
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="4">
-                                <Label text="Broj indeksa" styleClass="field-label"/>
-                                <TextField fx:id="indexNumberField" promptText="Unesite broj indeksa"
-                                           styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- Changed to ComboBox for Studijski program -->
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                <Label text="Studijski program" styleClass="field-label"/>
-                                <ComboBox fx:id="studyProgramComboBox" promptText="Izaberite program"
-                                          prefWidth="9999" styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- ROW 6 -->
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="5">
-                                <Label text="ECTS" styleClass="field-label"/>
-                                <TextField fx:id="ectsField" promptText="Unesite ECTS bodove"
-                                           styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- Changed to ComboBox for Ciklus studija -->
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="5">
-                                <Label text="Ciklus studija" styleClass="field-label"/>
-                                <ComboBox fx:id="cycleComboBox" promptText="Izaberite ciklus"
-                                          prefWidth="9999" styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- ROW 7 -->
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="6">
-                                <Label text="Trajanje ciklusa" styleClass="field-label"/>
-                                <TextField fx:id="cycleDurationField" promptText="Unesite trajanje ciklusa studija"
-                                           styleClass="form-field"/>
-                            </VBox>
-
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="6">
-                                <Label text="Status" styleClass="field-label"/>
-                                <ComboBox fx:id="statusComboBox" promptText="Izaberite status studenta"
-                                          prefWidth="9999" styleClass="form-field"/>
-                            </VBox>
-
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="50"/>
-                                <ColumnConstraints percentWidth="50"/>
-                            </columnConstraints>
-                        </GridPane>
-                    </VBox>
-
-                    <!-- ACTIONS -->
-                    <HBox alignment="CENTER_LEFT" spacing="15">
-                        <!-- Delete button (left side, visible only in edit mode) -->
-                        <Button fx:id="deleteButton" text="Obriši" onAction="#handleDelete"
-                                styleClass="delete-button" visible="false" managed="false"/>
-
-                        <Region HBox.hgrow="ALWAYS"/>
-
-                        <!-- Cancel and Save buttons (right side) -->
-                        <Button text="Odustani" onAction="#back" styleClass="cancel-button"/>
-                        <Button text="Sačuvaj" onAction="#handleSave" styleClass="save-button"/>
-                    </HBox>
-                </VBox>
+                        <ProgressIndicator fx:id="loader"
+                                           visible="false"
+                                           prefWidth="60"
+                                           prefHeight="60"
+                                           StackPane.alignment="CENTER"/>
+                    </StackPane>
+                </content>
             </ScrollPane>
         </center>
     </BorderPane>

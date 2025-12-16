@@ -1,8 +1,6 @@
 package controller;
 
 import dao.AppUserDAO;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ProgressIndicator;
@@ -13,7 +11,6 @@ import org.mindrot.jbcrypt.BCrypt;
 import utils.SceneManager;
 import utils.SessionManager;
 import utils.UserSession;
-
 
 public class LoginController {
     @FXML
@@ -33,16 +30,15 @@ public class LoginController {
         emailField.setDisable(true);
         passwordField.setDisable(true);
 
-        Task<AppUser> loginTask = new Task<AppUser>() {
+        javafx.concurrent.Task<AppUser> task = new javafx.concurrent.Task<>() {
             @Override
-            protected AppUser call() throws Exception {
+            protected AppUser call() {
                 return userDao.findByEmail(email);
             }
         };
 
-        loginTask.setOnSucceeded(e -> {
-            AppUser user = loginTask.getValue();
-
+        task.setOnSucceeded(e -> {
+            AppUser user = task.getValue();
             loader.setVisible(false);
             emailField.setDisable(false);
             passwordField.setDisable(false);
@@ -51,17 +47,16 @@ public class LoginController {
                 showError("User not found");
                 return;
             }
-            if(!user.isActive()) {
+            if (!user.isActive()) {
                 showError("User is not active");
                 return;
             }
-            if(!BCrypt.checkpw(password, user.getPasswordHash())) {
+            if (!BCrypt.checkpw(password, user.getPasswordHash())) {
                 showError("Wrong password");
                 return;
             }
 
             UserSession.setUser(user);
-
             SceneManager.show("/app/dashboard.fxml", "Dashboard");
 
             SessionManager.startSession(() -> {
@@ -74,19 +69,14 @@ public class LoginController {
             rootPane.setOnKeyPressed(ev -> SessionManager.resetTimer());
         });
 
-        loginTask.setOnFailed(e -> {
+        task.setOnFailed(e -> {
             loader.setVisible(false);
             emailField.setDisable(false);
             passwordField.setDisable(false);
-            showError("Login failed: " + loginTask.getException().getMessage());
+            showError("Login failed: " + task.getException().getMessage());
         });
 
-        new Thread(loginTask).start();
-    }
-
-    private void showSuccess(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
-        alert.showAndWait();
+        new Thread(task).start();
     }
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message);

@@ -154,4 +154,39 @@ public class StudentDAO {
             throw new RuntimeException(e);
         }
     }
+    public boolean isIndexNumberTaken(int indexNumber, int studentIdToIgnore) {
+        String sql = "SELECT COUNT(*) FROM Student WHERE IndexNumber = ? AND Id != ?";
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, indexNumber);
+            ps.setInt(2, studentIdToIgnore);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
+
+    public boolean isEmailTaken(String email, int studentIdToIgnore) {
+        String sql = "SELECT COUNT(*) FROM Student WHERE Email = ? AND Id != ?";
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+            ps.setInt(2, studentIdToIgnore);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
 }
