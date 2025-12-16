@@ -32,11 +32,37 @@
                            style="-fx-background-radius: 8; -fx-background-color: #f0f0f0; -fx-border-color: transparent;"/>
             </VBox>
 
-            <VBox alignment="CENTER_LEFT" maxWidth="360" spacing="6">
-                <Label text="Lozinka"/>
-                <PasswordField fx:id="passwordField" prefHeight="40" promptText="Unesite vašu lozinku"
-                               style="-fx-background-radius: 8; -fx-background-color: #f0f0f0; -fx-border-color: transparent;"/>
-            </VBox>
+            <HBox alignment="CENTER_LEFT" spacing="0" maxWidth="360">
+                <VBox alignment="CENTER_LEFT" spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Lozinka"/>
+
+                    <!-- StackPane za PasswordField/TextField i dugme -->
+                    <StackPane prefHeight="40">
+                        <PasswordField fx:id="passwordField"
+                                       prefHeight="40"
+                                       promptText="Unesite vašu lozinku"
+                                       style="-fx-background-radius: 8; -fx-background-color: #f0f0f0; -fx-border-color: transparent;"
+                                       prefWidth="9999"/>
+
+                        <TextField fx:id="passwordTextField"
+                                   prefHeight="40"
+                                   promptText="Unesite vašu lozinku"
+                                   style="-fx-background-radius: 8; -fx-background-color: #f0f0f0; -fx-border-color: transparent;"
+                                   visible="false"
+                                   prefWidth="9999"/>
+
+                        <!-- Dugme unutar inputa, desno -->
+                        <Button fx:id="togglePasswordButton"
+                                text="👁"
+                                style="-fx-background-color: transparent; -fx-cursor: hand;"
+                                onAction="#togglePasswordVisibility"
+                                StackPane.alignment="CENTER_RIGHT"
+                                prefHeight="40"
+                                prefWidth="40"/>
+                    </StackPane>
+                </VBox>
+            </HBox>
+
 
             <Button text="Prijavite se" maxWidth="360" prefHeight="42"
                     onAction="#handleLogin"

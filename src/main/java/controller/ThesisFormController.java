@@ -84,7 +84,7 @@ public class ThesisFormController {
         Task<List<AcademicStaff>> task = new  Task<List<AcademicStaff>>() {
             @Override
             protected List<AcademicStaff> call() throws Exception {
-                return mentorDAO.getAllAcademicStaff();
+                return mentorDAO.getAllActiveAcademicStaff();
             }
         };
         task.setOnSucceeded(event -> {

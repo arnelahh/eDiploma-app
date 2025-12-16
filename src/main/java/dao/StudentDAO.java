@@ -22,12 +22,24 @@ public class StudentDAO {
 
     public List<Student> searchStudents(String term) {
         String sql = BASE_QUERY + """
-            WHERE LOWER(s.FirstName) LIKE ?
-               OR LOWER(s.LastName) LIKE ?
-               OR CAST(s.IndexNumber AS CHAR) LIKE ?
-            """;
+        WHERE
+            LOWER(CONCAT(s.FirstName, ' ', s.LastName)) LIKE ?
+         OR LOWER(CONCAT(s.LastName, ' ', s.FirstName)) LIKE ?
+         OR LOWER(s.FirstName) LIKE ?
+         OR LOWER(s.LastName) LIKE ?
+         OR CAST(s.IndexNumber AS CHAR) LIKE ?
+        ORDER BY s.Id DESC
+        """;
 
-        return fetchStudents(sql, "%" + term.toLowerCase() + "%");
+        String like = "%" + term.toLowerCase().trim() + "%";
+
+        return fetchStudents(sql,
+                like, // FirstName LastName
+                like, // LastName FirstName
+                like, // FirstName
+                like, // LastName
+                like  // Index
+        );
     }
 
     private List<Student> fetchStudents(String sql, String... params) {
