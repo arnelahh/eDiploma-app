@@ -85,7 +85,7 @@ public class Main {
 //        }
         System.out.println("--------------------------");
         ThesisDAO thesisDAO = new ThesisDAO();
-        List<ThesisDTO> lista=thesisDAO.getAllThesisBySearch("amar");
+        List<ThesisDTO> lista=thesisDAO.getAllThesis();
         for(ThesisDTO thesisDTO:lista){
             System.out.println(thesisDTO);
         }

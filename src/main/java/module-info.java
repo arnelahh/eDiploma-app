@@ -18,6 +18,7 @@ module main.ediploma {
     requires com.zaxxer.hikari;
 
 
+
     opens main.ediploma to javafx.fxml;
     opens app to javafx.graphics, javafx.fxml;
     opens controller to javafx.fxml;
