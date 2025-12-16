@@ -4,57 +4,107 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="rootPane" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController"
-            >
+<AnchorPane fx:id="rootPane" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
 
     <BorderPane fx:id="mainBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
 
         <top>
-            <HBox alignment="CENTER_LEFT" prefHeight="60" spacing="20" style="-fx-background-color: white;                          -fx-border-color: #e0e0e0;                          -fx-border-width: 0 0 1 0;">
+            <HBox alignment="CENTER" prefHeight="60" spacing="20"
+                  style="-fx-background-color: white;
+            -fx-border-color: #e0e0e0;
+            -fx-border-width: 0 0 1 0;">
 
                 <padding>
-                    <Insets top="20" left="20" />
+                    <Insets top="20" left="20" bottom="20" />
                 </padding>
 
-                <Label style="-fx-font-size: 20;                               -fx-font-weight: bold;" text="eDiploma" />
+                <Label style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #4f5dff"
+                       text="eDiploma" />
             </HBox>
         </top>
 
+        <!-- Enhanced left sidebar with better styling and visual hierarchy -->
         <left>
-            <VBox prefWidth="220" spacing="20.0" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 0 0;">
+            <VBox prefWidth="240" spacing="4.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 0 0;">
 
                 <padding>
-                    <Insets top="20.0" />
+                    <Insets top="30.0" bottom="20.0" />
                 </padding>
 
-                <Label fx:id="pocetnaLabel" onMouseClicked="#handlePocetnaClick" text="Početna">
-               <VBox.margin>
-                  <Insets left="20.0" />
-               </VBox.margin></Label>
-                <Label fx:id="radoviLabel" onMouseClicked="#handleRadoviClick" text="Završni radovi">
-               <VBox.margin>
-                  <Insets left="20.0" />
-               </VBox.margin></Label>
-                <Label fx:id="studentiLabel" onMouseClicked="#handleStudentiClick" text="Studenti">
-               <VBox.margin>
-                  <Insets left="20.0" />
-               </VBox.margin></Label>
-                <Label fx:id="mentoriLabel" onMouseClicked="#handleMentoriClick" text="Mentori">
-               <VBox.margin>
-                  <Insets left="20.0" />
-               </VBox.margin></Label>
+
+
+                <Label fx:id="pocetnaLabel" onMouseClicked="#handlePocetnaClick" text="Početna"
+                       style="-fx-cursor: hand;
+                              -fx-padding: 12 20 12 20;
+                              -fx-font-size: 14;
+                              -fx-font-weight: 500;
+                              -fx-text-fill: #424242;
+                              -fx-background-radius: 8;
+                              -fx-background-color: transparent;">
+                    <VBox.margin>
+                        <Insets left="12.0" right="12.0" />
+                    </VBox.margin>
+                </Label>
+
+                <Label fx:id="radoviLabel" onMouseClicked="#handleRadoviClick" text="Završni radovi"
+                       style="-fx-cursor: hand;
+                              -fx-padding: 12 20 12 20;
+                              -fx-font-size: 14;
+                              -fx-font-weight: 500;
+                              -fx-text-fill: #424242;
+                              -fx-background-radius: 8;
+                              -fx-background-color: transparent;">
+                    <VBox.margin>
+                        <Insets left="12.0" right="12.0" />
+                    </VBox.margin>
+                </Label>
+
+                <Label fx:id="studentiLabel" onMouseClicked="#handleStudentiClick" text="Studenti"
+                       style="-fx-cursor: hand;
+                              -fx-padding: 12 20 12 20;
+                              -fx-font-size: 14;
+                              -fx-font-weight: 500;
+                              -fx-text-fill: #424242;
+                              -fx-background-radius: 8;
+                              -fx-background-color: transparent;">
+                    <VBox.margin>
+                        <Insets left="12.0" right="12.0" />
+                    </VBox.margin>
+                </Label>
+
+                <Label fx:id="mentoriLabel" onMouseClicked="#handleMentoriClick" text="Mentori"
+                       style="-fx-cursor: hand;
+                              -fx-padding: 12 20 12 20;
+                              -fx-font-size: 14;
+                              -fx-font-weight: 500;
+                              -fx-text-fill: #424242;
+                              -fx-background-radius: 8;
+                              -fx-background-color: transparent;">
+                    <VBox.margin>
+                        <Insets left="12.0" right="12.0" />
+                    </VBox.margin>
+                </Label>
 
                 <Region VBox.vgrow="ALWAYS" />
 
-                <Separator>
-               <VBox.margin>
-                  <Insets top="20.0" />
-               </VBox.margin></Separator>
+                <Separator style="-fx-background-color: #f0f0f0;">
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" bottom="16.0" />
+                    </VBox.margin>
+                </Separator>
 
-                <Label fx:id="lblOdjava" onMouseClicked="#handleLogout" style="-fx-cursor: hand;                               -fx-font-weight: bold;                               -fx-text-fill: #d32f2f;" text="Odjava">
-               <VBox.margin>
-                  <Insets bottom="30.0" left="20.0" />
-               </VBox.margin></Label>
+                <Label fx:id="lblOdjava" onMouseClicked="#handleLogout" text="Odjava"
+                       style="-fx-cursor: hand;
+                              -fx-font-size: 14;
+                              -fx-font-weight: 600;
+                              -fx-text-fill: #d32f2f;
+                              -fx-padding: 12 20 12 20;
+                              -fx-background-radius: 8;
+                              -fx-background-color: transparent;">
+                    <VBox.margin>
+                        <Insets left="12.0" right="12.0" />
+                    </VBox.margin>
+                </Label>
             </VBox>
         </left>
 
@@ -62,12 +112,12 @@
         <center>
             <StackPane style="-fx-background-color: #f9f9f9;">
                 <Label style="-fx-font-size: 18;                                  -fx-font-weight: bold;" text="Obavijesti" StackPane.alignment="TOP_CENTER">
-               <StackPane.margin>
-                  <Insets left="30.0" right="30.0" top="10.0" />
-               </StackPane.margin></Label>
-            <BorderPane.margin>
-               <Insets />
-            </BorderPane.margin>
+                    <StackPane.margin>
+                        <Insets left="30.0" right="30.0" top="10.0" />
+                    </StackPane.margin></Label>
+                <BorderPane.margin>
+                    <Insets />
+                </BorderPane.margin>
             </StackPane>
         </center>
 
