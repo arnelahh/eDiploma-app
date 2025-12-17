@@ -32,20 +32,6 @@
                 </padding>
 
 
-
-                <Label fx:id="pocetnaLabel" onMouseClicked="#handlePocetnaClick" text="Početna"
-                       style="-fx-cursor: hand;
-                              -fx-padding: 12 20 12 20;
-                              -fx-font-size: 14;
-                              -fx-font-weight: 500;
-                              -fx-text-fill: #424242;
-                              -fx-background-radius: 8;
-                              -fx-background-color: transparent;">
-                    <VBox.margin>
-                        <Insets left="12.0" right="12.0" />
-                    </VBox.margin>
-                </Label>
-
                 <Label fx:id="radoviLabel" onMouseClicked="#handleRadoviClick" text="Završni radovi"
                        style="-fx-cursor: hand;
                               -fx-padding: 12 20 12 20;

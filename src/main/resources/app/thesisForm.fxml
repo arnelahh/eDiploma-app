@@ -142,14 +142,14 @@
 
                         <VBox spacing="3">
                             <Text text="Administrativni podaci" styleClass="section-title"/>
-                            <Text text="Odjel, predmet i status rada" styleClass="page-subtitle"/>
+                            <Text text="Katedra, predmet i status rada" styleClass="page-subtitle"/>
                         </VBox>
 
                         <GridPane hgap="20" vgap="15">
-                            <!-- Odjel -->
+                            <!-- Katedra -->
                             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <Label text="Odjel *" styleClass="field-label"/>
-                                <ComboBox fx:id="departmentComboBox" promptText="Izaberite odjel"
+                                <Label text="Katedra *" styleClass="field-label"/>
+                                <ComboBox fx:id="departmentComboBox" promptText="Izaberite katedru"
                                           prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 

@@ -32,7 +32,6 @@ public class DashboardController {
             case STUDENTS -> handleStudentiClick();
             case THESIS -> handleRadoviClick();
             case MENTORS -> handleMentoriClick();
-            case HOME -> handlePocetnaClick();
         }
     }
 
