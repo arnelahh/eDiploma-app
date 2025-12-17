@@ -32,13 +32,11 @@ public class ThesisCardFactory {
         title.setWrappingWidth(700);
         HBox.setHgrow(title, Priority.ALWAYS);
 
-        // Ako je rad odbranjen, kartica ne može da se edituje
+        card.setCursor(Cursor.HAND);
+
+        // Ako je rad odbranjen, dodaj poseban stil ali ne disabluj
         if ("Defended".equals(rad.getStatus())) {
-            card.setOpacity(0.6);
-            card.setDisable(true);
             card.getStyleClass().add("card-defended");
-        } else {
-            card.setCursor(Cursor.HAND);
         }
 
 
@@ -90,14 +88,6 @@ public class ThesisCardFactory {
         return row;
     }
 
-    private String getStatusClass(String status) {
-        switch(status) {
-            case "Na čekanju": return "status-pending";
-            case "U procesu": return "status-progress";
-            case "Odbranjen": return "status-completed";
-            default: return "";
-        }
-    }
     private HBox createInfoItem(String iconClass, String textContent) {
         HBox box = new HBox(8);
         box.setAlignment(Pos.CENTER_LEFT);
@@ -148,9 +138,10 @@ public class ThesisCardFactory {
     // Mapiranje teksta iz baze u CSS klasu
     private String getStatusCssClass(String status) {
         switch (status) {
-            case "Odbranjen": return "status-approved"; // Zelena
-            case "U procesu": return "status-in-progress"; // Žuta
-            case "Na čekanju": return "status-pending"; // Siva/Plava
+            case "Defended": return "status-approved"; // Zelena
+            case "Submitted": return "status-in-progress"; // Žuta
+            case "Approved": return "status-in-progress";
+            case "In Review": return "status-pending"; //plava
             default: return "status-default";
         }
     }

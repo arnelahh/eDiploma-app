@@ -24,6 +24,7 @@ public class ThesisFormController {
 
     private final AtomicInteger loadedCount = new AtomicInteger(0);
     private static final int TOTAL_LOADERS = 6; // students, mentors, departments, subjects, statuses, secretaries
+    private Integer returnToThesisId = null;
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final StudentDAO studentDAO = new StudentDAO();
@@ -234,6 +235,7 @@ public class ThesisFormController {
 
     public void initCreate() {
         this.mode = Mode.CREATE;
+        this.returnToThesisId = null;
 
         if (formTitle != null) {
             formTitle.setText("Dodaj novi završni rad");
@@ -252,9 +254,10 @@ public class ThesisFormController {
         }
     }
 
-    public void initEdit(Thesis thesis) {
+    public void initEdit(Thesis thesis, Integer returnToThesisId) {
         this.mode = Mode.EDIT;
         this.thesis = thesis;
+        this.returnToThesisId = returnToThesisId;
 
         if (formTitle != null) {
             formTitle.setText("Uredi završni rad");
@@ -328,13 +331,27 @@ public class ThesisFormController {
             if (mode == Mode.CREATE) {
                 thesisDAO.insertThesis(buildThesis());
                 show("Završni rad je uspješno dodat!", Alert.AlertType.INFORMATION);
+                // Za novi rad, vrati se na listu
+                NavigationContext.setTargetView(DashboardView.THESIS);
+                SceneManager.show("/app/dashboard.fxml", "eDiploma");
             } else {
                 updateThesis();
                 thesisDAO.updateThesis(thesis);
                 show("Završni rad je uspješno ažuriran!", Alert.AlertType.INFORMATION);
+                MentorsController.requestRefresh();
+                // Vrati se na details page
+                if (returnToThesisId != null) {
+                    SceneManager.showWithData(
+                            "/app/thesisDetails.fxml",
+                            "Detalji završnog rada",
+                            (ThesisDetailsController controller) -> {
+                                controller.initWithThesisId(returnToThesisId);
+                            }
+                    );
+                } else {
+                    back();
+                }
             }
-            MentorsController.requestRefresh();
-            back();
         } catch (Exception e) {
             show("Greška: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
@@ -405,7 +422,9 @@ public class ThesisFormController {
                     thesisDAO.deleteThesis(thesis.getId());
                     show("Završni rad je uspješno obrisan!", Alert.AlertType.INFORMATION);
                     MentorsController.requestRefresh();
-                    back();
+                    // Nakon brisanja, vrati se na listu radova
+                    NavigationContext.setTargetView(DashboardView.THESIS);
+                    SceneManager.show("/app/dashboard.fxml", "eDiploma");
                 } catch (Exception e) {
                     show("Greška pri brisanju: " + e.getMessage(), Alert.AlertType.ERROR);
                 }
@@ -457,8 +476,20 @@ public class ThesisFormController {
 
     @FXML
     private void back() {
-        NavigationContext.setTargetView(DashboardView.THESIS);
-        SceneManager.show("/app/dashboard.fxml", "eDiploma");
+        if (returnToThesisId != null) {
+            // Vrati se na details page ako smo došli odatle
+            SceneManager.showWithData(
+                    "/app/thesisDetails.fxml",
+                    "Detalji završnog rada",
+                    (ThesisDetailsController controller) -> {
+                        controller.initWithThesisId(returnToThesisId);
+                    }
+            );
+        } else {
+            // Inače idi na listu radova
+            NavigationContext.setTargetView(DashboardView.THESIS);
+            SceneManager.show("/app/dashboard.fxml", "eDiploma");
+        }
     }
 
     private void show(String msg, Alert.AlertType type) {

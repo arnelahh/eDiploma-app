@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.ThesisDetailsController"
+            stylesheets="@styles.css"
+            styleClass="root-container">
+
+    <BorderPane prefWidth="1200" prefHeight="800"
+                AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <!-- TOP BAR -->
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="20" styleClass="top-header">
+                <padding>
+                    <Insets top="20" bottom="20" left="30" right="30"/>
+                </padding>
+
+                <Button text="←" onAction="#back"
+                        style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;"/>
+
+                <Text text="eDiploma" styleClass="app-title"/>
+            </HBox>
+        </top>
+
+        <!-- CONTENT -->
+        <center>
+            <StackPane>
+                <ScrollPane fitToWidth="true" styleClass="cards-scroll-pane">
+                    <VBox spacing="25" styleClass="main-content">
+                        <padding>
+                            <Insets top="40" right="50" bottom="40" left="50"/>
+                        </padding>
+
+                        <!-- TITLE -->
+                        <VBox spacing="5">
+                            <Text fx:id="thesisTitle" text="Naslov završnog rada" styleClass="page-title"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <HBox fx:id="statusBadge" spacing="8" alignment="CENTER_LEFT"
+                                      style="-fx-padding: 6 12 6 12; -fx-background-radius: 20;">
+                                    <Text fx:id="statusText" styleClass="status-text"/>
+                                </HBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- SECTION 1: Osnovni podaci -->
+                        <VBox spacing="20" styleClass="form-section">
+                            <padding>
+                                <Insets top="25" right="30" bottom="25" left="30"/>
+                            </padding>
+
+                            <VBox spacing="3">
+                                <Text text="Osnovni podaci" styleClass="section-title"/>
+                                <Text text="Osnovne informacije o završnom radu" styleClass="page-subtitle"/>
+                            </VBox>
+
+                            <GridPane hgap="30" vgap="20">
+                                <!-- Datum prijave -->
+                                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label text="Datum prijave" styleClass="field-label"/>
+                                    <Text fx:id="applicationDate" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <!-- Datum odobrenja -->
+                                <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label text="Datum odobrenja" styleClass="field-label"/>
+                                    <Text fx:id="approvalDate" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <!-- Datum odbrane -->
+                                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label text="Datum odbrane" styleClass="field-label"/>
+                                    <Text fx:id="defenseDate" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <!-- Ocjena -->
+                                <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label text="Ocjena" styleClass="field-label"/>
+                                    <Text fx:id="grade" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="50"/>
+                                    <ColumnConstraints percentWidth="50"/>
+                                </columnConstraints>
+                            </GridPane>
+                        </VBox>
+
+                        <!-- SECTION 2: Student -->
+                        <VBox spacing="20" styleClass="form-section">
+                            <padding>
+                                <Insets top="25" right="30" bottom="25" left="30"/>
+                            </padding>
+
+                            <VBox spacing="3">
+                                <Text text="Student" styleClass="section-title"/>
+                                <Text text="Informacije o studentu" styleClass="page-subtitle"/>
+                            </VBox>
+
+                            <GridPane hgap="30" vgap="20">
+                                <!-- Ime i prezime -->
+                                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label text="Ime i prezime" styleClass="field-label"/>
+                                    <Text fx:id="studentName" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <!-- Broj indeksa -->
+                                <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label text="Broj indeksa" styleClass="field-label"/>
+                                    <Text fx:id="indexNumber" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <!-- Email -->
+                                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label text="Email" styleClass="field-label"/>
+                                    <Text fx:id="studentEmail" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <!-- Studijski program -->
+                                <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label text="Studijski program" styleClass="field-label"/>
+                                    <Text fx:id="studyProgram" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <!-- Ciklus -->
+                                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                    <Label text="Ciklus studija" styleClass="field-label"/>
+                                    <Text fx:id="cycle" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <!-- ECTS -->
+                                <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <Label text="ECTS bodovi" styleClass="field-label"/>
+                                    <Text fx:id="ects" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="50"/>
+                                    <ColumnConstraints percentWidth="50"/>
+                                </columnConstraints>
+                            </GridPane>
+                        </VBox>
+
+                        <!-- SECTION 3: Mentor -->
+                        <VBox spacing="20" styleClass="form-section">
+                            <padding>
+                                <Insets top="25" right="30" bottom="25" left="30"/>
+                            </padding>
+
+                            <VBox spacing="3">
+                                <Text text="Mentor" styleClass="section-title"/>
+                                <Text text="Informacije o mentoru" styleClass="page-subtitle"/>
+                            </VBox>
+
+                            <GridPane hgap="30" vgap="20">
+                                <!-- Ime i prezime mentora -->
+                                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label text="Ime i prezime" styleClass="field-label"/>
+                                    <Text fx:id="mentorName" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <!-- Email mentora -->
+                                <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label text="Email" styleClass="field-label"/>
+                                    <Text fx:id="mentorEmail" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="50"/>
+                                    <ColumnConstraints percentWidth="50"/>
+                                </columnConstraints>
+                            </GridPane>
+                        </VBox>
+
+                        <!-- SECTION 4: Administrativni podaci -->
+                        <VBox spacing="20" styleClass="form-section">
+                            <padding>
+                                <Insets top="25" right="30" bottom="25" left="30"/>
+                            </padding>
+
+                            <VBox spacing="3">
+                                <Text text="Administrativni podaci" styleClass="section-title"/>
+                                <Text text="Odjel, predmet i ostale informacije" styleClass="page-subtitle"/>
+                            </VBox>
+
+                            <GridPane hgap="30" vgap="20">
+                                <!-- Odjel -->
+                                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label text="Odjel" styleClass="field-label"/>
+                                    <Text fx:id="departmentName" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <!-- Predmet -->
+                                <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label text="Predmet" styleClass="field-label"/>
+                                    <Text fx:id="subjectName" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <!-- Sekretar -->
+                                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label text="Sekretar" styleClass="field-label"/>
+                                    <Text fx:id="secretaryName" text="—" styleClass="field-value"/>
+                                </VBox>
+
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="50"/>
+                                    <ColumnConstraints percentWidth="50"/>
+                                </columnConstraints>
+                            </GridPane>
+                        </VBox>
+
+                        <!-- ACTIONS -->
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Region HBox.hgrow="ALWAYS"/>
+
+                            <Button fx:id="editButton"
+                                    text="Uredi rad"
+                                    onAction="#handleEdit"
+                                    styleClass="save-button"/>
+                        </HBox>
+                    </VBox>
+                </ScrollPane>
+
+                <!-- Loader -->
+                <ProgressIndicator fx:id="loader"
+                                   visible="false"
+                                   prefWidth="60"
+                                   prefHeight="60"
+                                   StackPane.alignment="CENTER"/>
+            </StackPane>
+        </center>
+
+    </BorderPane>
+
+</AnchorPane>

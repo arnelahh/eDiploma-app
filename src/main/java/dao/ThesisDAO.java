@@ -1,7 +1,9 @@
 package dao;
 
 import dto.ThesisDTO;
-import model.Thesis;
+import dto.ThesisDetailsDTO;
+import model.*;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -223,6 +225,125 @@ public class ThesisDAO {
         }
     }
 
+    // Dodaj ovu metodu u ThesisDAO.java
+
+    public ThesisDetailsDTO getThesisDetails(int thesisId) {
+        String sql = """
+        SELECT 
+            T.Id, T.Title, T.ApplicationDate, T.ApprovalDate, T.DefenseDate, T.Grade,
+            
+            TS.Name AS StatusName,
+            
+            S.Id AS StudentId, S.FirstName AS StudentFirstName, S.LastName AS StudentLastName,
+            S.FatherName AS StudentFatherName, S.IndexNumber, S.BirthDate, S.BirthPlace,
+            S.Municipality, S.Country, S.StudyProgram, S.ECTS, S.Cycle, S.CycleDuration,
+            S.Email AS StudentEmail,
+            
+            SS.Id AS StudentStatusId, SS.Name AS StudentStatusName,
+            
+            A.Id AS MentorId, A.Title AS MentorTitle, A.FirstName AS MentorFirstName,
+            A.LastName AS MentorLastName, A.Email AS MentorEmail,
+            
+            U.Id AS SecretaryId, U.Username AS SecretaryUsername, U.Email AS SecretaryEmail,
+            
+            D.Id AS DepartmentId, D.Name AS DepartmentName,
+            
+            SUB.Id AS SubjectId, SUB.Name AS SubjectName
+            
+        FROM Thesis T
+        JOIN ThesisStatus TS ON T.StatusId = TS.Id
+        JOIN Student S ON T.StudentId = S.Id
+        JOIN StudentStatus SS ON S.StatusId = SS.Id
+        JOIN AcademicStaff A ON T.MentorId = A.Id
+        JOIN AppUser U ON T.SecretaryId = U.Id
+        JOIN Department D ON T.DepartmentId = D.Id
+        JOIN Subject SUB ON T.SubjectId = SUB.Id
+        WHERE T.Id = ? AND T.IsActive = 1
+    """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, thesisId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                // Build Student
+                StudentStatus studentStatus = StudentStatus.builder()
+                        .Id(rs.getInt("StudentStatusId"))
+                        .Name(rs.getString("StudentStatusName"))
+                        .build();
+
+                Student student = Student.builder()
+                        .Id(rs.getInt("StudentId"))
+                        .FirstName(rs.getString("StudentFirstName"))
+                        .LastName(rs.getString("StudentLastName"))
+                        .FatherName(rs.getString("StudentFatherName"))
+                        .IndexNumber(rs.getInt("IndexNumber"))
+                        .BirthDate(rs.getDate("BirthDate") != null ?
+                                rs.getDate("BirthDate").toLocalDate() : null)
+                        .BirthPlace(rs.getString("BirthPlace"))
+                        .Municipality(rs.getString("Municipality"))
+                        .Country(rs.getString("Country"))
+                        .StudyProgram(rs.getString("StudyProgram"))
+                        .ECTS(rs.getInt("ECTS"))
+                        .Cycle(rs.getInt("Cycle"))
+                        .CycleDuration(rs.getInt("CycleDuration"))
+                        .Status(studentStatus)
+                        .Email(rs.getString("StudentEmail"))
+                        .build();
+
+                // Build Mentor
+                AcademicStaff mentor = AcademicStaff.builder()
+                        .Id(rs.getInt("MentorId"))
+                        .Title(rs.getString("MentorTitle"))
+                        .FirstName(rs.getString("MentorFirstName"))
+                        .LastName(rs.getString("MentorLastName"))
+                        .Email(rs.getString("MentorEmail"))
+                        .build();
+
+                // Build Secretary
+                AppUser secretary = new AppUser();
+                secretary.setId(rs.getInt("SecretaryId"));
+                secretary.setUsername(rs.getString("SecretaryUsername"));
+                secretary.setEmail(rs.getString("SecretaryEmail"));
+
+                // Build Department
+                Department department = new Department();
+                department.setId(rs.getInt("DepartmentId"));
+                department.setName(rs.getString("DepartmentName"));
+
+                // Build Subject
+                Subject subject = new Subject();
+                subject.setId(rs.getInt("SubjectId"));
+                subject.setName(rs.getString("SubjectName"));
+
+                // Build ThesisDetailsDTO
+                return ThesisDetailsDTO.builder()
+                        .id(rs.getInt("Id"))
+                        .title(rs.getString("Title"))
+                        .applicationDate(rs.getDate("ApplicationDate") != null ?
+                                rs.getDate("ApplicationDate").toLocalDate() : null)
+                        .approvalDate(rs.getDate("ApprovalDate") != null ?
+                                rs.getDate("ApprovalDate").toLocalDate() : null)
+                        .defenseDate(rs.getDate("DefenseDate") != null ?
+                                rs.getDate("DefenseDate").toLocalDate() : null)
+                        .grade(rs.getBigDecimal("Grade"))
+                        .status(rs.getString("StatusName"))
+                        .student(student)
+                        .mentor(mentor)
+                        .secretary(secretary)
+                        .department(department)
+                        .subject(subject)
+                        .build();
+            }
+
+            return null;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri dohvatanju detalja rada: " + e.getMessage(), e);
+        }
+    }
 
 
 }
