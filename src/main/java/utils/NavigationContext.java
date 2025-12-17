@@ -1,7 +1,7 @@
 package utils;
 
 public class NavigationContext {
-    private static DashboardView targetView = DashboardView.HOME;
+    private static DashboardView targetView = DashboardView.THESIS;
 
     public static void setTargetView(DashboardView view) {
         targetView = view;
@@ -9,7 +9,7 @@ public class NavigationContext {
 
     public static DashboardView consumeTargetView() {
         DashboardView view = targetView;
-        targetView = DashboardView.HOME; // reset nakon čitanja
+        targetView = DashboardView.THESIS; // reset nakon čitanja
         return view;
     }
 }
