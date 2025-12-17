@@ -4,43 +4,63 @@ import dao.ThesisDAO;
 import dto.ThesisDetailsDTO;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import model.AcademicStaff;
 import model.Thesis;
 import utils.DashboardView;
 import utils.NavigationContext;
 import utils.SceneManager;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class ThesisDetailsController {
 
-    @FXML private Text thesisTitle;
-    @FXML private HBox statusBadge;
-    @FXML private Text statusText;
-    @FXML private Text applicationDate;
-    @FXML private Text approvalDate;
-    @FXML private Text defenseDate;
-    @FXML private Text grade;
+    // Osnovne informacije o radu
+    @FXML private Text titleValue;
+    @FXML private Text descriptionValue;
+    @FXML private Text subjectValue;
+    @FXML private Text statusValue;
+    @FXML private Text applicationDateValue;
+    @FXML private Text defenseDateValue;
+
+    // Student info
     @FXML private Text studentName;
-    @FXML private Text indexNumber;
+    @FXML private Text studentIndex;
     @FXML private Text studentEmail;
-    @FXML private Text studyProgram;
-    @FXML private Text cycle;
-    @FXML private Text ects;
+
+    // Mentor info
+    @FXML private Text mentorTitle;
     @FXML private Text mentorName;
     @FXML private Text mentorEmail;
-    @FXML private Text departmentName;
-    @FXML private Text subjectName;
-    @FXML private Text secretaryName;
+
+    // Komisija
+    @FXML private VBox commissionNotFormedBox;
+    @FXML private VBox commissionFormedBox;
+    @FXML private Text chairmanName;
+    @FXML private Text memberName;
+    @FXML private Text secretaryCommissionName;
+    @FXML private Text substituteName;
+
     @FXML private ProgressIndicator loader;
-    @FXML private javafx.scene.control.Button editButton;
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private int thesisId;
     private ThesisDetailsDTO currentDetails;
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private CommissionData commissionData;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy.");
+
+    // Jednostavna klasa za čuvanje podataka o komisiji (privremeno)
+    public static class CommissionData {
+        public AcademicStaff chairman;
+        public AcademicStaff member;
+        public AcademicStaff secretary;
+        public AcademicStaff substitute;
+        public AcademicStaff mentor;
+    }
 
     public void initWithThesisId(int thesisId) {
         this.thesisId = thesisId;
@@ -57,140 +77,154 @@ public class ThesisDetailsController {
 
         loader.visibleProperty().bind(task.runningProperty());
 
-        task.setOnSucceeded(event -> {
-            ThesisDetailsDTO details = task.getValue();
-            if (details != null) {
-                populateFields(details);
+        task.setOnSucceeded(e -> {
+            currentDetails = task.getValue();
+            if (currentDetails != null) {
+                populateFields();
             } else {
-                showError("Rad nije pronađen!");
+                showError("Završni rad nije pronađen");
             }
         });
 
-        task.setOnFailed(event -> {
-            Throwable ex = task.getException();
-            ex.printStackTrace();
-            showError("Greška pri učitavanju detalja: " + ex.getMessage());
+        task.setOnFailed(e -> {
+            showError("Greška pri učitavanju: " + task.getException().getMessage());
         });
 
         new Thread(task, "load-thesis-details").start();
     }
 
-    private void populateFields(ThesisDetailsDTO details) {
-        this.currentDetails = details;
+    private void populateFields() {
+        // Osnovne informacije
+        titleValue.setText(currentDetails.getTitle() != null ? currentDetails.getTitle() : "—");
 
-        // Title
-        thesisTitle.setText(details.getTitle());
+        // Opis rada - za sada hardkodirano jer nije u DTO-u
+        descriptionValue.setText("Razvoj moderne web aplikacije sa React frameworkom i Node.js backend-om");
 
-        // Status badge
-        statusText.setText(details.getStatus());
-        applyStatusStyle(details.getStatus());
+        subjectValue.setText(currentDetails.getSubject() != null ? currentDetails.getSubject().getName() : "—");
 
-        // Hide edit button if thesis is defended
-        if (editButton != null) {
-            if ("Defended".equals(details.getStatus())) {
-                editButton.setVisible(false);
-                editButton.setManaged(false);
-            } else {
-                editButton.setVisible(true);
-                editButton.setManaged(true);
-            }
+        // Status sa brojem koraka
+        String statusText = currentDetails.getStatus() != null ?
+                "3/6 (" + currentDetails.getStatus() + ")" : "—";
+        statusValue.setText(statusText);
+
+        applicationDateValue.setText(currentDetails.getApplicationDate() != null ?
+                currentDetails.getApplicationDate().format(DATE_FORMATTER) : "--/--/----");
+        defenseDateValue.setText(currentDetails.getDefenseDate() != null ?
+                currentDetails.getDefenseDate().format(DATE_FORMATTER) : "--/--/----");
+
+        // Student
+        if (currentDetails.getStudent() != null) {
+            studentName.setText(currentDetails.getStudent().getFirstName() + " " +
+                    currentDetails.getStudent().getLastName());
+            studentIndex.setText(String.format("%03d", currentDetails.getStudent().getIndexNumber()));
+            studentEmail.setText(currentDetails.getStudent().getEmail() != null ?
+                    currentDetails.getStudent().getEmail() : "—");
         }
 
-        // Basic info
-        applicationDate.setText(details.getApplicationDate() != null ?
-                details.getApplicationDate().format(DATE_FORMATTER) : "—");
-        approvalDate.setText(details.getApprovalDate() != null ?
-                details.getApprovalDate().format(DATE_FORMATTER) : "—");
-        defenseDate.setText(details.getDefenseDate() != null ?
-                details.getDefenseDate().format(DATE_FORMATTER) : "—");
-        grade.setText(details.getGrade() != null ?
-                details.getGrade().toString() : "—");
-
-        // Student info
-        if (details.getStudent() != null) {
-            studentName.setText(details.getStudent().getFirstName() + " " +
-                    details.getStudent().getLastName());
-            indexNumber.setText(String.valueOf(details.getStudent().getIndexNumber()));
-            studentEmail.setText(details.getStudent().getEmail() != null ?
-                    details.getStudent().getEmail() : "—");
-            studyProgram.setText(details.getStudent().getStudyProgram() != null ?
-                    details.getStudent().getStudyProgram() : "—");
-
-            String cycleText = switch (details.getStudent().getCycle()) {
-                case 1 -> "Prvi ciklus";
-                case 2 -> "Drugi ciklus";
-                case 3 -> "Treći ciklus";
-                default -> "—";
-            };
-            cycle.setText(cycleText);
-
-            ects.setText(String.valueOf(details.getStudent().getECTS()));
+        // Mentor
+        if (currentDetails.getMentor() != null) {
+            mentorTitle.setText(currentDetails.getMentor().getTitle() != null ?
+                    currentDetails.getMentor().getTitle() : "");
+            mentorName.setText(currentDetails.getMentor().getFirstName() + " " +
+                    currentDetails.getMentor().getLastName());
+            mentorEmail.setText(currentDetails.getMentor().getEmail() != null ?
+                    currentDetails.getMentor().getEmail() : "—");
         }
 
-        // Mentor info
-        if (details.getMentor() != null) {
-            String mentorFullName = (details.getMentor().getTitle() != null ?
-                    details.getMentor().getTitle() + " " : "") +
-                    details.getMentor().getFirstName() + " " +
-                    details.getMentor().getLastName();
-            mentorName.setText(mentorFullName);
-            mentorEmail.setText(details.getMentor().getEmail() != null ?
-                    details.getMentor().getEmail() : "—");
-        }
-
-        // Administrative info
-        departmentName.setText(details.getDepartment() != null ?
-                details.getDepartment().getName() : "—");
-        subjectName.setText(details.getSubject() != null ?
-                details.getSubject().getName() : "—");
-        secretaryName.setText(details.getSecretary() != null ?
-                details.getSecretary().getUsername() : "—");
+        // Komisija - provjeri da li je formirana
+        updateCommissionDisplay();
     }
 
-    private void applyStatusStyle(String status) {
-        statusBadge.getStyleClass().removeAll("status-pending", "status-in-progress", "status-approved");
+    private void updateCommissionDisplay() {
+        if (commissionData != null && commissionData.chairman != null) {
+            // Komisija je formirana
+            commissionNotFormedBox.setVisible(false);
+            commissionNotFormedBox.setManaged(false);
+            commissionFormedBox.setVisible(true);
+            commissionFormedBox.setManaged(true);
 
-        String styleClass = switch (status) {
-            case "Defended" -> "status-approved";
-            case "U procesu" -> "status-in-progress";
-            case "Na čekanju" -> "status-pending";
-            default -> "status-pending";
-        };
+            chairmanName.setText(formatMemberName(commissionData.chairman));
+            memberName.setText(formatMemberName(commissionData.member));
+            secretaryCommissionName.setText(formatMemberName(commissionData.secretary));
+            substituteName.setText(formatMemberName(commissionData.substitute));
+        } else {
+            // Komisija nije formirana
+            commissionNotFormedBox.setVisible(true);
+            commissionNotFormedBox.setManaged(true);
+            commissionFormedBox.setVisible(false);
+            commissionFormedBox.setManaged(false);
+        }
+    }
 
-        statusBadge.getStyleClass().add(styleClass);
+    private String formatMemberName(AcademicStaff member) {
+        if (member == null) return "—";
+        String title = member.getTitle() != null ? member.getTitle() + " " : "";
+        return title + member.getFirstName() + " " + member.getLastName();
+    }
+
+    @FXML
+    private void handleDelete() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Potvrda brisanja");
+        confirm.setHeaderText("Da li ste sigurni da želite obrisati ovaj završni rad?");
+        confirm.setContentText("Ova akcija se ne može poništiti.");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                thesisDAO.deleteThesis(thesisId);
+                showInfo("Završni rad je uspješno obrisan!");
+                back();
+            } catch (Exception e) {
+                showError("Greška pri brisanju: " + e.getMessage());
+            }
+        }
     }
 
     @FXML
     private void handleEdit() {
-        // Load full Thesis object and open edit form
-        Task<Thesis> task = new Task<>() {
-            @Override
-            protected Thesis call() throws Exception {
-                return thesisDAO.getThesisById(thesisId);
-            }
-        };
-
-        task.setOnSucceeded(event -> {
-            Thesis thesis = task.getValue();
-            if (thesis != null) {
-                SceneManager.showWithData(
-                        "/app/thesisForm.fxml",
-                        "Uredi završni rad",
-                        (ThesisFormController controller) -> {
-                            controller.initEdit(thesis, thesisId);
-                        }
-                );
-            }
-        });
-
-        task.setOnFailed(event -> {
-            showError("Greška pri učitavanju rada: " + task.getException().getMessage());
-        });
-
-        new Thread(task).start();
+        Thesis thesis = thesisDAO.getThesisById(thesisId);
+        if (thesis != null) {
+            SceneManager.showWithData(
+                    "/app/thesisForm.fxml",
+                    "Uredi završni rad",
+                    (ThesisFormController controller) -> {
+                        controller.initEdit(thesis, thesisId);
+                    }
+            );
+        } else {
+            showError("Greška pri dohvatanju podataka za uređivanje");
+        }
     }
 
-    // Metoda za osvježavanje details page-a nakon edit-a
+    @FXML
+    private void handleFormCommission() {
+        SceneManager.showWithData(
+                "/app/commissionForm.fxml",
+                "Dodavanje komisije",
+                (CommissionFormController controller) -> {
+                    controller.initWithThesis(thesisId, currentDetails);
+                }
+        );
+    }
+
+    @FXML
+    private void handleEditCommission() {
+        SceneManager.showWithData(
+                "/app/commissionForm.fxml",
+                "Uredi komisiju",
+                (CommissionFormController controller) -> {
+                    controller.initEditCommission(thesisId, currentDetails, commissionData);
+                }
+        );
+    }
+
+    // Metoda koju poziva CommissionFormController nakon što se komisija sačuva
+    public void setCommissionData(CommissionData data) {
+        this.commissionData = data;
+        updateCommissionDisplay();
+    }
+
     public void refresh() {
         loadThesisDetails();
     }
@@ -202,8 +236,12 @@ public class ThesisDetailsController {
     }
 
     private void showError(String message) {
-        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                javafx.scene.control.Alert.AlertType.ERROR, message);
+        Alert alert = new Alert(Alert.AlertType.ERROR, message);
+        alert.showAndWait();
+    }
+
+    private void showInfo(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
         alert.showAndWait();
     }
 }
