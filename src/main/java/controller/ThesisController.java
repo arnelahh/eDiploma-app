@@ -66,7 +66,6 @@ public class ThesisController {
         });
 
         task.setOnFailed(e -> {
-            System.out.println("Greška pri učitavanju statusa: " + task.getException().getMessage());
             statusFilter.getItems().addAll("Svi statusi", "Greška u učitavanju");
             statusFilter.getSelectionModel().selectFirst();
         });
@@ -115,7 +114,6 @@ public class ThesisController {
         });
         task.setOnFailed(e -> {
             Throwable greska = task.getException();
-            System.out.println("Greška pri učitavanju: " + greska.getMessage());
         });
         new Thread(task).start();
     }

@@ -75,7 +75,6 @@ public class ThesisFormController {
         });
         task.setOnFailed(event -> {
             Throwable ex = event.getSource().getException();
-            System.out.println(ex);
             onDataLoaded();
         });
         new Thread(task).start();
@@ -95,7 +94,6 @@ public class ThesisFormController {
         });
         task.setOnFailed(event -> {
             Throwable ex = event.getSource().getException();
-            System.out.println(ex);
             onDataLoaded();
         });
         new Thread(task).start();
@@ -115,7 +113,6 @@ public class ThesisFormController {
         });
         task.setOnFailed(event -> {
             Throwable ex = event.getSource().getException();
-            System.out.println(ex);
             onDataLoaded();
         });
         new Thread(task).start();
@@ -135,7 +132,6 @@ public class ThesisFormController {
         });
         task.setOnFailed(event -> {
             Throwable ex = event.getSource().getException();
-            System.out.println(ex);
             onDataLoaded();
         });
         new Thread(task).start();
@@ -155,7 +151,6 @@ public class ThesisFormController {
         });
         task.setOnFailed(event -> {
             Throwable ex = event.getSource().getException();
-            System.out.println(ex);
             onDataLoaded();
         });
         new Thread(task).start();
@@ -175,7 +170,6 @@ public class ThesisFormController {
         });
         task.setOnFailed(event -> {
             Throwable ex = event.getSource().getException();
-            System.out.println(ex);
             onDataLoaded();
         });
         new Thread(task).start();

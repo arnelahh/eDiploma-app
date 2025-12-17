@@ -50,7 +50,6 @@ public class CommissionFormController {
 
     @FXML
     public void initialize() {
-        System.out.println("=== CommissionFormController INITIALIZED ===");
         setupComboBoxConverters();
         loadRoles();
         loadAcademicStaff();
@@ -60,9 +59,7 @@ public class CommissionFormController {
     private void loadRoles() {
         try {
             roles = commissionRoleDAO.getCommissionRoles();
-            System.out.println("Loaded " + roles.size() + " commission roles");
         } catch (Exception e) {
-            System.err.println("ERROR loading roles: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -115,7 +112,6 @@ public class CommissionFormController {
 
         task.setOnSucceeded(e -> {
             List<AcademicStaff> staffList = task.getValue();
-            System.out.println("Loaded " + staffList.size() + " academic staff members");
 
             chairmanComboBox.getItems().clear();
             mentorComboBox.getItems().clear();
@@ -139,7 +135,6 @@ public class CommissionFormController {
         });
 
         task.setOnFailed(e -> {
-            System.err.println("ERROR loading staff: " + task.getException().getMessage());
             showError("Greška pri učitavanju osoblja: " + task.getException().getMessage());
         });
 
@@ -156,7 +151,6 @@ public class CommissionFormController {
 
         task.setOnSucceeded(e -> {
             List<AppUser> users = task.getValue();
-            System.out.println("Loaded " + users.size() + " app users");
 
             secretaryComboBox.getItems().clear();
             secretaryComboBox.getItems().addAll(users);
@@ -170,15 +164,10 @@ public class CommissionFormController {
             }
         });
 
-        task.setOnFailed(e -> {
-            System.err.println("ERROR loading secretaries: " + task.getException().getMessage());
-        });
-
         new Thread(task, "load-secretaries").start();
     }
 
     public void initWithThesis(int thesisId, ThesisDetailsDTO details) {
-        System.out.println("=== INIT WITH THESIS ===");
         this.thesisId = thesisId;
         this.thesisDetails = details;
         this.isEditMode = false;
@@ -192,7 +181,6 @@ public class CommissionFormController {
     }
 
     public void initEditCommission(int thesisId, ThesisDetailsDTO details, Commission commission) {
-        System.out.println("=== INIT EDIT COMMISSION ===");
         this.thesisId = thesisId;
         this.thesisDetails = details;
         this.existingCommission = commission;
@@ -209,7 +197,6 @@ public class CommissionFormController {
     private void fillExistingCommission() {
         if (existingCommission == null) return;
 
-        System.out.println("Filling existing commission...");
 
         // Chairman
         if (existingCommission.getMember1() != null) {
@@ -234,12 +221,26 @@ public class CommissionFormController {
                     .findFirst()
                     .ifPresent(substituteComboBox::setValue);
         }
+
+        //Mentor
+        if (thesisDetails != null && thesisDetails.getMentor() != null) {
+            mentorComboBox.getItems().stream()
+                    .filter(s -> s.getId() == thesisDetails.getMentor().getId())
+                    .findFirst()
+                    .ifPresent(mentorComboBox::setValue);
+        }
+
+        // Secretary (iz Thesis)
+        if (thesisDetails != null && thesisDetails.getSecretary() != null) {
+            secretaryComboBox.getItems().stream()
+                    .filter(u -> u.getId() == thesisDetails.getSecretary().getId())
+                    .findFirst()
+                    .ifPresent(secretaryComboBox::setValue);
+        }
     }
 
     @FXML
     private void handleSave() {
-        System.out.println("\n=== HANDLE SAVE STARTED ===");
-
         // Validation
         if (chairmanComboBox.getValue() == null) {
             showWarning("Morate izabrati predsjednika komisije!");
@@ -265,20 +266,17 @@ public class CommissionFormController {
         AcademicStaff chairman = chairmanComboBox.getValue();
         commission.setMember1(chairman);
         commission.setMember1Role(getRoleById(ROLE_PRESIDENT));
-        System.out.println("Chairman: " + chairman.getFirstName() + " (ID=" + chairman.getId() + ")");
 
         // Member 2 - Member
         AcademicStaff member = memberComboBox.getValue();
         commission.setMember2(member);
         commission.setMember2Role(getRoleById(ROLE_MEMBER));
-        System.out.println("Member: " + member.getFirstName() + " (ID=" + member.getId() + ")");
 
         // Member 3 - Substitute (optional)
         if (substituteComboBox.getValue() != null) {
             AcademicStaff substitute = substituteComboBox.getValue();
             commission.setMember3(substitute);
             commission.setMember3Role(getRoleById(ROLE_MEMBER));
-            System.out.println("Substitute: " + substitute.getFirstName() + " (ID=" + substitute.getId() + ")");
         }
 
         try {
@@ -288,14 +286,12 @@ public class CommissionFormController {
             } else {
                 commissionDAO.insertCommission(commission);
             }
-
             // Update Mentor and Secretary in Thesis table
             Thesis thesis = thesisDAO.getThesisById(thesisId);
             if (thesis != null) {
                 thesis.setAcademicStaffId(mentorComboBox.getValue().getId());
                 thesis.setSecretaryId(secretaryComboBox.getValue().getId());
                 thesisDAO.updateThesis(thesis);
-                System.out.println("✓ Updated Mentor and Secretary in Thesis");
             }
 
             showInfo(isEditMode ? "Komisija je uspješno ažurirana!" : "Komisija je uspješno kreirana!");
@@ -309,7 +305,6 @@ public class CommissionFormController {
                     }
             );
         } catch (Exception e) {
-            System.err.println("ERROR: " + e.getMessage());
             e.printStackTrace();
             showError("Greška pri čuvanju: " + e.getMessage());
         }
