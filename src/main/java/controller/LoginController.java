@@ -24,6 +24,13 @@ public class LoginController {
     public AppUserDAO userDao = new AppUserDAO();
 
     @FXML
+    public void initialize() {
+        // Povezivanje polja
+        passwordField.textProperty().bindBidirectional(passwordTextField.textProperty());
+        passwordTextField.setVisible(false);
+    }
+
+    @FXML
     public void handleLogin() {
         String email = emailField.getText().trim();
         String password = passwordField.getText().trim();
@@ -93,16 +100,8 @@ public class LoginController {
 
     @FXML
     private void togglePasswordVisibility() {
-        if (passwordTextField.isVisible()) {
-            // Sakrij textField, pokaži passwordField
-            passwordField.setText(passwordTextField.getText());
-            passwordTextField.setVisible(false);
-            passwordField.setVisible(true);
-        } else {
-            // Pokaži textField, sakrij passwordField
-            passwordTextField.setText(passwordField.getText());
-            passwordTextField.setVisible(true);
-            passwordField.setVisible(false);
-        }
+        boolean visible = passwordTextField.isVisible();
+        passwordTextField.setVisible(!visible);
+        passwordField.setVisible(visible);
     }
 }
