@@ -462,3 +462,14 @@
     -fx-border-radius: 8;
     -fx-background-color: rgba(215, 255, 215, 0.3)
 }
+.field-value {
+    -fx-font-size: 15px;
+    -fx-fill: #2d3436;
+    -fx-font-weight: 500;
+}
+.card-defended {
+    -fx-border-color: #00b894;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-background-color: rgba(215, 255, 215, 0.2);
+}

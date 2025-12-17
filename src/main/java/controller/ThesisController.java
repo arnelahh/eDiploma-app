@@ -141,34 +141,14 @@ public class ThesisController {
     }
 
     private void openEditThesisPage(ThesisDTO thesisDTO) {
-        // Prvo moramo učitati kompletan Thesis objekat iz baze
-        Task<Thesis> task = new Task<>() {
-            @Override
-            protected Thesis call() throws Exception {
-                return dao.getThesisById(thesisDTO.getId());
-            }
-        };
-
-        task.setOnSucceeded(e -> {
-            Thesis thesis = task.getValue();
-            if (thesis != null) {
-                SceneManager.showWithData(
-                        "/app/thesisForm.fxml",
-                        "Uredi završni rad",
-                        (ThesisFormController controller) -> {
-                            controller.initEdit(thesis);
-                        }
-                );
-            } else {
-                System.out.println("Rad nije pronađen!");
-            }
-        });
-
-        task.setOnFailed(e -> {
-            System.out.println("Greška pri učitavanju rada: " + task.getException().getMessage());
-        });
-
-        new Thread(task).start();
+        // Umjesto direktno edit forme, prvo otvaramo details page
+        SceneManager.showWithData(
+                "/app/thesisDetails.fxml",
+                "Detalji završnog rada",
+                (ThesisDetailsController controller) -> {
+                    controller.initWithThesisId(thesisDTO.getId());
+                }
+        );
     }
 
     @FXML
