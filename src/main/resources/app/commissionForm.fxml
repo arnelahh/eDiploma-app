@@ -65,41 +65,41 @@
                             <GridPane hgap="30" vgap="20">
                                 <!-- Predsjednik komisije -->
                                 <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                    <Label text="Predsjednik komisije" styleClass="field-label"/>
+                                    <Label text="Predsjednik komisije *" styleClass="field-label"/>
                                     <ComboBox fx:id="chairmanComboBox"
                                               promptText="Izaberite predsjednika komisije"
                                               prefWidth="9999" styleClass="form-field"/>
                                 </VBox>
 
-                                <!-- Mentor (read-only) -->
+                                <!-- Mentor (SADA EDITABLE) -->
                                 <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <Label text="Mentor" styleClass="field-label"/>
-                                    <TextField fx:id="mentorField"
-                                               editable="false"
-                                               styleClass="form-field-readonly"/>
+                                    <Label text="Mentor *" styleClass="field-label"/>
+                                    <ComboBox fx:id="mentorComboBox"
+                                              promptText="Izaberite mentora"
+                                              prefWidth="9999" styleClass="form-field"/>
                                 </VBox>
 
                                 <!-- Član komisije -->
                                 <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                    <Label text="Član komisije" styleClass="field-label"/>
+                                    <Label text="Član komisije *" styleClass="field-label"/>
                                     <ComboBox fx:id="memberComboBox"
                                               promptText="Izaberite člana komisije"
                                               prefWidth="9999" styleClass="form-field"/>
                                 </VBox>
 
-                                <!-- Sekretar (read-only) -->
+                                <!-- Sekretar (SADA EDITABLE) -->
                                 <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                    <Label text="Sekretar" styleClass="field-label"/>
-                                    <TextField fx:id="secretaryField"
-                                               editable="false"
-                                               styleClass="form-field-readonly"/>
+                                    <Label text="Sekretar *" styleClass="field-label"/>
+                                    <ComboBox fx:id="secretaryComboBox"
+                                              promptText="Izaberite sekretara"
+                                              prefWidth="9999" styleClass="form-field"/>
                                 </VBox>
 
                                 <!-- Zamjenski član -->
                                 <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
                                     <Label text="Zamjenski član" styleClass="field-label"/>
                                     <ComboBox fx:id="substituteComboBox"
-                                              promptText="Izaberite zamjenskog člana komisije"
+                                              promptText="Izaberite zamjenskog člana (opciono)"
                                               prefWidth="9999" styleClass="form-field"/>
                                 </VBox>
 
@@ -108,6 +108,13 @@
                                     <ColumnConstraints percentWidth="50"/>
                                 </columnConstraints>
                             </GridPane>
+                        </VBox>
+
+                        <!-- INFO MESSAGE -->
+                        <VBox spacing="10" style="-fx-background-color: #e3f2fd; -fx-background-radius: 8; -fx-padding: 15;">
+                            <Text text="ℹ️ Napomena" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                            <Text text="Promjena mentora ili sekretara će ažurirati podatke za cijeli završni rad."
+                                  style="-fx-font-size: 13; -fx-fill: #1976d2;" wrappingWidth="750"/>
                         </VBox>
 
                         <!-- ACTIONS -->

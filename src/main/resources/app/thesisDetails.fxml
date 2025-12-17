@@ -32,7 +32,6 @@
 
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <!-- Spacer za simetriju -->
                 <Region prefWidth="30"/>
             </HBox>
         </top>
@@ -140,47 +139,65 @@
 
                                     <!-- Dokument 1: Rješenje o izradi završnog rada - ZELENA -->
                                     <HBox styleClass="document-card document-green" alignment="CENTER_LEFT" spacing="10">
-                                        <Text text="Rješenje o izradi završnog rada" HBox.hgrow="ALWAYS" styleClass="document-title"/>
-                                        <Button text="⬇" styleClass="document-icon-btn"/>
-                                        <Button text="👁" styleClass="document-icon-btn"/>
-                                        <Button text="↗" styleClass="document-icon-btn"/>
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Text text="Rješenje o izradi završnog rada" styleClass="document-title"/>
+                                            <Text text="Dostupno za pregled" style="-fx-font-size: 11px; -fx-fill: #00b894;"/>
+                                        </VBox>
+                                        <Button text="⬇" styleClass="document-icon-btn" disable="true"/>
+                                        <Button text="👁" styleClass="document-icon-btn" disable="true"/>
+                                        <Button text="✉" styleClass="document-icon-btn" disable="true"/>
                                     </HBox>
 
                                     <!-- Dokument 2: Rješenje o formiranju Komisije - ZELENA -->
                                     <HBox styleClass="document-card document-green" alignment="CENTER_LEFT" spacing="10">
-                                        <Text text="Rješenje o formiranju Komisije" HBox.hgrow="ALWAYS" styleClass="document-title"/>
-                                        <Button text="⬇" styleClass="document-icon-btn"/>
-                                        <Button text="👁" styleClass="document-icon-btn"/>
-                                        <Button text="↗" styleClass="document-icon-btn"/>
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Text text="Rješenje o formiranju Komisije" styleClass="document-title"/>
+                                            <Text text="Dostupno za pregled" style="-fx-font-size: 11px; -fx-fill: #00b894;"/>
+                                        </VBox>
+                                        <Button text="⬇" styleClass="document-icon-btn" disable="true"/>
+                                        <Button text="👁" styleClass="document-icon-btn" disable="true"/>
+                                        <Button text="✉" styleClass="document-icon-btn" disable="true"/>
                                     </HBox>
 
                                     <!-- Dokument 3: Obavijest - ŽUTA -->
                                     <HBox styleClass="document-card document-yellow" alignment="CENTER_LEFT" spacing="10">
-                                        <Text text="Obavijest" HBox.hgrow="ALWAYS" styleClass="document-title"/>
-                                        <Button text="⬇" styleClass="document-icon-btn"/>
-                                        <Button text="👁" styleClass="document-icon-btn"/>
-                                        <Button text="↗" styleClass="document-icon-btn"/>
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Text text="Obavijest" styleClass="document-title"/>
+                                            <Text text="U procesu" style="-fx-font-size: 11px; -fx-fill: #f39c12;"/>
+                                        </VBox>
+                                        <Button text="⬇" styleClass="document-icon-btn" disable="true"/>
+                                        <Button text="👁" styleClass="document-icon-btn" disable="true"/>
+                                        <Button text="✉" styleClass="document-icon-btn" disable="true"/>
                                     </HBox>
 
                                     <!-- Dokument 4: Zapisnik o pismenom dijelu diplomskog rada - CRVENA -->
                                     <HBox styleClass="document-card document-red" alignment="CENTER_LEFT" spacing="10">
-                                        <Text text="Zapisnik o pismenom dijelu diplomskog rada" HBox.hgrow="ALWAYS" styleClass="document-title"/>
-                                        <Button text="👁" styleClass="document-icon-btn"/>
-                                        <Button text="↗" styleClass="document-icon-btn"/>
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Text text="Zapisnik o pismenom dijelu diplomskog rada" styleClass="document-title"/>
+                                            <Text text="Potrebna akcija" style="-fx-font-size: 11px; -fx-fill: #e74c3c;"/>
+                                        </VBox>
+                                        <Button text="👁" styleClass="document-icon-btn" disable="true"/>
+                                        <Button text="✏" styleClass="document-icon-btn" disable="true"/>
                                     </HBox>
 
                                     <!-- Dokument 5: Zapisnik sa odbrane - SIVA -->
                                     <HBox styleClass="document-card document-gray" alignment="CENTER_LEFT" spacing="10">
-                                        <Text text="Zapisnik sa odbrane" HBox.hgrow="ALWAYS" styleClass="document-title"/>
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Text text="Zapisnik sa odbrane" styleClass="document-title"/>
+                                            <Text text="Još nije dostupno" style="-fx-font-size: 11px; -fx-fill: #95a5a6;"/>
+                                        </VBox>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <Button text="⊕" styleClass="document-icon-btn"/>
+                                        <Button text="⊕" styleClass="document-icon-btn" disable="true"/>
                                     </HBox>
 
                                     <!-- Dokument 6: Uvjerenje o završenom ciklusu - SIVA -->
                                     <HBox styleClass="document-card document-gray" alignment="CENTER_LEFT" spacing="10">
-                                        <Text text="Uvjerenje o završenom ciklusu" HBox.hgrow="ALWAYS" styleClass="document-title"/>
+                                        <VBox HBox.hgrow="ALWAYS">
+                                            <Text text="Uvjerenje o završenom ciklusu" styleClass="document-title"/>
+                                            <Text text="Još nije dostupno" style="-fx-font-size: 11px; -fx-fill: #95a5a6;"/>
+                                        </VBox>
                                         <Region HBox.hgrow="ALWAYS"/>
-                                        <Button text="⊕" styleClass="document-icon-btn"/>
+                                        <Button text="⊕" styleClass="document-icon-btn" disable="true"/>
                                     </HBox>
                                 </VBox>
                             </VBox>
@@ -265,6 +282,11 @@
                                         <VBox spacing="3">
                                             <Label text="Predsjednik komisije" styleClass="field-label-small"/>
                                             <Text fx:id="chairmanName" text="—" styleClass="info-card-value"/>
+                                        </VBox>
+
+                                        <VBox spacing="3">
+                                            <Label text="Mentor" styleClass="field-label-small"/>
+                                            <Text fx:id="mentorCommissionName" text="—" styleClass="info-card-value"/>
                                         </VBox>
 
                                         <VBox spacing="3">
