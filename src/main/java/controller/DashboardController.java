@@ -19,7 +19,7 @@ public class DashboardController {
     private Label lblOdjava;
 
     @FXML
-    private Label pocetnaLabel, radoviLabel, studentiLabel, mentoriLabel;
+    private Label pocetnaLabel, radoviLabel, studentiLabel, mentoriLabel, sekretariLabel;
 
     @FXML
     private AnchorPane rootPane;
@@ -32,6 +32,7 @@ public class DashboardController {
             case STUDENTS -> handleStudentiClick();
             case THESIS -> handleRadoviClick();
             case MENTORS -> handleMentoriClick();
+            case SECRETARIES -> handleSekretariClick();
         }
     }
 
@@ -95,6 +96,20 @@ public class DashboardController {
             );
 
             mainBorderPane.setCenter(mentorsView);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleSekretariClick() {
+        try {
+            Parent secretariesView = FXMLLoader.load(
+                    getClass().getResource("/app/secretaries.fxml")
+            );
+
+            mainBorderPane.setCenter(secretariesView);
 
         } catch (Exception e) {
             e.printStackTrace();
