@@ -1,6 +1,7 @@
 package Factory;
 
-import dao.ThesisDAO;
+
+import java.time.LocalDate;
 import dto.ThesisDTO;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,55 +13,69 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
-import model.Thesis;
+
 
 public class ThesisCardFactory {
+
     public VBox createCard(ThesisDTO rad) {
         // 1. Root Container (.thesis-card)
-        // CSS: -fx-background-color: #ffffff; -fx-effect: dropshadow...
         VBox card = new VBox();
         card.getStyleClass().add("thesis-card");
-        card.setPadding(new Insets(20, 25, 20, 25)); // Padding kao u FXML-u
-        card.setCursor(Cursor.HAND);
+        card.setPadding(new Insets(20, 25, 20, 25));
 
         // Unutrašnji container za razmak
         VBox contentBox = new VBox(15);
 
         // 2. Naslov (.card-title)
-        // CSS: -fx-font-size: 16px; -fx-fill: #2d3436;
-        Text title = new Text(rad.getTitle()); // Pazi: getTitle() ili getNaslov()
+        Text title = new Text(rad.getTitle());
         title.getStyleClass().add("card-title");
         title.setWrappingWidth(700);
         HBox.setHgrow(title, Priority.ALWAYS);
 
+        // Ako je rad odbranjen, kartica ne može da se edituje
+        if ("Defended".equals(rad.getStatus())) {
+            card.setOpacity(0.6);
+            card.setDisable(true);
+            card.getStyleClass().add("card-defended");
+        } else {
+            card.setCursor(Cursor.HAND);
+        }
 
+
+        if (isOlderThan90Days(rad.getApplicationDate()) && !"Defended".equals(rad.getStatus())) {
+            card.getStyleClass().add("card-overdue");
+        }
 
         // 3. Donji red (ikone i status)
         HBox infoRow = new HBox(30);
         infoRow.setAlignment(Pos.CENTER_LEFT);
 
-        // Info stavke
         HBox studentInfo = createInfoItem("user-icon", rad.getStudentFullName());
         HBox mentorInfo = createInfoItem("doc-icon", rad.getMentorFullName());
-
         String ciklusTekst = (rad.getCycle() == 1) ? "Prvi ciklus" : "Drugi ciklus";
         HBox cycleInfo = createInfoItem("cycle-icon", ciklusTekst);
 
-        // Spacer (gura status skroz desno)
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // 4. Status Badge
         HBox statusBadge = createStatusBadge(rad.getStatus());
 
-
-        // Spajanje
         infoRow.getChildren().addAll(studentInfo, mentorInfo, cycleInfo, spacer, statusBadge);
         contentBox.getChildren().addAll(title, infoRow);
         card.getChildren().add(contentBox);
 
         return card;
     }
+
+
+    // Funkcija koja proverava da li je applicationDate stariji od 90 dana
+    private boolean isOlderThan90Days(LocalDate applicationDate) {
+        if (applicationDate == null) return false;
+        return applicationDate.isBefore(LocalDate.now().minusDays(90));
+    }
+
+
+
     private HBox createInfoRow(String icon, String text) {
         HBox row = new HBox(8);
         row.setAlignment(Pos.CENTER_LEFT);
