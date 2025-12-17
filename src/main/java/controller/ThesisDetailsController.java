@@ -52,8 +52,6 @@ public class ThesisDetailsController {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy.");
 
     public void initWithThesisId(int thesisId) {
-        System.out.println("\n=== THESIS DETAILS INIT ===");
-        System.out.println("ThesisId: " + thesisId);
         this.thesisId = thesisId;
         loadThesisDetails();
     }
@@ -73,18 +71,15 @@ public class ThesisDetailsController {
         task.setOnSucceeded(e -> {
             currentDetails = task.getValue();
             if (currentDetails != null) {
-                System.out.println("✓ Thesis details loaded");
                 populateFields();
                 // Učitaj komisiju NAKON što su thesis details učitani
                 loadCommission();
             } else {
-                System.err.println("✗ Thesis details NOT FOUND");
                 showError("Završni rad nije pronađen");
             }
         });
 
         task.setOnFailed(e -> {
-            System.err.println("✗ Error loading thesis: " + task.getException().getMessage());
             task.getException().printStackTrace();
             showError("Greška pri učitavanju: " + task.getException().getMessage());
         });
@@ -102,16 +97,10 @@ public class ThesisDetailsController {
 
         task.setOnSucceeded(e -> {
             currentCommission = task.getValue();
-            if (currentCommission != null) {
-                System.out.println("✓ Commission loaded");
-            } else {
-                System.out.println("ℹ No commission found (not yet created)");
-            }
             updateCommissionDisplay();
         });
 
         task.setOnFailed(e -> {
-            System.err.println("✗ Error loading commission: " + task.getException().getMessage());
             updateCommissionDisplay();
         });
 
@@ -123,9 +112,11 @@ public class ThesisDetailsController {
         descriptionValue.setText("Razvoj moderne web aplikacije sa React frameworkom i Node.js backend-om");
         subjectValue.setText(currentDetails.getSubject() != null ? currentDetails.getSubject().getName() : "—");
 
-        String statusText = currentDetails.getStatus() != null ?
-                "3/6 (" + currentDetails.getStatus() + ")" : "—";
-        statusValue.setText(statusText);
+        if (currentDetails.getStatus() != null) {
+            statusValue.setText(currentDetails.getStatus());
+        } else {
+            statusValue.setText("—");
+        }
 
         applicationDateValue.setText(currentDetails.getApplicationDate() != null ?
                 currentDetails.getApplicationDate().format(DATE_FORMATTER) : "--/--/----");
@@ -152,8 +143,6 @@ public class ThesisDetailsController {
 
     private void updateCommissionDisplay() {
         if (currentCommission != null && currentCommission.getMember1() != null) {
-            System.out.println("\n=== DISPLAYING FORMED COMMISSION ===");
-
             commissionNotFormedBox.setVisible(false);
             commissionNotFormedBox.setManaged(false);
             commissionFormedBox.setVisible(true);
@@ -161,37 +150,27 @@ public class ThesisDetailsController {
 
             // Predsjednik (Member1)
             chairmanName.setText(formatMemberName(currentCommission.getMember1()));
-            System.out.println("Chairman: " + formatMemberName(currentCommission.getMember1()));
 
             // Član (Member2)
             memberName.setText(formatMemberName(currentCommission.getMember2()));
-            System.out.println("Member: " + formatMemberName(currentCommission.getMember2()));
 
             // Zamjenski član (Member3)
             substituteName.setText(formatMemberName(currentCommission.getMember3()));
-            System.out.println("Substitute: " + formatMemberName(currentCommission.getMember3()));
 
             // Mentor (iz Thesis, ne iz Commission!) - KLJUČNA ISPRAVKA
             if (currentDetails != null && currentDetails.getMentor() != null) {
                 mentorCommissionName.setText(formatMemberName(currentDetails.getMentor()));
-                System.out.println("Mentor: " + formatMemberName(currentDetails.getMentor()));
             } else {
                 mentorCommissionName.setText("—");
-                System.out.println("Mentor: NOT SET in thesis details");
             }
 
             // Sekretar (iz Thesis, ne iz Commission!) - KLJUČNA ISPRAVKA
             if (currentDetails != null && currentDetails.getSecretary() != null) {
                 secretaryCommissionName.setText(currentDetails.getSecretary().getUsername());
-                System.out.println("Secretary: " + currentDetails.getSecretary().getUsername());
             } else {
                 secretaryCommissionName.setText("—");
-                System.out.println("Secretary: NOT SET in thesis details");
             }
-
-            System.out.println("====================================\n");
         } else {
-            System.out.println("=== Commission NOT formed - showing form button ===\n");
             commissionNotFormedBox.setVisible(true);
             commissionNotFormedBox.setManaged(true);
             commissionFormedBox.setVisible(false);
@@ -242,10 +221,7 @@ public class ThesisDetailsController {
 
     @FXML
     private void handleFormCommission() {
-        System.out.println("\n=== FORM COMMISSION CLICKED ===");
-
         if (currentDetails == null) {
-            System.err.println("ERROR: currentDetails is NULL!");
             showError("Detalji rada nisu učitani");
             return;
         }
@@ -259,7 +235,6 @@ public class ThesisDetailsController {
                     }
             );
         } catch (Exception e) {
-            System.err.println("ERROR opening form: " + e.getMessage());
             e.printStackTrace();
             showError("Greška pri otvaranju forme: " + e.getMessage());
         }
@@ -267,8 +242,6 @@ public class ThesisDetailsController {
 
     @FXML
     private void handleEditCommission() {
-        System.out.println("\n=== EDIT COMMISSION CLICKED ===");
-
         if (currentDetails == null || currentCommission == null) {
             showError("Podaci nisu dostupni");
             return;
@@ -283,7 +256,6 @@ public class ThesisDetailsController {
                     }
             );
         } catch (Exception e) {
-            System.err.println("ERROR opening edit form: " + e.getMessage());
             e.printStackTrace();
             showError("Greška: " + e.getMessage());
         }
