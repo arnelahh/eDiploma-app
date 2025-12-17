@@ -450,3 +450,15 @@
 .status-in-progress .status-indicator {
     -fx-fill: #fdcb6e;
 }
+.card-overdue {
+    -fx-border-color: red;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-background-color: rgba(255, 215, 215, 0.3)
+}
+.card-defended{
+    -fx-border-color: green;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-background-color: rgba(215, 255, 215, 0.3)
+}

@@ -10,12 +10,19 @@ import java.util.List;
 public class ThesisDAO {
     public List<ThesisDTO> getAllThesis(){
         List<ThesisDTO> thesis = new ArrayList<>();
-        String sql = "select T.Id,T.Title, CONCAT(S.FirstName,' ',S.LastName) as StudentFullName, CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName, S.Cycle\n,TS.Name as Status" +
-                "  FROM Thesis T\n" +
-                "  JOIN Student S on S.Id=T.StudentId\n" +
-                "  join AcademicStaff A on A.Id=T.MentorId"+
-                " join ThesisStatus TS on TS.Id=T.StatusId"+
-                " where T.IsActive=1 ORDER BY T.Id DESC;";
+        String sql = "SELECT T.Id,\n" +
+                "    T.Title,\n" +
+                "    CONCAT(S.FirstName,' ',S.LastName) AS StudentFullName,\n" +
+                "    CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName,\n" +
+                "    S.Cycle,\n" +
+                "    TS.Name AS Status,\n" +
+                "    T.ApplicationDate\n" +
+                "FROM Thesis T\n" +
+                "JOIN Student S ON S.Id = T.StudentId\n" +
+                "JOIN AcademicStaff A ON A.Id = T.MentorId\n" +
+                "JOIN ThesisStatus TS ON TS.Id = T.StatusId\n" +
+                "WHERE T.IsActive = 1\n" +
+                "ORDER BY T.Id DESC;\n";
 
         try(Connection conn=CloudDatabaseConnection.Konekcija();
             Statement stmt=conn.createStatement();
@@ -29,6 +36,7 @@ public class ThesisDAO {
                 thesisDTO.setMentorFullName(rs.getString("MentorFullName"));
                 thesisDTO.setCycle(rs.getInt("Cycle"));
                 thesisDTO.setStatus(rs.getString("Status"));
+                thesisDTO.setApplicationDate(rs.getDate("ApplicationDate").toLocalDate());
                 thesis.add(thesisDTO);
             }
 

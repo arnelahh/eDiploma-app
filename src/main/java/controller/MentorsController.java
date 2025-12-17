@@ -49,10 +49,6 @@ public class MentorsController {
         }
     }
 
-    public void refresh(){
-        loadMentorsAsync();
-    }
-
     public static void requestRefresh() {
         needsRefresh = true;
     }
