@@ -1,14 +1,14 @@
 package controller;
 
+import dao.CommissionDAO;
 import dao.ThesisDAO;
 import dto.ThesisDetailsDTO;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import model.AcademicStaff;
+import model.Commission;
 import model.Thesis;
 import utils.DashboardView;
 import utils.NavigationContext;
@@ -19,7 +19,6 @@ import java.util.Optional;
 
 public class ThesisDetailsController {
 
-    // Osnovne informacije o radu
     @FXML private Text titleValue;
     @FXML private Text descriptionValue;
     @FXML private Text subjectValue;
@@ -27,42 +26,34 @@ public class ThesisDetailsController {
     @FXML private Text applicationDateValue;
     @FXML private Text defenseDateValue;
 
-    // Student info
     @FXML private Text studentName;
     @FXML private Text studentIndex;
     @FXML private Text studentEmail;
 
-    // Mentor info
     @FXML private Text mentorTitle;
     @FXML private Text mentorName;
     @FXML private Text mentorEmail;
 
-    // Komisija
     @FXML private VBox commissionNotFormedBox;
     @FXML private VBox commissionFormedBox;
     @FXML private Text chairmanName;
     @FXML private Text memberName;
+    @FXML private Text mentorCommissionName;
     @FXML private Text secretaryCommissionName;
     @FXML private Text substituteName;
 
     @FXML private ProgressIndicator loader;
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
+    private final CommissionDAO commissionDAO = new CommissionDAO();
     private int thesisId;
     private ThesisDetailsDTO currentDetails;
-    private CommissionData commissionData;
+    private Commission currentCommission;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy.");
 
-    // Jednostavna klasa za čuvanje podataka o komisiji (privremeno)
-    public static class CommissionData {
-        public AcademicStaff chairman;
-        public AcademicStaff member;
-        public AcademicStaff secretary;
-        public AcademicStaff substitute;
-        public AcademicStaff mentor;
-    }
-
     public void initWithThesisId(int thesisId) {
+        System.out.println("\n=== THESIS DETAILS INIT ===");
+        System.out.println("ThesisId: " + thesisId);
         this.thesisId = thesisId;
         loadThesisDetails();
     }
@@ -75,34 +66,63 @@ public class ThesisDetailsController {
             }
         };
 
-        loader.visibleProperty().bind(task.runningProperty());
+        if (loader != null) {
+            loader.visibleProperty().bind(task.runningProperty());
+        }
 
         task.setOnSucceeded(e -> {
             currentDetails = task.getValue();
             if (currentDetails != null) {
+                System.out.println("✓ Thesis details loaded");
                 populateFields();
+                // Učitaj komisiju NAKON što su thesis details učitani
+                loadCommission();
             } else {
+                System.err.println("✗ Thesis details NOT FOUND");
                 showError("Završni rad nije pronađen");
             }
         });
 
         task.setOnFailed(e -> {
+            System.err.println("✗ Error loading thesis: " + task.getException().getMessage());
+            task.getException().printStackTrace();
             showError("Greška pri učitavanju: " + task.getException().getMessage());
         });
 
         new Thread(task, "load-thesis-details").start();
     }
 
+    private void loadCommission() {
+        Task<Commission> task = new Task<>() {
+            @Override
+            protected Commission call() throws Exception {
+                return commissionDAO.getCommissionByThesisId(thesisId);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            currentCommission = task.getValue();
+            if (currentCommission != null) {
+                System.out.println("✓ Commission loaded");
+            } else {
+                System.out.println("ℹ No commission found (not yet created)");
+            }
+            updateCommissionDisplay();
+        });
+
+        task.setOnFailed(e -> {
+            System.err.println("✗ Error loading commission: " + task.getException().getMessage());
+            updateCommissionDisplay();
+        });
+
+        new Thread(task, "load-commission").start();
+    }
+
     private void populateFields() {
-        // Osnovne informacije
         titleValue.setText(currentDetails.getTitle() != null ? currentDetails.getTitle() : "—");
-
-        // Opis rada - za sada hardkodirano jer nije u DTO-u
         descriptionValue.setText("Razvoj moderne web aplikacije sa React frameworkom i Node.js backend-om");
-
         subjectValue.setText(currentDetails.getSubject() != null ? currentDetails.getSubject().getName() : "—");
 
-        // Status sa brojem koraka
         String statusText = currentDetails.getStatus() != null ?
                 "3/6 (" + currentDetails.getStatus() + ")" : "—";
         statusValue.setText(statusText);
@@ -112,7 +132,6 @@ public class ThesisDetailsController {
         defenseDateValue.setText(currentDetails.getDefenseDate() != null ?
                 currentDetails.getDefenseDate().format(DATE_FORMATTER) : "--/--/----");
 
-        // Student
         if (currentDetails.getStudent() != null) {
             studentName.setText(currentDetails.getStudent().getFirstName() + " " +
                     currentDetails.getStudent().getLastName());
@@ -121,7 +140,6 @@ public class ThesisDetailsController {
                     currentDetails.getStudent().getEmail() : "—");
         }
 
-        // Mentor
         if (currentDetails.getMentor() != null) {
             mentorTitle.setText(currentDetails.getMentor().getTitle() != null ?
                     currentDetails.getMentor().getTitle() : "");
@@ -130,25 +148,50 @@ public class ThesisDetailsController {
             mentorEmail.setText(currentDetails.getMentor().getEmail() != null ?
                     currentDetails.getMentor().getEmail() : "—");
         }
-
-        // Komisija - provjeri da li je formirana
-        updateCommissionDisplay();
     }
 
     private void updateCommissionDisplay() {
-        if (commissionData != null && commissionData.chairman != null) {
-            // Komisija je formirana
+        if (currentCommission != null && currentCommission.getMember1() != null) {
+            System.out.println("\n=== DISPLAYING FORMED COMMISSION ===");
+
             commissionNotFormedBox.setVisible(false);
             commissionNotFormedBox.setManaged(false);
             commissionFormedBox.setVisible(true);
             commissionFormedBox.setManaged(true);
 
-            chairmanName.setText(formatMemberName(commissionData.chairman));
-            memberName.setText(formatMemberName(commissionData.member));
-            secretaryCommissionName.setText(formatMemberName(commissionData.secretary));
-            substituteName.setText(formatMemberName(commissionData.substitute));
+            // Predsjednik (Member1)
+            chairmanName.setText(formatMemberName(currentCommission.getMember1()));
+            System.out.println("Chairman: " + formatMemberName(currentCommission.getMember1()));
+
+            // Član (Member2)
+            memberName.setText(formatMemberName(currentCommission.getMember2()));
+            System.out.println("Member: " + formatMemberName(currentCommission.getMember2()));
+
+            // Zamjenski član (Member3)
+            substituteName.setText(formatMemberName(currentCommission.getMember3()));
+            System.out.println("Substitute: " + formatMemberName(currentCommission.getMember3()));
+
+            // Mentor (iz Thesis, ne iz Commission!) - KLJUČNA ISPRAVKA
+            if (currentDetails != null && currentDetails.getMentor() != null) {
+                mentorCommissionName.setText(formatMemberName(currentDetails.getMentor()));
+                System.out.println("Mentor: " + formatMemberName(currentDetails.getMentor()));
+            } else {
+                mentorCommissionName.setText("—");
+                System.out.println("Mentor: NOT SET in thesis details");
+            }
+
+            // Sekretar (iz Thesis, ne iz Commission!) - KLJUČNA ISPRAVKA
+            if (currentDetails != null && currentDetails.getSecretary() != null) {
+                secretaryCommissionName.setText(currentDetails.getSecretary().getUsername());
+                System.out.println("Secretary: " + currentDetails.getSecretary().getUsername());
+            } else {
+                secretaryCommissionName.setText("—");
+                System.out.println("Secretary: NOT SET in thesis details");
+            }
+
+            System.out.println("====================================\n");
         } else {
-            // Komisija nije formirana
+            System.out.println("=== Commission NOT formed - showing form button ===\n");
             commissionNotFormedBox.setVisible(true);
             commissionNotFormedBox.setManaged(true);
             commissionFormedBox.setVisible(false);
@@ -156,7 +199,7 @@ public class ThesisDetailsController {
         }
     }
 
-    private String formatMemberName(AcademicStaff member) {
+    private String formatMemberName(model.AcademicStaff member) {
         if (member == null) return "—";
         String title = member.getTitle() != null ? member.getTitle() + " " : "";
         return title + member.getFirstName() + " " + member.getLastName();
@@ -199,34 +242,51 @@ public class ThesisDetailsController {
 
     @FXML
     private void handleFormCommission() {
-        SceneManager.showWithData(
-                "/app/commissionForm.fxml",
-                "Dodavanje komisije",
-                (CommissionFormController controller) -> {
-                    controller.initWithThesis(thesisId, currentDetails);
-                }
-        );
+        System.out.println("\n=== FORM COMMISSION CLICKED ===");
+
+        if (currentDetails == null) {
+            System.err.println("ERROR: currentDetails is NULL!");
+            showError("Detalji rada nisu učitani");
+            return;
+        }
+
+        try {
+            SceneManager.showWithData(
+                    "/app/commissionForm.fxml",
+                    "Dodavanje komisije",
+                    (CommissionFormController controller) -> {
+                        controller.initWithThesis(thesisId, currentDetails);
+                    }
+            );
+        } catch (Exception e) {
+            System.err.println("ERROR opening form: " + e.getMessage());
+            e.printStackTrace();
+            showError("Greška pri otvaranju forme: " + e.getMessage());
+        }
     }
 
     @FXML
     private void handleEditCommission() {
-        SceneManager.showWithData(
-                "/app/commissionForm.fxml",
-                "Uredi komisiju",
-                (CommissionFormController controller) -> {
-                    controller.initEditCommission(thesisId, currentDetails, commissionData);
-                }
-        );
-    }
+        System.out.println("\n=== EDIT COMMISSION CLICKED ===");
 
-    // Metoda koju poziva CommissionFormController nakon što se komisija sačuva
-    public void setCommissionData(CommissionData data) {
-        this.commissionData = data;
-        updateCommissionDisplay();
-    }
+        if (currentDetails == null || currentCommission == null) {
+            showError("Podaci nisu dostupni");
+            return;
+        }
 
-    public void refresh() {
-        loadThesisDetails();
+        try {
+            SceneManager.showWithData(
+                    "/app/commissionForm.fxml",
+                    "Uredi komisiju",
+                    (CommissionFormController controller) -> {
+                        controller.initEditCommission(thesisId, currentDetails, currentCommission);
+                    }
+            );
+        } catch (Exception e) {
+            System.err.println("ERROR opening edit form: " + e.getMessage());
+            e.printStackTrace();
+            showError("Greška: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -236,12 +296,16 @@ public class ThesisDetailsController {
     }
 
     private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR, message);
-        alert.showAndWait();
+        javafx.application.Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR, message);
+            alert.showAndWait();
+        });
     }
 
     private void showInfo(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
-        alert.showAndWait();
+        javafx.application.Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
+            alert.showAndWait();
+        });
     }
 }
