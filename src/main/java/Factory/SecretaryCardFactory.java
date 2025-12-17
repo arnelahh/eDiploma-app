@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+import model.AcademicStaff;
 import model.AppUser;
 
 import java.util.function.Consumer;
@@ -27,7 +28,16 @@ public class SecretaryCardFactory {
         avatar.setPrefSize(50, 50);
 
         String initials = "";
-        if (secretary.getUsername() != null && !secretary.getUsername().isEmpty()) {
+        // Prioritet: AcademicStaff podaci, zatim Username
+        if (secretary.getAcademicStaff() != null) {
+            AcademicStaff staff = secretary.getAcademicStaff();
+            if (staff.getFirstName() != null && !staff.getFirstName().isEmpty()) {
+                initials += staff.getFirstName().substring(0, 1).toUpperCase();
+            }
+            if (staff.getLastName() != null && !staff.getLastName().isEmpty()) {
+                initials += staff.getLastName().substring(0, 1).toUpperCase();
+            }
+        } else if (secretary.getUsername() != null && !secretary.getUsername().isEmpty()) {
             String[] parts = secretary.getUsername().split(" ");
             if (parts.length > 0 && !parts[0].isEmpty()) {
                 initials += parts[0].substring(0, 1).toUpperCase();
@@ -45,10 +55,21 @@ public class SecretaryCardFactory {
         HBox.setHgrow(info, Priority.ALWAYS);
 
         String fullName = "";
-        if (secretary.getRole() != null && secretary.getRole().getName() != null) {
-            fullName = secretary.getRole().getName() + " ";
+
+        // Prioritet: AcademicStaff podaci, zatim Username
+        if (secretary.getAcademicStaff() != null) {
+            AcademicStaff staff = secretary.getAcademicStaff();
+            if (staff.getTitle() != null && !staff.getTitle().isEmpty()) {
+                fullName = staff.getTitle() + " ";
+            }
+            fullName += staff.getFirstName() + " " + staff.getLastName();
+        } else {
+            if (secretary.getRole() != null && secretary.getRole().getName() != null) {
+                fullName = secretary.getRole().getName() + " ";
+            }
+            fullName += secretary.getUsername();
         }
-        fullName += secretary.getUsername();
+
         Text name = new Text(fullName);
         name.getStyleClass().add("card-title");
 

@@ -117,13 +117,16 @@ public class AppUserDAO {
     public List<AppUser> getAllActiveSecretaries() {
         List<AppUser> secretaries = new ArrayList<>();
         String sql = """
-            SELECT u.Id, u.Username, u.Email, u.IsActive, u.CreatedAt, u.UpdatedAt,
-                   r.Id AS role_id, r.Name AS role_name
-            FROM AppUser u
-            JOIN UserRole r ON u.RoleId = r.Id
-            WHERE u.IsActive = 1
-            ORDER BY u.Id DESC
-        """;
+        SELECT u.Id, u.Username, u.Email, u.IsActive, u.CreatedAt, u.UpdatedAt,
+               r.Id AS role_id, r.Name AS role_name,
+               a.Id AS staff_id, a.FirstName AS staff_first_name,
+               a.LastName AS staff_last_name, a.Title AS staff_title
+        FROM AppUser u
+        JOIN UserRole r ON u.RoleId = r.Id
+        LEFT JOIN AcademicStaff a ON u.AcademicStaffId = a.Id
+        WHERE u.IsActive = 1
+        ORDER BY u.Id DESC
+    """;
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              Statement stmt = conn.createStatement();
@@ -134,12 +137,22 @@ public class AppUserDAO {
                 role.setId(rs.getInt("role_id"));
                 role.setName(rs.getString("role_name"));
 
+                AcademicStaff staff = null;
+                if (rs.getObject("staff_id") != null) {
+                    staff = new AcademicStaff();
+                    staff.setId(rs.getInt("staff_id"));
+                    staff.setFirstName(rs.getString("staff_first_name"));
+                    staff.setLastName(rs.getString("staff_last_name"));
+                    staff.setTitle(rs.getString("staff_title"));
+                }
+
                 AppUser user = new AppUser();
                 user.setId(rs.getInt("Id"));
                 user.setUsername(rs.getString("Username"));
                 user.setEmail(rs.getString("Email"));
                 user.setActive(rs.getBoolean("IsActive"));
                 user.setRole(role);
+                user.setAcademicStaff(staff);
 
                 if (rs.getTimestamp("CreatedAt") != null) {
                     user.setCreatedAt(rs.getTimestamp("CreatedAt").toLocalDateTime());

@@ -6,6 +6,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import model.AcademicStaff;
 import model.AppUser;
 import model.UserRole;
 import utils.DashboardView;
@@ -83,18 +84,26 @@ public class SecretaryFormController {
     }
 
     private void fillFields() {
-        // Parse username to extract first and last name
-        if (secretary.getUsername() != null) {
-            String[] parts = secretary.getUsername().split(" ");
-            if (parts.length >= 2) {
-                firstNameField.setText(parts[0]);
-                lastNameField.setText(parts[1]);
-            } else if (parts.length == 1) {
-                firstNameField.setText(parts[0]);
+        // Ako postoji AcademicStaff, koristi podatke odatle
+        if (secretary.getAcademicStaff() != null) {
+            firstNameField.setText(secretary.getAcademicStaff().getFirstName());
+            lastNameField.setText(secretary.getAcademicStaff().getLastName());
+            titleField.setText(secretary.getAcademicStaff().getTitle() != null ?
+                    secretary.getAcademicStaff().getTitle() : "");
+        } else {
+            // Fallback: parse username
+            if (secretary.getUsername() != null) {
+                String[] parts = secretary.getUsername().split(" ");
+                if (parts.length >= 2) {
+                    firstNameField.setText(parts[0]);
+                    lastNameField.setText(parts[1]);
+                } else if (parts.length == 1) {
+                    firstNameField.setText(parts[0]);
+                }
             }
+            titleField.setText(secretary.getRole() != null ? secretary.getRole().getName() : "");
         }
 
-        titleField.setText(secretary.getRole() != null ? secretary.getRole().getName() : "");
         emailField.setText(secretary.getEmail());
     }
 
@@ -144,15 +153,25 @@ public class SecretaryFormController {
     private AppUser buildSecretary() {
         AppUser newSecretary = new AppUser();
 
-        // Combine first and last name into username
+        // Kombinuj ime i prezime za username (legacy compatibility)
         String username = firstNameField.getText().trim() + " " + lastNameField.getText().trim();
         newSecretary.setUsername(username);
-
         newSecretary.setEmail(emailField.getText() != null ? emailField.getText().trim() : "");
 
-        // Create and set role with title as name
+        // Kreiraj AcademicStaff objekat sa odvojenim poljima
+        AcademicStaff staff = new AcademicStaff();
+        staff.setFirstName(firstNameField.getText().trim());
+        staff.setLastName(lastNameField.getText().trim());
+        staff.setTitle(titleField.getText() != null ? titleField.getText().trim() : "");
+        staff.setEmail(emailField.getText() != null ? emailField.getText().trim() : "");
+        staff.setIsActive(true);
+        staff.setIsDean(false);
+
+        newSecretary.setAcademicStaff(staff);
+
+        // Set role with title as name (legacy)
         UserRole role = new UserRole();
-        role.setId(1); // Default role ID - može se prilagoditi
+        role.setId(1); // Default role ID
         role.setName(titleField.getText() != null ? titleField.getText().trim() : "");
         newSecretary.setRole(role);
 
@@ -161,13 +180,21 @@ public class SecretaryFormController {
     }
 
     private void updateSecretary() {
-        // Combine first and last name into username
+        // Kombinuj ime i prezime za username (legacy compatibility)
         String username = firstNameField.getText().trim() + " " + lastNameField.getText().trim();
         secretary.setUsername(username);
-
         secretary.setEmail(emailField.getText() != null ? emailField.getText().trim() : "");
 
-        // Update role with title
+        // Ažuriraj ili kreiraj AcademicStaff
+        if (secretary.getAcademicStaff() == null) {
+            secretary.setAcademicStaff(new AcademicStaff());
+        }
+        secretary.getAcademicStaff().setFirstName(firstNameField.getText().trim());
+        secretary.getAcademicStaff().setLastName(lastNameField.getText().trim());
+        secretary.getAcademicStaff().setTitle(titleField.getText() != null ? titleField.getText().trim() : "");
+        secretary.getAcademicStaff().setEmail(emailField.getText() != null ? emailField.getText().trim() : "");
+
+        // Update role with title (legacy)
         if (secretary.getRole() == null) {
             secretary.setRole(new UserRole());
         }
