@@ -157,17 +157,16 @@ public class ThesisDetailsController {
             // Zamjenski član (Member3)
             substituteName.setText(formatMemberName(currentCommission.getMember3()));
 
-            // Mentor (iz Thesis, ne iz Commission!) - KLJUČNA ISPRAVKA
+            // Mentor (iz Thesis, ne iz Commission!)
             if (currentDetails != null && currentDetails.getMentor() != null) {
                 mentorCommissionName.setText(formatMemberName(currentDetails.getMentor()));
             } else {
                 mentorCommissionName.setText("—");
             }
 
-            // Sekretar (iz Thesis, ne iz Commission!) - KLJUČNA ISPRAVKA
-            if (currentDetails != null && currentDetails.getSecretary() != null
-                && currentDetails.getSecretary().getAcademicStaff() != null) {
-                secretaryCommissionName.setText(currentDetails.getSecretary().getUsername());
+            // PROMJENA: Sekretar (sada je AcademicStaff, ne AppUser!)
+            if (currentDetails != null && currentDetails.getSecretary() != null) {
+                secretaryCommissionName.setText(formatMemberName(currentDetails.getSecretary()));
             } else {
                 secretaryCommissionName.setText("—");
             }

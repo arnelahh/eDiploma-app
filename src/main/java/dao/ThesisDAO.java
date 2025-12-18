@@ -244,7 +244,10 @@ public class ThesisDAO {
             A.Id AS MentorId, A.Title AS MentorTitle, A.FirstName AS MentorFirstName,
             A.LastName AS MentorLastName, A.Email AS MentorEmail,
             
-            U.Id AS SecretaryId, U.Username AS SecretaryUsername, U.Email AS SecretaryEmail,
+            -- PROMJENA: Sada dohvatamo AcademicStaff podatke za sekretara
+            SEC.Id AS SecretaryId, SEC.Title AS SecretaryTitle, 
+            SEC.FirstName AS SecretaryFirstName, SEC.LastName AS SecretaryLastName,
+            SEC.Email AS SecretaryEmail,
             
             D.Id AS DepartmentId, D.Name AS DepartmentName,
             
@@ -255,7 +258,9 @@ public class ThesisDAO {
         JOIN Student S ON T.StudentId = S.Id
         JOIN StudentStatus SS ON S.StatusId = SS.Id
         JOIN AcademicStaff A ON T.MentorId = A.Id
+        -- PROMJENA: Spajamo preko AppUser do AcademicStaff
         JOIN AppUser U ON T.SecretaryId = U.Id
+        JOIN AcademicStaff SEC ON U.AcademicStaffId = SEC.Id
         JOIN Department D ON T.DepartmentId = D.Id
         JOIN Subject SUB ON T.SubjectId = SUB.Id
         WHERE T.Id = ? AND T.IsActive = 1
@@ -302,11 +307,14 @@ public class ThesisDAO {
                         .Email(rs.getString("MentorEmail"))
                         .build();
 
-                // Build Secretary
-                AppUser secretary = new AppUser();
-                secretary.setId(rs.getInt("SecretaryId"));
-                secretary.setUsername(rs.getString("SecretaryUsername"));
-                secretary.setEmail(rs.getString("SecretaryEmail"));
+                // PROMJENA: Build Secretary kao AcademicStaff
+                AcademicStaff secretary = AcademicStaff.builder()
+                        .Id(rs.getInt("SecretaryId"))
+                        .Title(rs.getString("SecretaryTitle"))
+                        .FirstName(rs.getString("SecretaryFirstName"))
+                        .LastName(rs.getString("SecretaryLastName"))
+                        .Email(rs.getString("SecretaryEmail"))
+                        .build();
 
                 // Build Department
                 Department department = new Department();
@@ -332,7 +340,7 @@ public class ThesisDAO {
                         .status(rs.getString("StatusName"))
                         .student(student)
                         .mentor(mentor)
-                        .secretary(secretary)
+                        .secretary(secretary)  // PROMJENA: Sada je AcademicStaff
                         .department(department)
                         .subject(subject)
                         .build();
@@ -344,6 +352,4 @@ public class ThesisDAO {
             throw new RuntimeException("Greška pri dohvatanju detalja rada: " + e.getMessage(), e);
         }
     }
-
-
 }
