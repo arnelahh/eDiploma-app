@@ -25,12 +25,13 @@ public class ThesisValidator {
         if (isNull(dto.getSubject()))
             vr.add("Potrebno je unijeti Predmet.");
 
-        // U DTO-u status je String, pa koristimo isBlank
-        if (isBlank(dto.getStatus()))
-            vr.add("Potrebno je unijeti Status.");
-
+        // PROMJENA: Secretary je sada AcademicStaff objekat
         if (isNull(dto.getSecretary()))
             vr.add("Potrebno je unijeti Sekretara.");
+
+        // Status je String u DTO-u
+        if (isBlank(dto.getStatus()))
+            vr.add("Potrebno je unijeti Status.");
 
         return vr;
     }

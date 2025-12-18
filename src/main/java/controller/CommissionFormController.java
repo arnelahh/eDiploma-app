@@ -11,7 +11,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import model.AcademicStaff;
-import model.AppUser;
 import model.Commission;
 import model.CommissionRole;
 import model.Thesis;
@@ -114,7 +113,6 @@ public class CommissionFormController {
             if (isEditMode && existingCommission != null) {
                 fillExistingCommission();
             } else if (thesisDetails != null && thesisDetails.getMentor() != null) {
-                // Auto-select mentor from thesis
                 mentorComboBox.getItems().stream()
                         .filter(s -> s.getId() == thesisDetails.getMentor().getId())
                         .findFirst()
@@ -133,7 +131,6 @@ public class CommissionFormController {
         Task<List<AcademicStaff>> task = new Task<>() {
             @Override
             protected List<AcademicStaff> call() throws Exception {
-                // Dohvatamo sve AcademicStaff koji su sekretari (povezani sa AppUser)
                 return appUserDAO.getAllSecretariesAsStaff();
             }
         };
@@ -145,7 +142,6 @@ public class CommissionFormController {
             secretaryComboBox.getItems().addAll(secretaries);
 
             if (thesisDetails != null && thesisDetails.getSecretary() != null) {
-                // Auto-select secretary from thesis
                 secretaryComboBox.getItems().stream()
                         .filter(s -> s.getId() == thesisDetails.getSecretary().getId())
                         .findFirst()
@@ -155,6 +151,7 @@ public class CommissionFormController {
 
         new Thread(task, "load-secretaries").start();
     }
+
     public void initWithThesis(int thesisId, ThesisDetailsDTO details) {
         this.thesisId = thesisId;
         this.thesisDetails = details;
@@ -185,7 +182,6 @@ public class CommissionFormController {
     private void fillExistingCommission() {
         if (existingCommission == null) return;
 
-        // Chairman
         if (existingCommission.getMember1() != null) {
             chairmanComboBox.getItems().stream()
                     .filter(s -> s.getId() == existingCommission.getMember1().getId())
@@ -193,7 +189,6 @@ public class CommissionFormController {
                     .ifPresent(chairmanComboBox::setValue);
         }
 
-        // Member
         if (existingCommission.getMember2() != null) {
             memberComboBox.getItems().stream()
                     .filter(s -> s.getId() == existingCommission.getMember2().getId())
@@ -201,7 +196,6 @@ public class CommissionFormController {
                     .ifPresent(memberComboBox::setValue);
         }
 
-        // Substitute
         if (existingCommission.getMember3() != null) {
             substituteComboBox.getItems().stream()
                     .filter(s -> s.getId() == existingCommission.getMember3().getId())
@@ -209,7 +203,6 @@ public class CommissionFormController {
                     .ifPresent(substituteComboBox::setValue);
         }
 
-        // Mentor
         if (thesisDetails != null && thesisDetails.getMentor() != null) {
             mentorComboBox.getItems().stream()
                     .filter(s -> s.getId() == thesisDetails.getMentor().getId())
@@ -217,7 +210,6 @@ public class CommissionFormController {
                     .ifPresent(mentorComboBox::setValue);
         }
 
-        // PROMJENA: Secretary (sada je AcademicStaff)
         if (thesisDetails != null && thesisDetails.getSecretary() != null) {
             secretaryComboBox.getItems().stream()
                     .filter(s -> s.getId() == thesisDetails.getSecretary().getId())
@@ -226,8 +218,8 @@ public class CommissionFormController {
         }
     }
 
+    @FXML
     private void handleSave() {
-        // Validation
         if (chairmanComboBox.getValue() == null) {
             showWarning("Morate izabrati predsjednika komisije!");
             return;
@@ -248,17 +240,14 @@ public class CommissionFormController {
         Commission commission = new Commission();
         commission.setThesisId(thesisId);
 
-        // Member 1 - Chairman
         AcademicStaff chairman = chairmanComboBox.getValue();
         commission.setMember1(chairman);
         commission.setMember1Role(getRoleById(ROLE_PRESIDENT));
 
-        // Member 2 - Member
         AcademicStaff member = memberComboBox.getValue();
         commission.setMember2(member);
         commission.setMember2Role(getRoleById(ROLE_MEMBER));
 
-        // Member 3 - Substitute (optional)
         if (substituteComboBox.getValue() != null) {
             AcademicStaff substitute = substituteComboBox.getValue();
             commission.setMember3(substitute);
@@ -266,28 +255,26 @@ public class CommissionFormController {
         }
 
         try {
-            // Save commission
             if (isEditMode) {
                 commissionDAO.updateCommission(commission);
             } else {
                 commissionDAO.insertCommission(commission);
             }
 
-            // PROMJENA: Pronađi AppUser ID za odabranog sekretara
+            // PROMJENA: Dobijamo AppUser ID od odabranog sekretara (AcademicStaff)
             AcademicStaff selectedSecretary = secretaryComboBox.getValue();
             int secretaryAppUserId = appUserDAO.getAppUserIdByAcademicStaffId(selectedSecretary.getId());
 
-            // Update Mentor and Secretary in Thesis table
+            // Ažuriramo Thesis sa novim mentorom i sekretarom
             Thesis thesis = thesisDAO.getThesisById(thesisId);
             if (thesis != null) {
                 thesis.setAcademicStaffId(mentorComboBox.getValue().getId());
-                thesis.setSecretaryId(secretaryAppUserId);  // PROMJENA: koristimo AppUser ID
+                thesis.setSecretaryId(secretaryAppUserId); // Ovo je AppUser ID (kako je u bazi)
                 thesisDAO.updateThesis(thesis);
             }
 
             showInfo(isEditMode ? "Komisija je uspješno ažurirana!" : "Komisija je uspješno kreirana!");
 
-            // Return to details
             SceneManager.showWithData(
                     "/app/thesisDetails.fxml",
                     "Detalji završnog rada",
