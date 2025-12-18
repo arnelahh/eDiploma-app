@@ -1,7 +1,7 @@
 package controller;
 
 import dao.*;
-import dto.ThesisDetailsDTO; // Tvoj postojeći DTO
+import dto.ThesisDetailsDTO;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -25,17 +25,15 @@ public class ThesisFormController {
     private static final int TOTAL_LOADERS = 6;
     private Integer returnToThesisId = null;
 
-    // Instanca validatora
     private final ThesisValidator thesisValidator = new ThesisValidator();
 
-    // DAO objekti
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final StudentDAO studentDAO = new StudentDAO();
     private final AcademicStaffDAO mentorDAO = new AcademicStaffDAO();
     private final DepartmentDAO departmentDAO = new DepartmentDAO();
     private final SubjectDAO subjectDAO = new SubjectDAO();
     private final ThesisStatusDAO statusDAO = new ThesisStatusDAO();
-    private final AppUserDAO secretaryDAO = new AppUserDAO();
+    private final AppUserDAO secretaryDAO = new AppUserDAO(); // Još uvijek koristimo za dohvatanje ID-a
 
     @FXML private Text formTitle;
     @FXML private Text formSubtitle;
@@ -49,7 +47,7 @@ public class ThesisFormController {
     @FXML private ComboBox<Department> departmentComboBox;
     @FXML private ComboBox<Subject> subjectComboBox;
     @FXML private ComboBox<ThesisStatus> statusComboBox;
-    @FXML private ComboBox<AppUser> secretaryComboBox;
+    @FXML private ComboBox<AcademicStaff> secretaryComboBox; // PROMJENA: Sada je AcademicStaff
     @FXML private Button deleteButton;
     @FXML private HBox deleteButtonContainer;
 
@@ -68,36 +66,95 @@ public class ThesisFormController {
         loadSecretaries();
     }
 
-    // --- LOADERS (Skraćeni radi preglednosti, isti su kao tvoji) ---
     private void loadStudents() {
-        Task<List<Student>> task = new Task<>() { @Override protected List<Student> call() throws Exception { return studentDAO.getAllStudents(); } };
-        task.setOnSucceeded(e -> { studentComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
-        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
+        Task<List<Student>> task = new Task<>() {
+            @Override
+            protected List<Student> call() throws Exception {
+                return studentDAO.getAllStudents();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            studentComboBox.getItems().setAll(task.getValue());
+            onDataLoaded();
+        });
+        task.setOnFailed(e -> onDataLoaded());
+        new Thread(task).start();
     }
+
     private void loadMentors() {
-        Task<List<AcademicStaff>> task = new Task<>() { @Override protected List<AcademicStaff> call() throws Exception { return mentorDAO.getAllActiveAcademicStaff(); } };
-        task.setOnSucceeded(e -> { mentorComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
-        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
+        Task<List<AcademicStaff>> task = new Task<>() {
+            @Override
+            protected List<AcademicStaff> call() throws Exception {
+                return mentorDAO.getAllActiveAcademicStaff();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            mentorComboBox.getItems().setAll(task.getValue());
+            onDataLoaded();
+        });
+        task.setOnFailed(e -> onDataLoaded());
+        new Thread(task).start();
     }
+
     private void loadDepartments() {
-        Task<List<Department>> task = new Task<>() { @Override protected List<Department> call() throws Exception { return departmentDAO.getAllDepartments(); } };
-        task.setOnSucceeded(e -> { departmentComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
-        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
+        Task<List<Department>> task = new Task<>() {
+            @Override
+            protected List<Department> call() throws Exception {
+                return departmentDAO.getAllDepartments();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            departmentComboBox.getItems().setAll(task.getValue());
+            onDataLoaded();
+        });
+        task.setOnFailed(e -> onDataLoaded());
+        new Thread(task).start();
     }
+
     private void loadSubjects() {
-        Task<List<Subject>> task = new Task<>() { @Override protected List<Subject> call() throws Exception { return subjectDAO.getAllSubjects(); } };
-        task.setOnSucceeded(e -> { subjectComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
-        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
+        Task<List<Subject>> task = new Task<>() {
+            @Override
+            protected List<Subject> call() throws Exception {
+                return subjectDAO.getAllSubjects();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            subjectComboBox.getItems().setAll(task.getValue());
+            onDataLoaded();
+        });
+        task.setOnFailed(e -> onDataLoaded());
+        new Thread(task).start();
     }
+
     private void loadStatuses() {
-        Task<List<ThesisStatus>> task = new Task<>() { @Override protected List<ThesisStatus> call() throws Exception { return statusDAO.getAllThesisStatuses(); } };
-        task.setOnSucceeded(e -> { statusComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
-        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
+        Task<List<ThesisStatus>> task = new Task<>() {
+            @Override
+            protected List<ThesisStatus> call() throws Exception {
+                return statusDAO.getAllThesisStatuses();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            statusComboBox.getItems().setAll(task.getValue());
+            onDataLoaded();
+        });
+        task.setOnFailed(e -> onDataLoaded());
+        new Thread(task).start();
     }
+
+    // PROMJENA: Sada učitavamo AcademicStaff objekte koji su sekretari
     private void loadSecretaries() {
-        Task<List<AppUser>> task = new Task<>() { @Override protected List<AppUser> call() throws Exception { return secretaryDAO.getAllAppUsers(); } };
-        task.setOnSucceeded(e -> { secretaryComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
-        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
+        Task<List<AcademicStaff>> task = new Task<>() {
+            @Override
+            protected List<AcademicStaff> call() throws Exception {
+                return secretaryDAO.getAllSecretariesAsStaff();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            secretaryComboBox.getItems().setAll(task.getValue());
+            onDataLoaded();
+        });
+        task.setOnFailed(e -> onDataLoaded());
+        new Thread(task).start();
     }
 
     private void onDataLoaded() {
@@ -107,33 +164,42 @@ public class ThesisFormController {
         }
     }
 
-    // --- SETUP & FIELD FILLING ---
-
     private void setupComboBoxConverters() {
-        // Tvoji converteri ostaju isti
         studentComboBox.setConverter(new javafx.util.StringConverter<>() {
-            public String toString(Student s) { return s != null ? s.getFirstName() + " " + s.getLastName() + " (" + s.getIndexNumber() + ")" : ""; }
+            public String toString(Student s) {
+                return s != null ? s.getFirstName() + " " + s.getLastName() + " (" + s.getIndexNumber() + ")" : "";
+            }
             public Student fromString(String s) { return null; }
         });
+
         mentorComboBox.setConverter(new javafx.util.StringConverter<>() {
-            public String toString(AcademicStaff m) { return m != null ? (m.getTitle() != null ? m.getTitle() + " " : "") + m.getFirstName() + " " + m.getLastName() : ""; }
+            public String toString(AcademicStaff m) {
+                return m != null ? (m.getTitle() != null ? m.getTitle() + " " : "") + m.getFirstName() + " " + m.getLastName() : "";
+            }
             public AcademicStaff fromString(String s) { return null; }
         });
+
         departmentComboBox.setConverter(new javafx.util.StringConverter<>() {
             public String toString(Department d) { return d != null ? d.getName() : ""; }
             public Department fromString(String s) { return null; }
         });
+
         subjectComboBox.setConverter(new javafx.util.StringConverter<>() {
             public String toString(Subject s) { return s != null ? s.getName() : ""; }
             public Subject fromString(String s) { return null; }
         });
+
         statusComboBox.setConverter(new javafx.util.StringConverter<>() {
             public String toString(ThesisStatus s) { return s != null ? s.getName() : ""; }
             public ThesisStatus fromString(String s) { return null; }
         });
+
+        // PROMJENA: Converter za AcademicStaff (sekretar)
         secretaryComboBox.setConverter(new javafx.util.StringConverter<>() {
-            public String toString(AppUser u) { return u != null ? u.getUsername() + " (" + u.getEmail() + ")" : ""; }
-            public AppUser fromString(String s) { return null; }
+            public String toString(AcademicStaff u) {
+                return u != null ? (u.getTitle() != null ? u.getTitle() + " " : "") + u.getFirstName() + " " + u.getLastName() : "";
+            }
+            public AcademicStaff fromString(String s) { return null; }
         });
     }
 
@@ -177,6 +243,8 @@ public class ThesisFormController {
         selectItemById(departmentComboBox, thesis.getDepartmentId());
         selectItemById(subjectComboBox, thesis.getSubjectId());
         selectItemById(statusComboBox, thesis.getStatusId());
+
+        // PROMJENA: Selektujemo sekretara po AcademicStaff ID-u
         selectItemById(secretaryComboBox, thesis.getSecretaryId());
     }
 
@@ -190,29 +258,18 @@ public class ThesisFormController {
         }).findFirst().ifPresent(comboBox::setValue);
     }
 
-    // --- SAVE LOGIC WITH VALIDATOR ---
-
     @FXML
     private void handleSave() {
-        // 1. Priprema podataka
         ThesisDetailsDTO dto = extractDtoFromForm();
-
-        // 2. Poziv Validatora (SADA VRAĆA ValidationResult)
         ValidationResult result = thesisValidator.validate(dto);
-
-        // Preuzimamo listu grešaka iz rezultata
         List<String> errors = result.getErrors();
-
-        // 3. Dodatna ručna validacija za ocjenu (dodajemo u istu listu grešaka)
         validateGradeManually(errors);
 
-        // 4. Provjera
-        if (!errors.isEmpty()) { // ili if (!result.isValid()) ako ne računaš grade greške odmah
+        if (!errors.isEmpty()) {
             showErrorList(errors);
             return;
         }
 
-        // 5. Ako je sve OK, snimamo
         try {
             if (mode == Mode.CREATE) {
                 thesisDAO.insertThesis(buildThesisFromForm());
@@ -238,9 +295,6 @@ public class ThesisFormController {
         }
     }
 
-    /**
-     * Kreira DTO objekat koristeći Lombok Builder, mapirajući podatke sa forme.
-     */
     private ThesisDetailsDTO extractDtoFromForm() {
         return ThesisDetailsDTO.builder()
                 .title(titleField.getText())
@@ -251,9 +305,7 @@ public class ThesisFormController {
                 .mentor(mentorComboBox.getValue())
                 .department(departmentComboBox.getValue())
                 .subject(subjectComboBox.getValue())
-                .secretary(secretaryComboBox.getValue())
-                // BITNO: DTO traži String status, a ComboBox ima ThesisStatus objekat
-                // Ako je selektovano, uzimamo .getName(), inače null (što validator hvata)
+                .secretary(secretaryComboBox.getValue()) // PROMJENA: Sada je AcademicStaff
                 .status(statusComboBox.getValue() != null ? statusComboBox.getValue().getName() : null)
                 .build();
     }
@@ -299,7 +351,16 @@ public class ThesisFormController {
         if (departmentComboBox.getValue() != null) t.setDepartmentId(departmentComboBox.getValue().getId());
         if (subjectComboBox.getValue() != null) t.setSubjectId(subjectComboBox.getValue().getId());
         if (statusComboBox.getValue() != null) t.setStatusId(statusComboBox.getValue().getId());
-        if (secretaryComboBox.getValue() != null) t.setSecretaryId(secretaryComboBox.getValue().getId());
+
+        // PROMJENA: Uzimamo AcademicStaff ID, ali moramo ga konvertovati u AppUser ID za bazu
+        if (secretaryComboBox.getValue() != null) {
+            try {
+                int appUserId = secretaryDAO.getAppUserIdByAcademicStaffId(secretaryComboBox.getValue().getId());
+                t.setSecretaryId(appUserId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @FXML

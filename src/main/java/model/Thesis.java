@@ -18,7 +18,7 @@ public class Thesis {
     private int studentId;
     private int academicStaffId;
     private int departmentId;
-    private int secretaryId;
+    private int secretaryId; // Ovo je sada ID iz AcademicStaff tabele (preko AppUser.AcademicStaffId)
     private int subjectId;
     private int statusId;
 
@@ -32,7 +32,7 @@ public class Thesis {
     private Student student;
     private Subject subject;
     private ThesisStatus status;
-    private AppUser secretary;
+    private AcademicStaff secretary; // PROMJENA: Sada je AcademicStaff umjesto AppUser
     private AcademicStaff mentor;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

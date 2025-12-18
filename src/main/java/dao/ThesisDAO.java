@@ -8,27 +8,29 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class ThesisDAO {
+
     public List<ThesisDTO> getAllThesis(){
         List<ThesisDTO> thesis = new ArrayList<>();
-        String sql = "SELECT T.Id,\n" +
-                "    T.Title,\n" +
-                "    CONCAT(S.FirstName,' ',S.LastName) AS StudentFullName,\n" +
-                "    CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName,\n" +
-                "    S.Cycle,\n" +
-                "    TS.Name AS Status,\n" +
-                "    T.ApplicationDate\n" +
-                "FROM Thesis T\n" +
-                "JOIN Student S ON S.Id = T.StudentId\n" +
-                "JOIN AcademicStaff A ON A.Id = T.MentorId\n" +
-                "JOIN ThesisStatus TS ON TS.Id = T.StatusId\n" +
-                "WHERE T.IsActive = 1\n" +
-                "ORDER BY T.Id DESC;\n";
+        String sql = """
+                SELECT T.Id,
+                    T.Title,
+                    CONCAT(S.FirstName,' ',S.LastName) AS StudentFullName,
+                    CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName,
+                    S.Cycle,
+                    TS.Name AS Status,
+                    T.ApplicationDate
+                FROM Thesis T
+                JOIN Student S ON S.Id = T.StudentId
+                JOIN AcademicStaff A ON A.Id = T.MentorId
+                JOIN ThesisStatus TS ON TS.Id = T.StatusId
+                WHERE T.IsActive = 1
+                ORDER BY T.Id DESC
+                """;
 
         try(Connection conn=CloudDatabaseConnection.Konekcija();
             Statement stmt=conn.createStatement();
-            ResultSet rs=stmt.executeQuery(sql);)
+            ResultSet rs=stmt.executeQuery(sql))
         {
             while (rs.next()) {
                 ThesisDTO thesisDTO = new ThesisDTO();
@@ -41,7 +43,6 @@ public class ThesisDAO {
                 thesisDTO.setApplicationDate(rs.getDate("ApplicationDate").toLocalDate());
                 thesis.add(thesisDTO);
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -51,23 +52,24 @@ public class ThesisDAO {
     public List<ThesisDTO> getAllThesisBySearch(String search){
         List<ThesisDTO> thesis = new ArrayList<>();
         String sql= """
-                select T.Id,T.Title, CONCAT(S.FirstName,' ',S.LastName) as StudentFullName, CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName, S.Cycle
-                  FROM Thesis T
-                  JOIN Student S on S.Id=T.StudentId
-                  join AcademicStaff A on A.Id=T.MentorId
-                  where (LOWER(T.Title) like ? or lower(CONCAT(S.FirstName,' ',S.LastName)) LIKE ? or lower(CONCAT(A.FirstName,' ',A.LastName)) LIKE ? or LOwer(S.FirstName) like ? or lower(S.LastName) LIKE ? or lower(A.FirstName) LIKE ? or lower(A.LastName) LIKE ?) and T.IsActive=1;
+                SELECT T.Id,T.Title, CONCAT(S.FirstName,' ',S.LastName) as StudentFullName, 
+                       CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName, S.Cycle
+                FROM Thesis T
+                JOIN Student S on S.Id=T.StudentId
+                JOIN AcademicStaff A on A.Id=T.MentorId
+                WHERE (LOWER(T.Title) LIKE ? OR LOWER(CONCAT(S.FirstName,' ',S.LastName)) LIKE ? 
+                       OR LOWER(CONCAT(A.FirstName,' ',A.LastName)) LIKE ? 
+                       OR LOWER(S.FirstName) LIKE ? OR LOWER(S.LastName) LIKE ? 
+                       OR LOWER(A.FirstName) LIKE ? OR LOWER(A.LastName) LIKE ?) 
+                AND T.IsActive=1
                 """;
 
         try (Connection connection=CloudDatabaseConnection.Konekcija();
-        PreparedStatement stmt=connection.prepareStatement(sql);)
+             PreparedStatement stmt=connection.prepareStatement(sql))
         {
-            stmt.setString(1, "%" + search.toLowerCase() + "%");
-            stmt.setString(2, "%" + search.toLowerCase() + "%");
-            stmt.setString(3, "%" + search.toLowerCase() + "%");
-            stmt.setString(4, "%" + search.toLowerCase() + "%");
-            stmt.setString(5, "%" + search.toLowerCase() + "%");
-            stmt.setString(6, "%" + search.toLowerCase() + "%");
-            stmt.setString(7, "%" + search.toLowerCase() + "%");
+            for (int i = 1; i <= 7; i++) {
+                stmt.setString(i, "%" + search.toLowerCase() + "%");
+            }
 
             ResultSet rs=stmt.executeQuery();
             while (rs.next()) {
@@ -79,19 +81,19 @@ public class ThesisDAO {
                 thesisDTO.setCycle(rs.getInt("Cycle"));
                 thesis.add(thesisDTO);
             }
-        }catch(SQLException e){
+        } catch(SQLException e){
             throw new RuntimeException(e);
         }
         return thesis;
     }
 
-    public void  insertThesis(Thesis thesis){
+    public void insertThesis(Thesis thesis){
         String sql= """
-                insert into Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId,StatusId)
-                values(?,?,?,?,?,?,?,?);
+                INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId,StatusId)
+                VALUES(?,?,?,?,?,?,?,?)
                 """;
         try (Connection connection=CloudDatabaseConnection.Konekcija();
-             PreparedStatement stmt=connection.prepareStatement(sql);)
+             PreparedStatement stmt=connection.prepareStatement(sql))
         {
             java.time.LocalDate applicationLocalDate = thesis.getApplicationDate();
             java.sql.Date sqlDate = java.sql.Date.valueOf(applicationLocalDate);
@@ -101,7 +103,7 @@ public class ThesisDAO {
             stmt.setInt(3,thesis.getDepartmentId());
             stmt.setInt(4,thesis.getStudentId());
             stmt.setInt(5,thesis.getAcademicStaffId());
-            stmt.setInt(6,thesis.getSecretaryId());
+            stmt.setInt(6,thesis.getSecretaryId()); // Ovo je AppUser ID
             stmt.setInt(7,thesis.getSubjectId());
             stmt.setInt(8,thesis.getStatusId());
 
@@ -109,10 +111,7 @@ public class ThesisDAO {
             if (affectedRows == 0) {
                 throw new RuntimeException("Error in inserting thesis");
             }
-
-
-        }
-        catch(SQLException e){
+        } catch(SQLException e){
             throw new RuntimeException(e);
         }
     }
@@ -151,7 +150,7 @@ public class ThesisDAO {
             ps.setInt(8, thesis.getDepartmentId());
             ps.setInt(9, thesis.getSubjectId());
             ps.setInt(10, thesis.getStatusId());
-            ps.setInt(11, thesis.getSecretaryId());
+            ps.setInt(11, thesis.getSecretaryId()); // Ovo je AppUser ID
             ps.setTimestamp(12, Timestamp.valueOf(java.time.LocalDateTime.now()));
             ps.setInt(13, thesis.getId());
 
@@ -163,7 +162,6 @@ public class ThesisDAO {
     }
 
     public void deleteThesis(int id) {
-        // Soft delete - postavljamo IsActive na false
         String sql = "UPDATE Thesis SET IsActive = 0, UpdatedAt = ? WHERE Id = ?";
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
@@ -178,7 +176,6 @@ public class ThesisDAO {
         }
     }
 
-    // Metoda za dohvatanje jednog rada po ID-u (potrebna za edit)
     public Thesis getThesisById(int id) {
         String sql = """
         SELECT * FROM Thesis WHERE Id = ? AND IsActive = 1
@@ -206,7 +203,10 @@ public class ThesisDAO {
                 thesis.setDepartmentId(rs.getInt("DepartmentId"));
                 thesis.setSubjectId(rs.getInt("SubjectId"));
                 thesis.setStatusId(rs.getInt("StatusId"));
-                thesis.setSecretaryId(rs.getInt("SecretaryId"));
+
+                // PROMJENA: Dohvatamo AppUser ID iz baze, ali ćemo ga koristiti
+                // da pronađemo AcademicStaff ID preko AppUser.AcademicStaffId
+                thesis.setSecretaryId(rs.getInt("SecretaryId")); // Ovo je AppUser ID iz baze
                 thesis.setActive(rs.getBoolean("IsActive"));
 
                 if (rs.getTimestamp("CreatedAt") != null) {
@@ -225,8 +225,10 @@ public class ThesisDAO {
         }
     }
 
-    // Dodaj ovu metodu u ThesisDAO.java
-
+    /**
+     * KLJUČNA METODA: Dohvata kompletne detalje završnog rada
+     * PROMJENA: Secretary je sada AcademicStaff objekat umjesto AppUser
+     */
     public ThesisDetailsDTO getThesisDetails(int thesisId) {
         String sql = """
         SELECT 
@@ -244,7 +246,6 @@ public class ThesisDAO {
             A.Id AS MentorId, A.Title AS MentorTitle, A.FirstName AS MentorFirstName,
             A.LastName AS MentorLastName, A.Email AS MentorEmail,
             
-            -- PROMJENA: Sada dohvatamo AcademicStaff podatke za sekretara
             SEC.Id AS SecretaryId, SEC.Title AS SecretaryTitle, 
             SEC.FirstName AS SecretaryFirstName, SEC.LastName AS SecretaryLastName,
             SEC.Email AS SecretaryEmail,
@@ -258,7 +259,6 @@ public class ThesisDAO {
         JOIN Student S ON T.StudentId = S.Id
         JOIN StudentStatus SS ON S.StatusId = SS.Id
         JOIN AcademicStaff A ON T.MentorId = A.Id
-        -- PROMJENA: Spajamo preko AppUser do AcademicStaff
         JOIN AppUser U ON T.SecretaryId = U.Id
         JOIN AcademicStaff SEC ON U.AcademicStaffId = SEC.Id
         JOIN Department D ON T.DepartmentId = D.Id
@@ -273,7 +273,6 @@ public class ThesisDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                // Build Student
                 StudentStatus studentStatus = StudentStatus.builder()
                         .Id(rs.getInt("StudentStatusId"))
                         .Name(rs.getString("StudentStatusName"))
@@ -298,7 +297,6 @@ public class ThesisDAO {
                         .Email(rs.getString("StudentEmail"))
                         .build();
 
-                // Build Mentor
                 AcademicStaff mentor = AcademicStaff.builder()
                         .Id(rs.getInt("MentorId"))
                         .Title(rs.getString("MentorTitle"))
@@ -307,7 +305,7 @@ public class ThesisDAO {
                         .Email(rs.getString("MentorEmail"))
                         .build();
 
-                // PROMJENA: Build Secretary kao AcademicStaff
+                // PROMJENA: Secretary je sada AcademicStaff
                 AcademicStaff secretary = AcademicStaff.builder()
                         .Id(rs.getInt("SecretaryId"))
                         .Title(rs.getString("SecretaryTitle"))
@@ -316,17 +314,14 @@ public class ThesisDAO {
                         .Email(rs.getString("SecretaryEmail"))
                         .build();
 
-                // Build Department
                 Department department = new Department();
                 department.setId(rs.getInt("DepartmentId"));
                 department.setName(rs.getString("DepartmentName"));
 
-                // Build Subject
                 Subject subject = new Subject();
                 subject.setId(rs.getInt("SubjectId"));
                 subject.setName(rs.getString("SubjectName"));
 
-                // Build ThesisDetailsDTO
                 return ThesisDetailsDTO.builder()
                         .id(rs.getInt("Id"))
                         .title(rs.getString("Title"))
@@ -340,7 +335,7 @@ public class ThesisDAO {
                         .status(rs.getString("StatusName"))
                         .student(student)
                         .mentor(mentor)
-                        .secretary(secretary)  // PROMJENA: Sada je AcademicStaff
+                        .secretary(secretary) // PROMJENA: Sada je AcademicStaff
                         .department(department)
                         .subject(subject)
                         .build();
