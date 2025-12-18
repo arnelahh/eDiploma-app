@@ -1,17 +1,16 @@
 package controller;
 
 import dao.*;
+import dto.ThesisDetailsDTO; // Tvoj postojeći DTO
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import model.*;
-import utils.DashboardView;
-import utils.NavigationContext;
-import utils.SceneManager;
+import utils.*;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,9 +22,13 @@ public class ThesisFormController {
     private Thesis thesis;
 
     private final AtomicInteger loadedCount = new AtomicInteger(0);
-    private static final int TOTAL_LOADERS = 6; // students, mentors, departments, subjects, statuses, secretaries
+    private static final int TOTAL_LOADERS = 6;
     private Integer returnToThesisId = null;
 
+    // Instanca validatora
+    private final ThesisValidator thesisValidator = new ThesisValidator();
+
+    // DAO objekti
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final StudentDAO studentDAO = new StudentDAO();
     private final AcademicStaffDAO mentorDAO = new AcademicStaffDAO();
@@ -53,6 +56,10 @@ public class ThesisFormController {
     @FXML
     public void initialize() {
         setupComboBoxConverters();
+        loadAllData();
+    }
+
+    private void loadAllData() {
         loadStudents();
         loadMentors();
         loadDepartments();
@@ -61,168 +68,71 @@ public class ThesisFormController {
         loadSecretaries();
     }
 
+    // --- LOADERS (Skraćeni radi preglednosti, isti su kao tvoji) ---
     private void loadStudents() {
-        Task<List<Student>> task = new Task<List<Student>>() {
-            @Override
-            protected List<Student> call() throws Exception {
-                return studentDAO.getAllStudents();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            studentComboBox.getItems().clear();
-            studentComboBox.getItems().addAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(event -> {
-            Throwable ex = event.getSource().getException();
-            onDataLoaded();
-        });
-        new Thread(task).start();
+        Task<List<Student>> task = new Task<>() { @Override protected List<Student> call() throws Exception { return studentDAO.getAllStudents(); } };
+        task.setOnSucceeded(e -> { studentComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
+        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
     }
-
     private void loadMentors() {
-        Task<List<AcademicStaff>> task = new  Task<List<AcademicStaff>>() {
-            @Override
-            protected List<AcademicStaff> call() throws Exception {
-                return mentorDAO.getAllActiveAcademicStaff();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            mentorComboBox.getItems().clear();
-            mentorComboBox.getItems().addAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(event -> {
-            Throwable ex = event.getSource().getException();
-            onDataLoaded();
-        });
-        new Thread(task).start();
+        Task<List<AcademicStaff>> task = new Task<>() { @Override protected List<AcademicStaff> call() throws Exception { return mentorDAO.getAllActiveAcademicStaff(); } };
+        task.setOnSucceeded(e -> { mentorComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
+        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
     }
-
     private void loadDepartments() {
-        Task<List<Department>> task=new  Task<List<Department>>() {
-            @Override
-            protected List<Department> call() throws Exception {
-                return departmentDAO.getAllDepartments();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            departmentComboBox.getItems().clear();
-            departmentComboBox.getItems().addAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(event -> {
-            Throwable ex = event.getSource().getException();
-            onDataLoaded();
-        });
-        new Thread(task).start();
+        Task<List<Department>> task = new Task<>() { @Override protected List<Department> call() throws Exception { return departmentDAO.getAllDepartments(); } };
+        task.setOnSucceeded(e -> { departmentComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
+        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
     }
-
     private void loadSubjects() {
-        Task<List<Subject>> task = new   Task<List<Subject>>() {
-            @Override
-            protected List<Subject> call() throws Exception {
-                return subjectDAO.getAllSubjects();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            subjectComboBox.getItems().clear();
-            subjectComboBox.getItems().addAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(event -> {
-            Throwable ex = event.getSource().getException();
-            onDataLoaded();
-        });
-        new Thread(task).start();
+        Task<List<Subject>> task = new Task<>() { @Override protected List<Subject> call() throws Exception { return subjectDAO.getAllSubjects(); } };
+        task.setOnSucceeded(e -> { subjectComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
+        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
     }
-
     private void loadStatuses() {
-        Task<List<ThesisStatus>> task = new  Task<List<ThesisStatus>>() {
-            @Override
-            protected List<ThesisStatus> call() throws Exception {
-                return statusDAO.getAllThesisStatuses();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            statusComboBox.getItems().clear();
-            statusComboBox.getItems().addAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(event -> {
-            Throwable ex = event.getSource().getException();
-            onDataLoaded();
-        });
-        new Thread(task).start();
+        Task<List<ThesisStatus>> task = new Task<>() { @Override protected List<ThesisStatus> call() throws Exception { return statusDAO.getAllThesisStatuses(); } };
+        task.setOnSucceeded(e -> { statusComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
+        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
     }
-
     private void loadSecretaries() {
-        Task<List<AppUser>> task = new   Task<List<AppUser>>() {
-            @Override
-            protected List<AppUser> call() throws Exception {
-                return secretaryDAO.getAllAppUsers();
-            }
-        };
-        task.setOnSucceeded(event -> {
-            secretaryComboBox.getItems().clear();
-            secretaryComboBox.getItems().addAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(event -> {
-            Throwable ex = event.getSource().getException();
-            onDataLoaded();
-        });
-        new Thread(task).start();
+        Task<List<AppUser>> task = new Task<>() { @Override protected List<AppUser> call() throws Exception { return secretaryDAO.getAllAppUsers(); } };
+        task.setOnSucceeded(e -> { secretaryComboBox.getItems().setAll(task.getValue()); onDataLoaded(); });
+        task.setOnFailed(e -> onDataLoaded()); new Thread(task).start();
     }
 
     private void onDataLoaded() {
         int count = loadedCount.incrementAndGet();
         if (count == TOTAL_LOADERS && mode == Mode.EDIT && thesis != null) {
-            // All data loaded, now we can fill the fields
             javafx.application.Platform.runLater(this::fillFields);
         }
     }
 
+    // --- SETUP & FIELD FILLING ---
+
     private void setupComboBoxConverters() {
-        studentComboBox.setConverter(new javafx.util.StringConverter<Student>() {
-            public String toString(Student s) {
-                return s != null ? s.getFirstName() + " " + s.getLastName() + " (" + s.getIndexNumber() + ")" : "";
-            }
+        // Tvoji converteri ostaju isti
+        studentComboBox.setConverter(new javafx.util.StringConverter<>() {
+            public String toString(Student s) { return s != null ? s.getFirstName() + " " + s.getLastName() + " (" + s.getIndexNumber() + ")" : ""; }
             public Student fromString(String s) { return null; }
         });
-
-        mentorComboBox.setConverter(new javafx.util.StringConverter<AcademicStaff>() {
-            public String toString(AcademicStaff m) {
-                return m != null ? (m.getTitle() != null ? m.getTitle() + " " : "") + m.getFirstName() + " " + m.getLastName() : "";
-            }
+        mentorComboBox.setConverter(new javafx.util.StringConverter<>() {
+            public String toString(AcademicStaff m) { return m != null ? (m.getTitle() != null ? m.getTitle() + " " : "") + m.getFirstName() + " " + m.getLastName() : ""; }
             public AcademicStaff fromString(String s) { return null; }
         });
-
-        departmentComboBox.setConverter(new javafx.util.StringConverter<Department>() {
-            public String toString(Department d) {
-                return d != null ? d.getName() : "";
-            }
+        departmentComboBox.setConverter(new javafx.util.StringConverter<>() {
+            public String toString(Department d) { return d != null ? d.getName() : ""; }
             public Department fromString(String s) { return null; }
         });
-
-        subjectComboBox.setConverter(new javafx.util.StringConverter<Subject>() {
-            public String toString(Subject s) {
-                return s != null ? s.getName() : "";
-            }
+        subjectComboBox.setConverter(new javafx.util.StringConverter<>() {
+            public String toString(Subject s) { return s != null ? s.getName() : ""; }
             public Subject fromString(String s) { return null; }
         });
-
-        statusComboBox.setConverter(new javafx.util.StringConverter<ThesisStatus>() {
-            public String toString(ThesisStatus s) {
-                return s != null ? s.getName() : "";
-            }
+        statusComboBox.setConverter(new javafx.util.StringConverter<>() {
+            public String toString(ThesisStatus s) { return s != null ? s.getName() : ""; }
             public ThesisStatus fromString(String s) { return null; }
         });
-
-        secretaryComboBox.setConverter(new javafx.util.StringConverter<AppUser>() {
-            public String toString(AppUser u) {
-                return u != null ? u.getUsername() + " (" + u.getEmail() + ")" : "";
-            }
+        secretaryComboBox.setConverter(new javafx.util.StringConverter<>() {
+            public String toString(AppUser u) { return u != null ? u.getUsername() + " (" + u.getEmail() + ")" : ""; }
             public AppUser fromString(String s) { return null; }
         });
     }
@@ -230,46 +140,29 @@ public class ThesisFormController {
     public void initCreate() {
         this.mode = Mode.CREATE;
         this.returnToThesisId = null;
-
-        if (formTitle != null) {
-            formTitle.setText("Dodaj novi završni rad");
-        }
-        if (formSubtitle != null) {
-            formSubtitle.setText("Unesite podatke o novom završnom radu");
-        }
-
-        if (deleteButton != null) {
-            deleteButton.setVisible(false);
-            deleteButton.setManaged(false);
-        }
-        if (deleteButtonContainer != null) {
-            deleteButtonContainer.setVisible(false);
-            deleteButtonContainer.setManaged(false);
-        }
+        if (formTitle != null) formTitle.setText("Dodaj novi završni rad");
+        if (formSubtitle != null) formSubtitle.setText("Unesite podatke o novom završnom radu");
+        toggleDeleteButton(false);
     }
 
     public void initEdit(Thesis thesis, Integer returnToThesisId) {
         this.mode = Mode.EDIT;
         this.thesis = thesis;
         this.returnToThesisId = returnToThesisId;
+        if (formTitle != null) formTitle.setText("Uredi završni rad");
+        if (formSubtitle != null) formSubtitle.setText("Uredite podatke o završnom radu");
+        toggleDeleteButton(true);
+    }
 
-        if (formTitle != null) {
-            formTitle.setText("Uredi završni rad");
-        }
-        if (formSubtitle != null) {
-            formSubtitle.setText("Uredite podatke o završnom radu");
-        }
-
+    private void toggleDeleteButton(boolean visible) {
         if (deleteButton != null) {
-            deleteButton.setVisible(true);
-            deleteButton.setManaged(true);
+            deleteButton.setVisible(visible);
+            deleteButton.setManaged(visible);
         }
         if (deleteButtonContainer != null) {
-            deleteButtonContainer.setVisible(true);
-            deleteButtonContainer.setManaged(true);
+            deleteButtonContainer.setVisible(visible);
+            deleteButtonContainer.setManaged(visible);
         }
-
-        // fillFields() will be called automatically by onDataLoaded() when all ComboBoxes are populated
     }
 
     private void fillFields() {
@@ -277,71 +170,64 @@ public class ThesisFormController {
         applicationDatePicker.setValue(thesis.getApplicationDate());
         approvalDatePicker.setValue(thesis.getApprovalDate());
         defenseDatePicker.setValue(thesis.getDefenseDate());
+        if (thesis.getGrade() != null) gradeField.setText(thesis.getGrade().toString());
 
-        if (thesis.getGrade() != null) {
-            gradeField.setText(thesis.getGrade().toString());
-        }
-
-        // Set selected items in combo boxes
-        studentComboBox.getItems().stream()
-                .filter(s -> s.getId() == thesis.getStudentId())
-                .findFirst()
-                .ifPresent(studentComboBox::setValue);
-
-        mentorComboBox.getItems().stream()
-                .filter(m -> m.getId() == thesis.getAcademicStaffId())
-                .findFirst()
-                .ifPresent(mentorComboBox::setValue);
-
-        departmentComboBox.getItems().stream()
-                .filter(d -> d.getId() == thesis.getDepartmentId())
-                .findFirst()
-                .ifPresent(departmentComboBox::setValue);
-
-        subjectComboBox.getItems().stream()
-                .filter(s -> s.getId() == thesis.getSubjectId())
-                .findFirst()
-                .ifPresent(subjectComboBox::setValue);
-
-        statusComboBox.getItems().stream()
-                .filter(s -> s.getId() == thesis.getStatusId())
-                .findFirst()
-                .ifPresent(statusComboBox::setValue);
-
-        secretaryComboBox.getItems().stream()
-                .filter(u -> u.getId() == thesis.getSecretaryId())
-                .findFirst()
-                .ifPresent(secretaryComboBox::setValue);
+        selectItemById(studentComboBox, thesis.getStudentId());
+        selectItemById(mentorComboBox, thesis.getAcademicStaffId());
+        selectItemById(departmentComboBox, thesis.getDepartmentId());
+        selectItemById(subjectComboBox, thesis.getSubjectId());
+        selectItemById(statusComboBox, thesis.getStatusId());
+        selectItemById(secretaryComboBox, thesis.getSecretaryId());
     }
+
+    private <T> void selectItemById(ComboBox<T> comboBox, Integer id) {
+        if (id == null) return;
+        comboBox.getItems().stream().filter(item -> {
+            try {
+                java.lang.reflect.Method m = item.getClass().getMethod("getId");
+                return ((Integer) m.invoke(item)).equals(id);
+            } catch (Exception e) { return false; }
+        }).findFirst().ifPresent(comboBox::setValue);
+    }
+
+    // --- SAVE LOGIC WITH VALIDATOR ---
 
     @FXML
     private void handleSave() {
-        // Validation
-        if (!validateFields()) {
+        // 1. Priprema podataka
+        ThesisDetailsDTO dto = extractDtoFromForm();
+
+        // 2. Poziv Validatora (SADA VRAĆA ValidationResult)
+        ValidationResult result = thesisValidator.validate(dto);
+
+        // Preuzimamo listu grešaka iz rezultata
+        List<String> errors = result.getErrors();
+
+        // 3. Dodatna ručna validacija za ocjenu (dodajemo u istu listu grešaka)
+        validateGradeManually(errors);
+
+        // 4. Provjera
+        if (!errors.isEmpty()) { // ili if (!result.isValid()) ako ne računaš grade greške odmah
+            showErrorList(errors);
             return;
         }
 
+        // 5. Ako je sve OK, snimamo
         try {
             if (mode == Mode.CREATE) {
-                thesisDAO.insertThesis(buildThesis());
+                thesisDAO.insertThesis(buildThesisFromForm());
                 show("Završni rad je uspješno dodat!", Alert.AlertType.INFORMATION);
-                // Za novi rad, vrati se na listu
                 NavigationContext.setTargetView(DashboardView.THESIS);
                 SceneManager.show("/app/dashboard.fxml", "eDiploma");
             } else {
-                updateThesis();
+                updateThesisFromForm();
                 thesisDAO.updateThesis(thesis);
                 show("Završni rad je uspješno ažuriran!", Alert.AlertType.INFORMATION);
                 MentorsController.requestRefresh();
-                // Vrati se na details page
+
                 if (returnToThesisId != null) {
-                    SceneManager.showWithData(
-                            "/app/thesisDetails.fxml",
-                            "Detalji završnog rada",
-                            (ThesisDetailsController controller) -> {
-                                controller.initWithThesisId(returnToThesisId);
-                            }
-                    );
+                    SceneManager.showWithData("/app/thesisDetails.fxml", "Detalji završnog rada",
+                            (ThesisDetailsController controller) -> controller.initWithThesisId(returnToThesisId));
                 } else {
                     back();
                 }
@@ -352,55 +238,68 @@ public class ThesisFormController {
         }
     }
 
-    private boolean validateFields() {
-        if (titleField.getText() == null || titleField.getText().trim().isEmpty()) {
-            show("Naslov rada je obavezno polje!", Alert.AlertType.WARNING);
-            return false;
-        }
-        if (applicationDatePicker.getValue() == null) {
-            show("Datum prijave je obavezan!", Alert.AlertType.WARNING);
-            return false;
-        }
-        if (studentComboBox.getValue() == null) {
-            show("Student je obavezan!", Alert.AlertType.WARNING);
-            return false;
-        }
-        if (mentorComboBox.getValue() == null) {
-            show("Mentor je obavezan!", Alert.AlertType.WARNING);
-            return false;
-        }
-        if (departmentComboBox.getValue() == null) {
-            show("Odjel je obavezan!", Alert.AlertType.WARNING);
-            return false;
-        }
-        if (subjectComboBox.getValue() == null) {
-            show("Predmet je obavezan!", Alert.AlertType.WARNING);
-            return false;
-        }
-        if (statusComboBox.getValue() == null) {
-            show("Status je obavezan!", Alert.AlertType.WARNING);
-            return false;
-        }
-        if (secretaryComboBox.getValue() == null) {
-            show("Sekretar je obavezan!", Alert.AlertType.WARNING);
-            return false;
-        }
+    /**
+     * Kreira DTO objekat koristeći Lombok Builder, mapirajući podatke sa forme.
+     */
+    private ThesisDetailsDTO extractDtoFromForm() {
+        return ThesisDetailsDTO.builder()
+                .title(titleField.getText())
+                .applicationDate(applicationDatePicker.getValue())
+                .approvalDate(approvalDatePicker.getValue())
+                .defenseDate(defenseDatePicker.getValue())
+                .student(studentComboBox.getValue())
+                .mentor(mentorComboBox.getValue())
+                .department(departmentComboBox.getValue())
+                .subject(subjectComboBox.getValue())
+                .secretary(secretaryComboBox.getValue())
+                // BITNO: DTO traži String status, a ComboBox ima ThesisStatus objekat
+                // Ako je selektovano, uzimamo .getName(), inače null (što validator hvata)
+                .status(statusComboBox.getValue() != null ? statusComboBox.getValue().getName() : null)
+                .build();
+    }
 
-        // Validate grade if present
+    private void validateGradeManually(List<String> errors) {
         if (gradeField.getText() != null && !gradeField.getText().trim().isEmpty()) {
             try {
                 double grade = Double.parseDouble(gradeField.getText().trim());
                 if (grade < 6.0 || grade > 10.0) {
-                    show("Ocjena mora biti između 6 i 10!", Alert.AlertType.WARNING);
-                    return false;
+                    errors.add("Ocjena mora biti između 6 i 10");
                 }
             } catch (NumberFormatException e) {
-                show("Ocjena mora biti broj!", Alert.AlertType.WARNING);
-                return false;
+                errors.add("Ocjena mora biti ispravan broj");
             }
         }
+    }
 
-        return true;
+    private Thesis buildThesisFromForm() {
+        Thesis newThesis = new Thesis();
+        fillThesisData(newThesis);
+        newThesis.setActive(true);
+        return newThesis;
+    }
+
+    private void updateThesisFromForm() {
+        fillThesisData(this.thesis);
+    }
+
+    private void fillThesisData(Thesis t) {
+        t.setTitle(titleField.getText().trim());
+        t.setApplicationDate(applicationDatePicker.getValue());
+        t.setApprovalDate(approvalDatePicker.getValue());
+        t.setDefenseDate(defenseDatePicker.getValue());
+
+        if (gradeField.getText() != null && !gradeField.getText().trim().isEmpty()) {
+            t.setGrade(new BigDecimal(gradeField.getText().trim()));
+        } else {
+            t.setGrade(null);
+        }
+
+        if (studentComboBox.getValue() != null) t.setStudentId(studentComboBox.getValue().getId());
+        if (mentorComboBox.getValue() != null) t.setAcademicStaffId(mentorComboBox.getValue().getId());
+        if (departmentComboBox.getValue() != null) t.setDepartmentId(departmentComboBox.getValue().getId());
+        if (subjectComboBox.getValue() != null) t.setSubjectId(subjectComboBox.getValue().getId());
+        if (statusComboBox.getValue() != null) t.setStatusId(statusComboBox.getValue().getId());
+        if (secretaryComboBox.getValue() != null) t.setSecretaryId(secretaryComboBox.getValue().getId());
     }
 
     @FXML
@@ -416,7 +315,6 @@ public class ThesisFormController {
                     thesisDAO.deleteThesis(thesis.getId());
                     show("Završni rad je uspješno obrisan!", Alert.AlertType.INFORMATION);
                     MentorsController.requestRefresh();
-                    // Nakon brisanja, vrati se na listu radova
                     NavigationContext.setTargetView(DashboardView.THESIS);
                     SceneManager.show("/app/dashboard.fxml", "eDiploma");
                 } catch (Exception e) {
@@ -426,61 +324,12 @@ public class ThesisFormController {
         });
     }
 
-    private Thesis buildThesis() {
-        Thesis newThesis = new Thesis();
-        newThesis.setTitle(titleField.getText().trim());
-        newThesis.setApplicationDate(applicationDatePicker.getValue());
-        newThesis.setApprovalDate(approvalDatePicker.getValue());
-        newThesis.setDefenseDate(defenseDatePicker.getValue());
-
-        if (gradeField.getText() != null && !gradeField.getText().trim().isEmpty()) {
-            newThesis.setGrade(new java.math.BigDecimal(gradeField.getText().trim()));
-        }
-
-        newThesis.setStudentId(studentComboBox.getValue().getId());
-        newThesis.setAcademicStaffId(mentorComboBox.getValue().getId());
-        newThesis.setDepartmentId(departmentComboBox.getValue().getId());
-        newThesis.setSubjectId(subjectComboBox.getValue().getId());
-        newThesis.setStatusId(statusComboBox.getValue().getId());
-        newThesis.setSecretaryId(secretaryComboBox.getValue().getId());
-        newThesis.setActive(true);
-
-        return newThesis;
-    }
-
-    private void updateThesis() {
-        thesis.setTitle(titleField.getText().trim());
-        thesis.setApplicationDate(applicationDatePicker.getValue());
-        thesis.setApprovalDate(approvalDatePicker.getValue());
-        thesis.setDefenseDate(defenseDatePicker.getValue());
-
-        if (gradeField.getText() != null && !gradeField.getText().trim().isEmpty()) {
-            thesis.setGrade(new java.math.BigDecimal(gradeField.getText().trim()));
-        } else {
-            thesis.setGrade(null);
-        }
-
-        thesis.setStudentId(studentComboBox.getValue().getId());
-        thesis.setAcademicStaffId(mentorComboBox.getValue().getId());
-        thesis.setDepartmentId(departmentComboBox.getValue().getId());
-        thesis.setSubjectId(subjectComboBox.getValue().getId());
-        thesis.setStatusId(statusComboBox.getValue().getId());
-        thesis.setSecretaryId(secretaryComboBox.getValue().getId());
-    }
-
     @FXML
     private void back() {
         if (returnToThesisId != null) {
-            // Vrati se na details page ako smo došli odatle
-            SceneManager.showWithData(
-                    "/app/thesisDetails.fxml",
-                    "Detalji završnog rada",
-                    (ThesisDetailsController controller) -> {
-                        controller.initWithThesisId(returnToThesisId);
-                    }
-            );
+            SceneManager.showWithData("/app/thesisDetails.fxml", "Detalji završnog rada",
+                    (ThesisDetailsController controller) -> controller.initWithThesisId(returnToThesisId));
         } else {
-            // Inače idi na listu radova
             NavigationContext.setTargetView(DashboardView.THESIS);
             SceneManager.show("/app/dashboard.fxml", "eDiploma");
         }
@@ -488,5 +337,13 @@ public class ThesisFormController {
 
     private void show(String msg, Alert.AlertType type) {
         new Alert(type, msg).showAndWait();
+    }
+
+    private void showErrorList(List<String> errors) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Neispravan unos");
+        alert.setHeaderText("Molimo ispravite sljedeće greške:");
+        alert.setContentText("• " + String.join("\n• ", errors));
+        alert.showAndWait();
     }
 }

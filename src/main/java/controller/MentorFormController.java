@@ -1,13 +1,14 @@
 package controller;
 
 import dao.MentorDAO;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import model.AcademicStaff;
-import utils.DashboardView;
-import utils.NavigationContext;
-import utils.SceneManager;
+import utils.*;
+
+import java.util.List;
 
 public class MentorFormController {
 
@@ -16,6 +17,8 @@ public class MentorFormController {
     private Mode mode;
     private AcademicStaff mentor;
 
+    // Instanciramo validator i DAO
+    private final MentorValidator validator = new MentorValidator();
     private final MentorDAO mentorDAO = new MentorDAO();
 
     @FXML private TextField firstNameField;
@@ -26,9 +29,9 @@ public class MentorFormController {
     @FXML private HBox deleteButtonContainer;
     @FXML private Label formTitle;
     @FXML private Label formSubtitle;
+    @FXML private Button saveButton; // Dodaj fx:id="saveButton" u FXML ako želiš disable tokom snimanja
 
     @FXML
-
     public void initCreate() {
         this.mode = Mode.CREATE;
 
@@ -39,14 +42,7 @@ public class MentorFormController {
             formSubtitle.setText("Unesite podatke o novom mentoru");
         }
 
-        if (deleteButton != null) {
-            deleteButton.setVisible(false);
-            deleteButton.setManaged(false);
-        }
-        if (deleteButtonContainer != null) {
-            deleteButtonContainer.setVisible(false);
-            deleteButtonContainer.setManaged(false);
-        }
+        toggleDeleteButton(false);
     }
 
     public void initEdit(AcademicStaff mentor) {
@@ -60,48 +56,117 @@ public class MentorFormController {
             formSubtitle.setText("Uredite podatke o mentoru");
         }
 
-        // Show delete button in edit mode
-        if (deleteButton != null) {
-            deleteButton.setVisible(true);
-            deleteButton.setManaged(true);
-        }
-        if (deleteButtonContainer != null) {
-            deleteButtonContainer.setVisible(true);
-            deleteButtonContainer.setManaged(true);
-        }
-
+        toggleDeleteButton(true);
         fillFields();
     }
 
+    private void toggleDeleteButton(boolean visible) {
+        if (deleteButton != null) {
+            deleteButton.setVisible(visible);
+            deleteButton.setManaged(visible);
+        }
+        if (deleteButtonContainer != null) {
+            deleteButtonContainer.setVisible(visible);
+            deleteButtonContainer.setManaged(visible);
+        }
+    }
+
     private void fillFields() {
-        firstNameField.setText(mentor.getFirstName());
-        lastNameField.setText(mentor.getLastName());
-        titleField.setText(mentor.getTitle());
-        emailField.setText(mentor.getEmail());
+        if (mentor != null) {
+            firstNameField.setText(mentor.getFirstName());
+            lastNameField.setText(mentor.getLastName());
+            titleField.setText(mentor.getTitle());
+            emailField.setText(mentor.getEmail());
+        }
+    }
+
+    /**
+     * Kreira privremeni objekat iz forme radi validacije.
+     * Uključuje ID ako je EDIT mode, da bi validator znao ignorisati trenutni red u bazi.
+     */
+    private AcademicStaff extractFormData() {
+        AcademicStaff staff = new AcademicStaff();
+
+        if (mode == Mode.EDIT && mentor != null) {
+            staff.setId(mentor.getId());
+        }
+
+        staff.setFirstName(firstNameField.getText() != null ? firstNameField.getText().trim() : "");
+        staff.setLastName(lastNameField.getText() != null ? lastNameField.getText().trim() : "");
+        staff.setTitle(titleField.getText() != null ? titleField.getText().trim() : "");
+        staff.setEmail(emailField.getText() != null ? emailField.getText().trim() : "");
+
+        // Default vrijednosti
+        staff.setIsDean(false);
+        staff.setIsActive(true);
+
+        return staff;
     }
 
     @FXML
     private void handleSave() {
-        if (firstNameField.getText() == null || firstNameField.getText().trim().isEmpty()) {
-            show("Ime je obavezno polje!", Alert.AlertType.WARNING);
-            return;
-        }
-        if (lastNameField.getText() == null || lastNameField.getText().trim().isEmpty()) {
-            show("Prezime je obavezno polje!", Alert.AlertType.WARNING);
+        // 1. Preuzimanje podataka sa forme
+        AcademicStaff tempStaff = extractFormData();
+
+        // 2. Osnovna validacija (Format podataka)
+        ValidationResult basicResult = validator.validate(tempStaff);
+
+        if (!basicResult.isValid()) {
+            showErrorList(basicResult.getErrors());
             return;
         }
 
+        // Onemogući dugme da spriječiš višestruke klikove dok čekamo bazu
+        if (saveButton != null) saveButton.setDisable(true);
+
+        // 3. Validacija jedinstvenosti (Email u bazi - Asinhrono)
+        validator.validateUniqueness(tempStaff).thenAccept(uniqueResult -> {
+
+            // Vraćamo se na JavaFX Application Thread za ažuriranje UI-a
+            Platform.runLater(() -> {
+                // Ponovo omogući dugme
+                if (saveButton != null) saveButton.setDisable(false);
+
+                if (!uniqueResult.isValid()) {
+                    // Prikaz grešaka iz baze (npr. Email zauzet)
+                    showErrorList(uniqueResult.getErrors());
+                } else {
+                    // Sve validacije prošle, izvrši snimanje
+                    performSave(tempStaff);
+                }
+            });
+        }).exceptionally(ex -> {
+            Platform.runLater(() -> {
+                if (saveButton != null) saveButton.setDisable(false);
+                show("Došlo je do neočekivane greške pri validaciji: " + ex.getMessage(), Alert.AlertType.ERROR);
+            });
+            return null;
+        });
+    }
+
+    private void performSave(AcademicStaff validatedData) {
         try {
             if (mode == Mode.CREATE) {
-                mentorDAO.insertMentor(buildMentor());
+                mentorDAO.insertMentor(validatedData);
+                show("Mentor je uspješno dodan!", Alert.AlertType.INFORMATION);
             } else {
-                updateMentor();
+                // Ažuriramo originalni objekat (da zadržimo referencu ako treba)
+                updateOriginalMentor(validatedData);
                 mentorDAO.updateMentor(mentor);
+                show("Podaci o mentoru su ažurirani!", Alert.AlertType.INFORMATION);
             }
             back();
         } catch (Exception e) {
-            show("Greška: " + e.getMessage(), Alert.AlertType.ERROR);
+            show("Greška prilikom snimanja u bazu: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
+    }
+
+    private void updateOriginalMentor(AcademicStaff newData) {
+        mentor.setFirstName(newData.getFirstName());
+        mentor.setLastName(newData.getLastName());
+        mentor.setTitle(newData.getTitle());
+        mentor.setEmail(newData.getEmail());
     }
 
     @FXML
@@ -115,30 +180,13 @@ public class MentorFormController {
             if (response == ButtonType.OK) {
                 try {
                     mentorDAO.deleteMentor(mentor.getId());
+                    show("Mentor je obrisan.", Alert.AlertType.INFORMATION);
                     back();
                 } catch (Exception e) {
                     show("Greška pri brisanju: " + e.getMessage(), Alert.AlertType.ERROR);
                 }
             }
         });
-    }
-
-    private AcademicStaff buildMentor() {
-        AcademicStaff newMentor = new AcademicStaff();
-        newMentor.setFirstName(firstNameField.getText().trim());
-        newMentor.setLastName(lastNameField.getText().trim());
-        newMentor.setTitle(titleField.getText() != null ? titleField.getText().trim() : "");
-        newMentor.setEmail(emailField.getText() != null ? emailField.getText().trim() : "");
-        newMentor.setIsDean(false);
-        newMentor.setIsActive(true);
-        return newMentor;
-    }
-
-    private void updateMentor() {
-        mentor.setFirstName(firstNameField.getText().trim());
-        mentor.setLastName(lastNameField.getText().trim());
-        mentor.setTitle(titleField.getText() != null ? titleField.getText().trim() : "");
-        mentor.setEmail(emailField.getText() != null ? emailField.getText().trim() : "");
     }
 
     @FXML
@@ -148,6 +196,18 @@ public class MentorFormController {
     }
 
     private void show(String msg, Alert.AlertType type) {
-        new Alert(type, msg).showAndWait();
+        Alert alert = new Alert(type);
+        alert.setTitle(type == Alert.AlertType.ERROR ? "Greška" : "Informacija");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
+
+    private void showErrorList(List<String> errors) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Neispravan unos");
+        alert.setHeaderText("Molimo ispravite sljedeće greške:");
+        alert.setContentText("• " + String.join("\n• ", errors));
+        alert.showAndWait();
     }
 }

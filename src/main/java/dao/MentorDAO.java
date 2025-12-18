@@ -80,8 +80,8 @@ public class MentorDAO {
     public void insertMentor(AcademicStaff mentor) {
         String sql = """
             INSERT INTO AcademicStaff 
-            (Title, FirstName, LastName, Email, IsDean, IsActive, CreatedAt, UpdatedAt)
-            VALUES (?, ?, ?, ?, ?, 1, ?, ?)
+            (Title, FirstName, LastName, Email,  CreatedAt, UpdatedAt)
+            VALUES (?, ?, ?, ?, ?, ?)
             """;
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
@@ -91,7 +91,7 @@ public class MentorDAO {
             ps.setString(2, mentor.getFirstName());
             ps.setString(3, mentor.getLastName());
             ps.setString(4, mentor.getEmail());
-            ps.setBoolean(5, mentor.isDean());
+
             ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
             ps.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
             ps.executeUpdate();
