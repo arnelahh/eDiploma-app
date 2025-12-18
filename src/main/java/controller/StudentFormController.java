@@ -2,6 +2,7 @@ package controller;
 
 import dao.StudentDAO;
 import dao.StudentStatusDAO;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -12,11 +13,11 @@ import utils.DashboardView;
 import utils.NavigationContext;
 import utils.SceneManager;
 import utils.StudentValidator;
+import utils.ValidationResult;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public class StudentFormController {
 
@@ -27,7 +28,6 @@ public class StudentFormController {
 
     private final StudentDAO studentDAO = new StudentDAO();
     private final StudentStatusDAO statusDAO = new StudentStatusDAO();
-    private final StudentValidator validator = new StudentValidator();
 
     @FXML private Text formTitle;
     @FXML private Text formSubtitle;
@@ -69,6 +69,8 @@ public class StudentFormController {
             public String toString(StudentStatus s) { return s != null ? s.getName() : ""; }
             public StudentStatus fromString(String s) { return null; }
         });
+
+        if (loader != null) loader.setVisible(false);
     }
 
     public void initCreate() {
@@ -110,56 +112,76 @@ public class StudentFormController {
 
     @FXML
     private void handleSave() {
-        try {
-            Student studentToSave = buildStudent();
+        final Student studentToSave;
 
-            // Synchronous validation
-            List<String> errors = StudentValidator.validateBasic(studentToSave);
-            if (!errors.isEmpty()) {
-                show(String.join("\n", errors), Alert.AlertType.ERROR);
+        try {
+            studentToSave = buildStudent();
+        } catch (Exception e) {
+            show("Greška: Provjerite unos brojeva (INDEX/ECTS/Trajanje).", Alert.AlertType.ERROR);
+            return;
+        }
+
+        ValidationResult basicVr = StudentValidator.validateBasic(studentToSave);
+        if (!basicVr.isValid()) {
+            show(basicVr.joined("\n"), Alert.AlertType.ERROR);
+            return;
+        }
+
+        setBusy(true);
+
+        StudentValidator.validateUniqueness(studentToSave).thenAccept(uniqVr -> {
+            if (!uniqVr.isValid()) {
+                Platform.runLater(() -> {
+                    setBusy(false);
+                    show(uniqVr.joined("\n"), Alert.AlertType.ERROR);
+                });
                 return;
             }
 
-            // Async uniqueness check
-            loader.setVisible(true);
-            emailField.setDisable(true);
-            indexNumberField.setDisable(true);
-
-            CompletableFuture<List<String>> uniquenessFuture = StudentValidator.validateUniqueness(studentToSave);
-            uniquenessFuture.thenAccept(asyncErrors -> {
-                javafx.application.Platform.runLater(() -> {
-
-                    loader.setVisible(false);
-                    emailField.setDisable(false);
-                    indexNumberField.setDisable(false);
-
-                    if (!asyncErrors.isEmpty()) {
-                        show(String.join("\n", asyncErrors), Alert.AlertType.ERROR);
-                        return;
-                    }
-
+            Task<Void> saveTask = new Task<>() {
+                @Override
+                protected Void call() {
                     if (mode == Mode.CREATE) {
                         studentDAO.insertStudent(studentToSave);
                     } else {
-                        updateStudent();
-                        studentDAO.updateStudent(student);
+                        Platform.runLater(() -> updateStudent());
+                        studentDAO.updateStudent(studentToSave);
                     }
-                    back();
-                });
-            }).exceptionally(ex -> {
-            javafx.application.Platform.runLater(() -> {
-                loader.setVisible(false);
-                emailField.setDisable(false);
-                indexNumberField.setDisable(false);
-                show("Greška pri validaciji: " + ex.getMessage(), Alert.AlertType.ERROR);
+                    return null;
+                }
+            };
+
+            saveTask.setOnSucceeded(e -> {
+                setBusy(false);
+                back();
+            });
+
+            saveTask.setOnFailed(e -> {
+                setBusy(false);
+                Throwable ex = saveTask.getException();
+                if (ex != null) ex.printStackTrace();
+                show("Greška pri snimanju: " + (ex != null ? ex.getMessage() : "Unknown error"),
+                        Alert.AlertType.ERROR);
+            });
+
+            new Thread(saveTask, "save-student").start();
+
+        }).exceptionally(ex -> {
+            Platform.runLater(() -> {
+                setBusy(false);
+                show("Greška pri validaciji: " + (ex != null ? ex.getMessage() : "Unknown error"),
+                        Alert.AlertType.ERROR);
             });
             return null;
         });
+    }
 
+    private void setBusy(boolean busy) {
+        if (loader != null) loader.setVisible(busy);
 
-    } catch (Exception e) {
-            show("Greška: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
+        if (emailField != null) emailField.setDisable(busy);
+        if (indexNumberField != null) indexNumberField.setDisable(busy);
+        if (deleteButton != null) deleteButton.setDisable(busy);
     }
 
     @FXML

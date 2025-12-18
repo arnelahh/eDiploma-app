@@ -2,10 +2,9 @@ package utils;
 
 import dao.StudentDAO;
 import model.Student;
+import utils.ValidationResult;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class StudentValidator {
@@ -15,91 +14,105 @@ public class StudentValidator {
     /**
      * Synchronous validation: checks basic fields, formats, nulls.
      */
-    public static List<String> validateBasic(Student student) {
-        List<String> errors = new ArrayList<>();
+    public static ValidationResult validateBasic(Student student) {
+        ValidationResult vr = new ValidationResult();
 
         // Name validation
-        if (student.getFirstName() == null || student.getFirstName().isBlank())
-            errors.add("Potrebno je unijeti Ime");
-        if (student.getLastName() == null || student.getLastName().isBlank())
-            errors.add("Potrebno je unijeti Prezime");
-        if (student.getFatherName() == null || student.getFatherName().isBlank())
-            errors.add("Potreno je unijeti Ime Oca");
+        requireText(vr, student.getFirstName(), "Potrebno je unijeti Ime");
+        requireText(vr, student.getLastName(), "Potrebno je unijeti Prezime");
+        requireText(vr, student.getFatherName(), "Potrebno je unijeti Ime Oca");
 
-        // Birth Date
-        LocalDate birth = student.getBirthDate();
-        if (birth == null) {
-            errors.add("Potrebno je unijeti Datum Rođenja");
-        } else {
-            if (birth.isAfter(LocalDate.now())) {
-                errors.add("Datum Rođenja ne može biti u budućnosti");
-            }
-
-            int age = LocalDate.now().getYear() - birth.getYear();
-            if (birth.plusYears(age).isAfter(LocalDate.now())) {
-                age--; // adjust if birthday hasn't occurred yet this year
-            }
-            if (age < 16) {
-                errors.add("Student mora imati više od 16 godina");
-            }
-        }
-
+        // Birth Date + age
+        validateBirthDate(vr, student.getBirthDate());
 
         // Location fields
-        if (student.getBirthPlace() == null || student.getBirthPlace().isBlank())
-            errors.add("Potrebno je unijeti Mjesto Rođenja");
-        if (student.getMunicipality() == null || student.getMunicipality().isBlank())
-            errors.add("Potrebno je unijeti Opštinu");
-        if (student.getCountry() == null || student.getCountry().isBlank())
-            errors.add("Potrebno je unijeti Državu");
+        requireText(vr, student.getBirthPlace(), "Potrebno je unijeti Mjesto Rođenja");
+        requireText(vr, student.getMunicipality(), "Potrebno je unijeti Opštinu");
+        requireText(vr, student.getCountry(), "Potrebno je unijeti Državu");
 
         // Academic info
-        if (student.getStudyProgram() == null || student.getStudyProgram().isBlank())
-            errors.add("Potrebno je unijeti Studijski Program");
-        if (student.getCycle() <= 0)
-            errors.add("Ciklus mora biti 1 ili više");
-        if (student.getCycleDuration() <= 0)
-            errors.add("Trajanje mora biti pozitivno");
-        if (student.getECTS() < 0)
-            errors.add("ECTS bodovi moraju biti pozitivni");
+        requireText(vr, student.getStudyProgram(), "Potrebno je unijeti Studijski Program");
+        requirePositive(vr, student.getCycle(), "Ciklus mora biti 1 ili više");
+        requirePositive(vr, student.getCycleDuration(), "Trajanje mora biti pozitivno");
+        requireNonNegative(vr, student.getECTS(), "ECTS bodovi moraju biti pozitivni");
 
-        // Email format
-        String email = student.getEmail();
-        if (email == null || email.isBlank()) {
-            errors.add("Potrebno je unijeti Email");
-        } else if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            errors.add("Email format nije ispravan");
-        }
+        // Email
+        validateEmail(vr, student.getEmail());
 
         // Status
-        if (student.getStatus() == null)
-            errors.add("Potrebno je unijeti Status");
+        if (student.getStatus() == null) {
+            vr.add("Potrebno je unijeti Status");
+        }
 
         // Index number
-        if (student.getIndexNumber() <= 0)
-            errors.add("INDEX mora biti pozitivan");
+        requirePositive(vr, student.getIndexNumber(), "INDEX mora biti pozitivan");
 
-        return errors;
+        return vr;
     }
 
     /**
-     * Asynchronous uniqueness check for index number and email
+     * Asynchronous uniqueness check for index number and email.
      */
-    public static CompletableFuture<List<String>> validateUniqueness(Student student) {
+    public static CompletableFuture<ValidationResult> validateUniqueness(Student student) {
         return CompletableFuture.supplyAsync(() -> {
-            List<String> errors = new ArrayList<>();
+            ValidationResult vr = new ValidationResult();
 
-            // Check IndexNumber uniqueness
             if (studentDAO.isIndexNumberTaken(student.getIndexNumber(), student.getId())) {
-                errors.add("Index je vec iskorišten");
+                vr.add("Index je vec iskorišten");
             }
 
-            // Check Email uniqueness
             if (studentDAO.isEmailTaken(student.getEmail(), student.getId())) {
-                errors.add("Email je vec iskorišten");
+                vr.add("Email je vec iskorišten");
             }
 
-            return errors;
+            return vr;
         });
+    }
+
+    // -------------------------
+    // Private helper methods
+    // -------------------------
+
+    private static void requireText(ValidationResult vr, String value, String msg) {
+        if (value == null || value.isBlank()) vr.add(msg);
+    }
+
+    private static void requirePositive(ValidationResult vr, int value, String msg) {
+        if (value <= 0) vr.add(msg);
+    }
+
+    private static void requireNonNegative(ValidationResult vr, int value, String msg) {
+        if (value < 0) vr.add(msg);
+    }
+
+    private static void validateEmail(ValidationResult vr, String email) {
+        if (email == null || email.isBlank()) {
+            vr.add("Potrebno je unijeti Email");
+            return;
+        }
+        if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            vr.add("Email format nije ispravan");
+        }
+    }
+
+    private static void validateBirthDate(ValidationResult vr, LocalDate birth) {
+        if (birth == null) {
+            vr.add("Potrebno je unijeti Datum Rođenja");
+            return;
+        }
+
+        LocalDate today = LocalDate.now();
+
+        if (birth.isAfter(today)) {
+            vr.add("Datum Rođenja ne može biti u budućnosti");
+            return;
+        }
+
+        int age = today.getYear() - birth.getYear();
+        if (birth.plusYears(age).isAfter(today)) age--;
+
+        if (age < 16) {
+            vr.add("Student mora imati više od 16 godina");
+        }
     }
 }

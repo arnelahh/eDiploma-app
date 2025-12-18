@@ -3,6 +3,7 @@ package dao;
 import dto.CreateSecretaryDTO;
 import dto.CreateUserIdsDTO;
 import dto.SecretaryDTO;
+import dto.UpdateSecretaryDTO;
 import model.AcademicStaff;
 import model.AppUser;
 import model.UserRole;
@@ -53,7 +54,6 @@ public class SecretaryDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-
                 AcademicStaff staff = AcademicStaff.builder()
                         .Id(rs.getInt("staffId"))
                         .Title(rs.getString("staffTitle"))
@@ -66,10 +66,7 @@ public class SecretaryDAO {
                         .UpdatedAt(toLdt(rs.getTimestamp("staffUpdatedAt")))
                         .build();
 
-                UserRole role = new UserRole(
-                        rs.getInt("roleId"),
-                        rs.getString("roleName")
-                );
+                UserRole role = new UserRole(rs.getInt("roleId"), rs.getString("roleName"));
 
                 AppUser user = new AppUser(
                         rs.getInt("appUserId"),
@@ -80,7 +77,7 @@ public class SecretaryDAO {
                         toLdt(rs.getTimestamp("userCreatedAt")),
                         toLdt(rs.getTimestamp("userUpdatedAt")),
                         rs.getBoolean("userActive"),
-                        null, // AppPassword not used now
+                        null,
                         staff
                 );
 
@@ -101,34 +98,31 @@ public class SecretaryDAO {
         return ts == null ? null : ts.toLocalDateTime();
     }
 
-    // Create both AcademicStaff + AppUser in one transaction
     public CreateUserIdsDTO createSecretary(CreateSecretaryDTO dto) throws SQLException {
         String insertStaffSql = """
             INSERT INTO AcademicStaff (Title, FirstName, LastName, Email, IsDean, CreatedAt, UpdatedAt)
             VALUES (?, ?, ?, ?, 0, ?, ?)
         """;
 
-        // Optimized: get RoleId with a subquery instead of separate SELECT roundtrip
         String insertUserSql = """
             INSERT INTO AppUser (RoleId, Username, Email, PasswordHash, CreatedAt, UpdatedAt, AppPassword, AcademicStaffId)
             VALUES ((SELECT Id FROM UserRole WHERE Name = 'Secretary'), ?, ?, ?, ?, ?, ?, ?)
         """;
 
-        // Optional but recommended uniqueness pre-checks (fast + friendly errors)
         String existsUserSql = "SELECT 1 FROM AppUser WHERE Username = ? OR Email = ? LIMIT 1";
         String existsStaffSql = "SELECT 1 FROM AcademicStaff WHERE Email = ? LIMIT 1";
 
-        try (Connection conn = CloudDatabaseConnection.Konekcija()) { // replace with your connection provider
+        try (Connection conn = CloudDatabaseConnection.Konekcija()) {
             conn.setAutoCommit(false);
 
             try {
-                // 1) quick uniqueness checks (optional but practical)
                 try (PreparedStatement ps = conn.prepareStatement(existsStaffSql)) {
                     ps.setString(1, dto.getEmail());
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) throw new SQLException("AcademicStaff email already exists.");
                     }
                 }
+
                 try (PreparedStatement ps = conn.prepareStatement(existsUserSql)) {
                     ps.setString(1, dto.getUsername());
                     ps.setString(2, dto.getEmail());
@@ -137,7 +131,6 @@ public class SecretaryDAO {
                     }
                 }
 
-                // 2) insert AcademicStaff
                 int staffId;
                 LocalDateTime now = LocalDateTime.now();
 
@@ -148,18 +141,16 @@ public class SecretaryDAO {
                     ps.setString(4, dto.getEmail());
                     ps.setTimestamp(5, Timestamp.valueOf(now));
                     ps.setTimestamp(6, Timestamp.valueOf(now));
-
                     ps.executeUpdate();
 
                     try (ResultSet keys = ps.getGeneratedKeys()) {
-                        if (!keys.next()) throw new SQLException("Failed to create AcademicStaff (no generated key).");
+                        if (!keys.next()) throw new SQLException("Failed to create AcademicStaff.");
                         staffId = keys.getInt(1);
                     }
                 }
 
-                // 3) insert AppUser (role resolved in SQL)
                 int userId;
-                String passwordHash = BCrypt.hashpw(dto.getRawPassword(), BCrypt.gensalt(12)); // implement below
+                String passwordHash = BCrypt.hashpw(dto.getRawPassword(), BCrypt.gensalt(12));
 
                 try (PreparedStatement ps = conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
                     ps.setString(1, dto.getUsername());
@@ -167,13 +158,13 @@ public class SecretaryDAO {
                     ps.setString(3, passwordHash);
                     ps.setTimestamp(4, Timestamp.valueOf(now));
                     ps.setTimestamp(5, Timestamp.valueOf(now));
-                    ps.setString(6, "");
+                    ps.setString(6, ""); // AppPassword not used yet
                     ps.setInt(7, staffId);
 
                     ps.executeUpdate();
 
                     try (ResultSet keys = ps.getGeneratedKeys()) {
-                        if (!keys.next()) throw new SQLException("Failed to create AppUser (no generated key).");
+                        if (!keys.next()) throw new SQLException("Failed to create AppUser.");
                         userId = keys.getInt(1);
                     }
                 }
@@ -188,6 +179,141 @@ public class SecretaryDAO {
                 conn.rollback();
                 if (ex instanceof SQLException) throw (SQLException) ex;
                 throw new SQLException("Create secretary failed: " + ex.getMessage(), ex);
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
+    public void updateSecretary(UpdateSecretaryDTO dto) throws SQLException {
+
+        String existsUserSql = """
+            SELECT 1
+            FROM AppUser
+            WHERE (Username = ? OR Email = ?)
+              AND Id <> ?
+            LIMIT 1
+        """;
+
+        String existsStaffSql = """
+            SELECT 1
+            FROM AcademicStaff
+            WHERE Email = ?
+              AND Id <> ?
+            LIMIT 1
+        """;
+
+        String updateStaffSql = """
+            UPDATE AcademicStaff
+            SET Title = ?, FirstName = ?, LastName = ?, Email = ?, UpdatedAt = ?
+            WHERE Id = ?
+        """;
+
+        String updateUserNoPwSql = """
+            UPDATE AppUser
+            SET Username = ?, Email = ?, UpdatedAt = ?
+            WHERE Id = ?
+        """;
+
+        String updateUserWithPwSql = """
+            UPDATE AppUser
+            SET Username = ?, Email = ?, PasswordHash = ?, UpdatedAt = ?
+            WHERE Id = ?
+        """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija()) {
+            conn.setAutoCommit(false);
+
+            try {
+                try (PreparedStatement ps = conn.prepareStatement(existsStaffSql)) {
+                    ps.setString(1, dto.getEmail());
+                    ps.setInt(2, dto.getAcademicStaffId());
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) throw new SQLException("AcademicStaff email already exists.");
+                    }
+                }
+
+                try (PreparedStatement ps = conn.prepareStatement(existsUserSql)) {
+                    ps.setString(1, dto.getUsername());
+                    ps.setString(2, dto.getEmail());
+                    ps.setInt(3, dto.getAppUserId());
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) throw new SQLException("AppUser username/email already exists.");
+                    }
+                }
+
+                LocalDateTime now = LocalDateTime.now();
+
+                try (PreparedStatement ps = conn.prepareStatement(updateStaffSql)) {
+                    ps.setString(1, dto.getTitle());
+                    ps.setString(2, dto.getFirstName());
+                    ps.setString(3, dto.getLastName());
+                    ps.setString(4, dto.getEmail());
+                    ps.setTimestamp(5, Timestamp.valueOf(now));
+                    ps.setInt(6, dto.getAcademicStaffId());
+
+                    ps.executeUpdate();
+                }
+
+                boolean changePw = dto.getRawPassword() != null && !dto.getRawPassword().isBlank();
+
+                if (!changePw) {
+                    try (PreparedStatement ps = conn.prepareStatement(updateUserNoPwSql)) {
+                        ps.setString(1, dto.getUsername());
+                        ps.setString(2, dto.getEmail());
+                        ps.setTimestamp(3, Timestamp.valueOf(now));
+                        ps.setInt(4, dto.getAppUserId());
+                        ps.executeUpdate();
+                    }
+                } else {
+                    String hash = BCrypt.hashpw(dto.getRawPassword(), BCrypt.gensalt(12));
+                    try (PreparedStatement ps = conn.prepareStatement(updateUserWithPwSql)) {
+                        ps.setString(1, dto.getUsername());
+                        ps.setString(2, dto.getEmail());
+                        ps.setString(3, hash);
+                        ps.setTimestamp(4, Timestamp.valueOf(now));
+                        ps.setInt(5, dto.getAppUserId());
+                        ps.executeUpdate();
+                    }
+                }
+
+                conn.commit();
+
+            } catch (Exception ex) {
+                conn.rollback();
+                if (ex instanceof SQLException) throw (SQLException) ex;
+                throw new SQLException("Update secretary failed: " + ex.getMessage(), ex);
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
+    public void deleteSecretary(int appUserId, int academicStaffId) throws SQLException {
+
+        String deleteUserSql = "DELETE FROM AppUser WHERE Id = ?";
+        String deleteStaffSql = "DELETE FROM AcademicStaff WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija()) {
+            conn.setAutoCommit(false);
+
+            try {
+                try (PreparedStatement ps = conn.prepareStatement(deleteUserSql)) {
+                    ps.setInt(1, appUserId);
+                    ps.executeUpdate();
+                }
+
+                try (PreparedStatement ps = conn.prepareStatement(deleteStaffSql)) {
+                    ps.setInt(1, academicStaffId);
+                    ps.executeUpdate();
+                }
+
+                conn.commit();
+
+            } catch (Exception ex) {
+                conn.rollback();
+                if (ex instanceof SQLException) throw (SQLException) ex;
+                throw new SQLException("Delete secretary failed: " + ex.getMessage(), ex);
             } finally {
                 conn.setAutoCommit(true);
             }
