@@ -27,7 +27,7 @@ public class CommissionFormController {
     @FXML private ComboBox<AcademicStaff> chairmanComboBox;
     @FXML private ComboBox<AcademicStaff> mentorComboBox;
     @FXML private ComboBox<AcademicStaff> memberComboBox;
-    @FXML private ComboBox<AppUser> secretaryComboBox;
+    @FXML private ComboBox<AcademicStaff> secretaryComboBox;
     @FXML private ComboBox<AcademicStaff> substituteComboBox;
 
     @FXML private ProgressIndicator loader;
@@ -83,19 +83,7 @@ public class CommissionFormController {
         mentorComboBox.setConverter(staffConverter);
         memberComboBox.setConverter(staffConverter);
         substituteComboBox.setConverter(staffConverter);
-
-        secretaryComboBox.setConverter(new javafx.util.StringConverter<>() {
-            @Override
-            public String toString(AppUser user) {
-                if (user == null) return "";
-                return user.getUsername() + " (" + user.getEmail() + ")";
-            }
-
-            @Override
-            public AppUser fromString(String s) {
-                return null;
-            }
-        });
+        secretaryComboBox.setConverter(staffConverter);
     }
 
     private void loadAcademicStaff() {
@@ -142,23 +130,24 @@ public class CommissionFormController {
     }
 
     private void loadSecretaries() {
-        Task<List<AppUser>> task = new Task<>() {
+        Task<List<AcademicStaff>> task = new Task<>() {
             @Override
-            protected List<AppUser> call() throws Exception {
-                return appUserDAO.getAllAppUsers();
+            protected List<AcademicStaff> call() throws Exception {
+                // Dohvatamo sve AcademicStaff koji su sekretari (povezani sa AppUser)
+                return appUserDAO.getAllSecretariesAsStaff();
             }
         };
 
         task.setOnSucceeded(e -> {
-            List<AppUser> users = task.getValue();
+            List<AcademicStaff> secretaries = task.getValue();
 
             secretaryComboBox.getItems().clear();
-            secretaryComboBox.getItems().addAll(users);
+            secretaryComboBox.getItems().addAll(secretaries);
 
             if (thesisDetails != null && thesisDetails.getSecretary() != null) {
                 // Auto-select secretary from thesis
                 secretaryComboBox.getItems().stream()
-                        .filter(u -> u.getId() == thesisDetails.getSecretary().getId())
+                        .filter(s -> s.getId() == thesisDetails.getSecretary().getId())
                         .findFirst()
                         .ifPresent(secretaryComboBox::setValue);
             }
@@ -166,7 +155,6 @@ public class CommissionFormController {
 
         new Thread(task, "load-secretaries").start();
     }
-
     public void initWithThesis(int thesisId, ThesisDetailsDTO details) {
         this.thesisId = thesisId;
         this.thesisDetails = details;
@@ -197,7 +185,6 @@ public class CommissionFormController {
     private void fillExistingCommission() {
         if (existingCommission == null) return;
 
-
         // Chairman
         if (existingCommission.getMember1() != null) {
             chairmanComboBox.getItems().stream()
@@ -222,7 +209,7 @@ public class CommissionFormController {
                     .ifPresent(substituteComboBox::setValue);
         }
 
-        //Mentor
+        // Mentor
         if (thesisDetails != null && thesisDetails.getMentor() != null) {
             mentorComboBox.getItems().stream()
                     .filter(s -> s.getId() == thesisDetails.getMentor().getId())
@@ -230,16 +217,15 @@ public class CommissionFormController {
                     .ifPresent(mentorComboBox::setValue);
         }
 
-        // Secretary (iz Thesis)
+        // PROMJENA: Secretary (sada je AcademicStaff)
         if (thesisDetails != null && thesisDetails.getSecretary() != null) {
             secretaryComboBox.getItems().stream()
-                    .filter(u -> u.getId() == thesisDetails.getSecretary().getId())
+                    .filter(s -> s.getId() == thesisDetails.getSecretary().getId())
                     .findFirst()
                     .ifPresent(secretaryComboBox::setValue);
         }
     }
 
-    @FXML
     private void handleSave() {
         // Validation
         if (chairmanComboBox.getValue() == null) {
@@ -286,11 +272,16 @@ public class CommissionFormController {
             } else {
                 commissionDAO.insertCommission(commission);
             }
+
+            // PROMJENA: Pronađi AppUser ID za odabranog sekretara
+            AcademicStaff selectedSecretary = secretaryComboBox.getValue();
+            int secretaryAppUserId = appUserDAO.getAppUserIdByAcademicStaffId(selectedSecretary.getId());
+
             // Update Mentor and Secretary in Thesis table
             Thesis thesis = thesisDAO.getThesisById(thesisId);
             if (thesis != null) {
                 thesis.setAcademicStaffId(mentorComboBox.getValue().getId());
-                thesis.setSecretaryId(secretaryComboBox.getValue().getId());
+                thesis.setSecretaryId(secretaryAppUserId);  // PROMJENA: koristimo AppUser ID
                 thesisDAO.updateThesis(thesis);
             }
 

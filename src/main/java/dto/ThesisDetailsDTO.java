@@ -30,7 +30,7 @@ public class ThesisDetailsDTO {
     private AcademicStaff mentor;
 
     // Secretary info
-    private AppUser secretary;
+    private AcademicStaff secretary;
 
     // Department and subject
     private Department department;

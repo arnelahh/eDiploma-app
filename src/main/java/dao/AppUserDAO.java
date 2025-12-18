@@ -108,6 +108,71 @@ public class AppUserDAO {
         }
         return users;
     }
+    public List<AcademicStaff> getAllSecretariesAsStaff() {
+        List<AcademicStaff> secretaries = new ArrayList<>();
 
+        String sql = """
+        SELECT 
+            s.Id, s.Title, s.FirstName, s.LastName, s.Email,
+            s.IsDean, s.IsActive, s.CreatedAt, s.UpdatedAt
+        FROM AcademicStaff s
+        JOIN AppUser u ON u.AcademicStaffId = s.Id
+        JOIN UserRole r ON r.Id = u.RoleId
+        WHERE r.Name = 'Secretary' AND u.IsActive = 1
+        ORDER BY s.LastName, s.FirstName
+    """;
 
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                AcademicStaff staff = AcademicStaff.builder()
+                        .Id(rs.getInt("Id"))
+                        .Title(rs.getString("Title"))
+                        .FirstName(rs.getString("FirstName"))
+                        .LastName(rs.getString("LastName"))
+                        .Email(rs.getString("Email"))
+                        .IsDean(rs.getBoolean("IsDean"))
+                        .IsActive(rs.getBoolean("IsActive"))
+                        .CreatedAt(rs.getTimestamp("CreatedAt") != null ?
+                                rs.getTimestamp("CreatedAt").toLocalDateTime() : null)
+                        .UpdatedAt(rs.getTimestamp("UpdatedAt") != null ?
+                                rs.getTimestamp("UpdatedAt").toLocalDateTime() : null)
+                        .build();
+
+                secretaries.add(staff);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load secretaries as staff", e);
+        }
+
+        return secretaries;
+    }
+    public int getAppUserIdByAcademicStaffId(int academicStaffId) {
+        String sql = """
+        SELECT Id 
+        FROM AppUser 
+        WHERE AcademicStaffId = ? AND IsActive = 1
+        LIMIT 1
+    """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, academicStaffId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("Id");
+                } else {
+                    throw new RuntimeException("AppUser not found for AcademicStaff ID: " + academicStaffId);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to find AppUser ID for AcademicStaff", e);
+        }
+    }
 }
