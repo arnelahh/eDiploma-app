@@ -2,50 +2,55 @@ package utils;
 
 import dao.MentorDAO;
 import model.AcademicStaff;
-import model.Student;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class MentorValidator {
-    private static final MentorDAO mentorDAO = new MentorDAO();
 
-    public static List<String> validateBasic(AcademicStaff mentor) {
-        List<String> errors= new ArrayList<>();
+    // Nije static, omogućava lakše testiranje i injection ako zatreba
+    private final MentorDAO mentorDAO = new MentorDAO();
 
-        // Name validation
-        if (mentor.getFirstName() == null || mentor.getFirstName().isBlank())
-            errors.add("Potrebno je unijeti Ime");
-        if (mentor.getLastName() == null || mentor.getLastName().isBlank())
-            errors.add("Potrebno je unijeti Prezime");
-        if (mentor.getTitle() == null || mentor.getTitle().isBlank())
-            errors.add("Potreno je unijeti Zvanje");
+    public ValidationResult validate(AcademicStaff mentor) {
+        ValidationResult vr = new ValidationResult();
 
-        String email = mentor.getEmail();
-        if (email == null || email.isBlank()) {
-            errors.add("Potrebno je unijeti Email");
-        } else if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            errors.add("Email format nije ispravan");
+        if (isBlank(mentor.getFirstName()))
+            vr.add("Potrebno je unijeti Ime.");
+
+        if (isBlank(mentor.getLastName()))
+            vr.add("Potrebno je unijeti Prezime.");
+
+        if (isBlank(mentor.getTitle()))
+            vr.add("Potrebno je unijeti Zvanje.");
+
+        if (isBlank(mentor.getEmail())) {
+            vr.add("Potrebno je unijeti Email.");
+        } else if (!isValidEmail(mentor.getEmail())) {
+            vr.add("Email format nije ispravan.");
         }
 
-
-        return errors;
+        return vr;
     }
 
-    public static CompletableFuture<List<String>> validateUniqueness(AcademicStaff academicStaff) {
+    // Asinhrona provjera koja takođe vraća ValidationResult
+    public CompletableFuture<ValidationResult> validateUniqueness(AcademicStaff mentor) {
         return CompletableFuture.supplyAsync(() -> {
-            List<String> errors = new ArrayList<>();
+            ValidationResult vr = new ValidationResult();
 
-
-            // Check Email uniqueness
-            if (mentorDAO.isEmailTaken(academicStaff.getEmail(), academicStaff.getId())) {
-                errors.add("Email je vec iskorišten");
+            // Provjera u bazi
+            if (mentorDAO.isEmailTaken(mentor.getEmail(), mentor.getId())) {
+                vr.add("Email je već iskorišten.");
             }
 
-            return errors;
+            return vr;
         });
     }
 
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
 
+    private boolean isValidEmail(String email) {
+        // Zadržao sam tvoj regex jer je precizniji od jednostavne provjere
+        return email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
+    }
 }

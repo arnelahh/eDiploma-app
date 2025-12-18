@@ -23,7 +23,4 @@ public class AcademicStaff {
     private LocalDateTime CreatedAt;
     private LocalDateTime UpdatedAt;
 
-    public boolean isDean() {
-        return false;
-    }
 }
