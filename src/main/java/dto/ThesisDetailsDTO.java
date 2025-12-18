@@ -35,4 +35,5 @@ public class ThesisDetailsDTO {
     // Department and subject
     private Department department;
     private Subject subject;
+
 }

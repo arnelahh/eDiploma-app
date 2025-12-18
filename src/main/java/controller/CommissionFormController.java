@@ -102,7 +102,7 @@ public class CommissionFormController {
         Task<List<AcademicStaff>> task = new Task<>() {
             @Override
             protected List<AcademicStaff> call() throws Exception {
-                return academicStaffDAO.getAllActiveAcademicStaff();
+                return academicStaffDAO.getAllActiveProfessors(); // koristi funkciju koja filtrira sekretare
             }
         };
 
@@ -113,20 +113,13 @@ public class CommissionFormController {
         task.setOnSucceeded(e -> {
             List<AcademicStaff> staffList = task.getValue();
 
-            chairmanComboBox.getItems().clear();
-            mentorComboBox.getItems().clear();
-            memberComboBox.getItems().clear();
-            substituteComboBox.getItems().clear();
+            chairmanComboBox.getItems().setAll(staffList);
+            mentorComboBox.getItems().setAll(staffList);
+            memberComboBox.getItems().setAll(staffList);
+            substituteComboBox.getItems().setAll(staffList);
 
-            chairmanComboBox.getItems().addAll(staffList);
-            mentorComboBox.getItems().addAll(staffList);
-            memberComboBox.getItems().addAll(staffList);
-            substituteComboBox.getItems().addAll(staffList);
-
-            if (isEditMode && existingCommission != null) {
-                fillExistingCommission();
-            } else if (thesisDetails != null && thesisDetails.getMentor() != null) {
-                // Auto-select mentor from thesis
+            if (isEditMode) fillExistingCommission();
+            else if (thesisDetails != null && thesisDetails.getMentor() != null) {
                 mentorComboBox.getItems().stream()
                         .filter(s -> s.getId() == thesisDetails.getMentor().getId())
                         .findFirst()
@@ -134,38 +127,40 @@ public class CommissionFormController {
             }
         });
 
-        task.setOnFailed(e -> {
-            showError("Greška pri učitavanju osoblja: " + task.getException().getMessage());
-        });
+        task.setOnFailed(e -> showError("Greška pri učitavanju osoblja: " + task.getException().getMessage()));
 
         new Thread(task, "load-academic-staff").start();
     }
+
 
     private void loadSecretaries() {
         Task<List<AppUser>> task = new Task<>() {
             @Override
             protected List<AppUser> call() throws Exception {
-                return appUserDAO.getAllAppUsers();
+                return appUserDAO.getAllSecretaries(); // funkcija koja vraća samo sekretare
             }
         };
 
         task.setOnSucceeded(e -> {
             List<AppUser> users = task.getValue();
-
-            secretaryComboBox.getItems().clear();
-            secretaryComboBox.getItems().addAll(users);
+            secretaryComboBox.getItems().setAll(users);
 
             if (thesisDetails != null && thesisDetails.getSecretary() != null) {
-                // Auto-select secretary from thesis
                 secretaryComboBox.getItems().stream()
                         .filter(u -> u.getId() == thesisDetails.getSecretary().getId())
                         .findFirst()
                         .ifPresent(secretaryComboBox::setValue);
             }
+
+            // Ako je edit mode i postoji komisija, popuni ostale članove
+            if (isEditMode) fillExistingCommission();
         });
+
+        task.setOnFailed(e -> showError("Greška pri učitavanju sekretara: " + task.getException().getMessage()));
 
         new Thread(task, "load-secretaries").start();
     }
+
 
     public void initWithThesis(int thesisId, ThesisDetailsDTO details) {
         this.thesisId = thesisId;

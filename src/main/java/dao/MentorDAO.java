@@ -14,7 +14,7 @@ public class MentorDAO {
         SELECT a.*, 
         (SELECT COUNT(*) FROM Thesis t WHERE t.MentorId = a.Id) AS StudentCount
         FROM AcademicStaff a
-        WHERE a.IsActive = 1
+        WHERE a.IsActive = 1 AND a.IsSecretary = 0
         """;
 
     public List<MentorDTO> getAllMentors() {
@@ -68,7 +68,7 @@ public class MentorDAO {
                 }
 
                 int studentCount = rs.getInt("StudentCount");
-                list.add(new MentorDTO(mentor, studentCount));
+                list.add(new MentorDTO(mentor.getId(), mentor, studentCount));
             }
 
         } catch (SQLException e) {

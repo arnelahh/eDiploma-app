@@ -51,11 +51,6 @@ public class ThesisDetailsController {
     private Commission currentCommission;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy.");
 
-    public void initWithThesisId(int thesisId) {
-        this.thesisId = thesisId;
-        loadThesisDetails();
-    }
-
     private void loadThesisDetails() {
         Task<ThesisDetailsDTO> task = new Task<>() {
             @Override
@@ -279,5 +274,10 @@ public class ThesisDetailsController {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
             alert.showAndWait();
         });
+    }
+
+    public void initWithThesisId(int thesisId) {
+        this.thesisId = thesisId;
+        loadThesisDetails();
     }
 }

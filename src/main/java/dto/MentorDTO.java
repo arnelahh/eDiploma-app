@@ -10,6 +10,13 @@ import model.AcademicStaff;
 @NoArgsConstructor
 
 public class MentorDTO {
+    private int id;
     private AcademicStaff mentor;
     private int studentCount;
+
+    public String getDisplayName() {
+        return (mentor.getTitle() != null && !mentor.getTitle().isEmpty() ? mentor.getTitle() + " " : "")
+                + mentor.getFirstName() + " " + mentor.getLastName();
+    }
+
 }

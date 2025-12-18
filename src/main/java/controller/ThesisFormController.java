@@ -1,6 +1,8 @@
 package controller;
 
 import dao.*;
+import dto.MentorDTO;
+import dto.SecretaryDTO;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -28,11 +30,11 @@ public class ThesisFormController {
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final StudentDAO studentDAO = new StudentDAO();
-    private final AcademicStaffDAO mentorDAO = new AcademicStaffDAO();
+    private final MentorDAO mentorDAO = new MentorDAO();
     private final DepartmentDAO departmentDAO = new DepartmentDAO();
     private final SubjectDAO subjectDAO = new SubjectDAO();
     private final ThesisStatusDAO statusDAO = new ThesisStatusDAO();
-    private final AppUserDAO secretaryDAO = new AppUserDAO();
+    private final SecretaryDAO secretaryDAO = new SecretaryDAO();
 
     @FXML private Text formTitle;
     @FXML private Text formSubtitle;
@@ -42,11 +44,11 @@ public class ThesisFormController {
     @FXML private DatePicker defenseDatePicker;
     @FXML private TextField gradeField;
     @FXML private ComboBox<Student> studentComboBox;
-    @FXML private ComboBox<AcademicStaff> mentorComboBox;
+    @FXML private ComboBox<MentorDTO> mentorComboBox;
     @FXML private ComboBox<Department> departmentComboBox;
     @FXML private ComboBox<Subject> subjectComboBox;
     @FXML private ComboBox<ThesisStatus> statusComboBox;
-    @FXML private ComboBox<AppUser> secretaryComboBox;
+    @FXML private ComboBox<SecretaryDTO> secretaryComboBox;
     @FXML private Button deleteButton;
     @FXML private HBox deleteButtonContainer;
 
@@ -81,10 +83,10 @@ public class ThesisFormController {
     }
 
     private void loadMentors() {
-        Task<List<AcademicStaff>> task = new  Task<List<AcademicStaff>>() {
+        Task<List<MentorDTO>> task = new  Task<>() {
             @Override
-            protected List<AcademicStaff> call() throws Exception {
-                return mentorDAO.getAllActiveAcademicStaff();
+            protected List<MentorDTO> call() throws Exception {
+                return mentorDAO.getAllMentors();
             }
         };
         task.setOnSucceeded(event -> {
@@ -157,10 +159,10 @@ public class ThesisFormController {
     }
 
     private void loadSecretaries() {
-        Task<List<AppUser>> task = new   Task<List<AppUser>>() {
+        Task<List<SecretaryDTO>> task = new   Task<>() {
             @Override
-            protected List<AppUser> call() throws Exception {
-                return secretaryDAO.getAllAppUsers();
+            protected List<SecretaryDTO> call() throws Exception {
+                return secretaryDAO.getAllSecretaries();
             }
         };
         task.setOnSucceeded(event -> {
@@ -191,11 +193,16 @@ public class ThesisFormController {
             public Student fromString(String s) { return null; }
         });
 
-        mentorComboBox.setConverter(new javafx.util.StringConverter<AcademicStaff>() {
-            public String toString(AcademicStaff m) {
-                return m != null ? (m.getTitle() != null ? m.getTitle() + " " : "") + m.getFirstName() + " " + m.getLastName() : "";
+        mentorComboBox.setConverter(new javafx.util.StringConverter<MentorDTO>() {
+            @Override
+            public String toString(MentorDTO dto) {
+                return dto != null ? dto.getDisplayName() : "";
             }
-            public AcademicStaff fromString(String s) { return null; }
+
+            @Override
+            public MentorDTO fromString(String string) {
+                return null; // ne koristi se za ComboBox u tvom slučaju
+            }
         });
 
         departmentComboBox.setConverter(new javafx.util.StringConverter<Department>() {
@@ -219,12 +226,18 @@ public class ThesisFormController {
             public ThesisStatus fromString(String s) { return null; }
         });
 
-        secretaryComboBox.setConverter(new javafx.util.StringConverter<AppUser>() {
-            public String toString(AppUser u) {
-                return u != null ? u.getUsername() + " (" + u.getEmail() + ")" : "";
+        secretaryComboBox.setConverter(new javafx.util.StringConverter<SecretaryDTO>() {
+            @Override
+            public String toString(SecretaryDTO dto) {
+                return dto != null ? dto.getDisplayName() + " (" + dto.getSecretary().getEmail() + ")" : "";
             }
-            public AppUser fromString(String s) { return null; }
+
+            @Override
+            public SecretaryDTO fromString(String string) {
+                return null;
+            }
         });
+
     }
 
     public void initCreate() {
@@ -288,10 +301,18 @@ public class ThesisFormController {
                 .findFirst()
                 .ifPresent(studentComboBox::setValue);
 
-        mentorComboBox.getItems().stream()
-                .filter(m -> m.getId() == thesis.getAcademicStaffId())
-                .findFirst()
-                .ifPresent(mentorComboBox::setValue);
+        mentorComboBox.setConverter(new javafx.util.StringConverter<MentorDTO>() {
+            @Override
+            public String toString(MentorDTO dto) {
+                return dto != null ? dto.getDisplayName() : "";
+            }
+
+            @Override
+            public MentorDTO fromString(String string) {
+                return null;
+            }
+        });
+
 
         departmentComboBox.getItems().stream()
                 .filter(d -> d.getId() == thesis.getDepartmentId())
