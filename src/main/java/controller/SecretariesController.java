@@ -15,14 +15,11 @@ import model.AcademicStaff;
 import utils.SceneManager;
 
 public class SecretariesController {
-    @FXML
-    private VBox secretariesCardsContainer;
-    @FXML
-    private TextField searchField;
-    @FXML
-    private ProgressIndicator loader;
-    @FXML
-    private Button addSecretaryButton;
+
+    @FXML private VBox secretariesCardsContainer;
+    @FXML private TextField searchField;
+    @FXML private ProgressIndicator loader;
+    @FXML private Button addSecretaryButton;
 
     private final SecretaryDAO secretaryDAO = new SecretaryDAO();
     private final SecretaryCardFactory cardFactory = new SecretaryCardFactory();
@@ -36,11 +33,9 @@ public class SecretariesController {
     public void initialize() {
         setupAddButton();
         setupSearch();
-        loadSecretariesAsync();
 
-        if (needsRefresh) {
-            needsRefresh = false;
-        }
+        loadSecretariesAsync();
+        needsRefresh = false;
     }
 
     public static void requestRefresh() {
@@ -57,14 +52,20 @@ public class SecretariesController {
             }
         };
 
-        loader.visibleProperty().bind(task.runningProperty());
+        if (loader != null) loader.visibleProperty().bind(task.runningProperty());
 
         task.setOnSucceeded(e -> {
+            if (loader != null) loader.visibleProperty().unbind();
+            if (loader != null) loader.setVisible(false);
+
             filteredList = new FilteredList<>(masterList, s -> true);
             renderSecretaries(filteredList);
         });
 
         task.setOnFailed(e -> {
+            if (loader != null) loader.visibleProperty().unbind();
+            if (loader != null) loader.setVisible(false);
+
             task.getException().printStackTrace();
             showError("Greška pri učitavanju sekretara");
         });
@@ -73,6 +74,8 @@ public class SecretariesController {
     }
 
     private void setupSearch() {
+        if (searchField == null) return;
+
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (filteredList == null) return;
 
@@ -82,12 +85,12 @@ public class SecretariesController {
                 if (term.isEmpty()) return true;
 
                 AcademicStaff s = dto.getSecretary();
-                String username = dto.getUser() != null ? dto.getUser().getUsername() : null;
+                String username = (dto.getUser() != null) ? dto.getUser().getUsername() : null;
 
-                return (s.getFirstName() != null && s.getFirstName().toLowerCase().contains(term))
-                        || (s.getLastName() != null && s.getLastName().toLowerCase().contains(term))
-                        || (s.getEmail() != null && s.getEmail().toLowerCase().contains(term))
-                        || (s.getTitle() != null && s.getTitle().toLowerCase().contains(term))
+                return (s != null && s.getFirstName() != null && s.getFirstName().toLowerCase().contains(term))
+                        || (s != null && s.getLastName() != null && s.getLastName().toLowerCase().contains(term))
+                        || (s != null && s.getEmail() != null && s.getEmail().toLowerCase().contains(term))
+                        || (s != null && s.getTitle() != null && s.getTitle().toLowerCase().contains(term))
                         || (username != null && username.toLowerCase().contains(term));
             });
 
@@ -96,6 +99,8 @@ public class SecretariesController {
     }
 
     private void renderSecretaries(Iterable<SecretaryDTO> secretaries) {
+        if (secretariesCardsContainer == null) return;
+
         secretariesCardsContainer.getChildren().clear();
         for (SecretaryDTO dto : secretaries) {
             secretariesCardsContainer.getChildren().add(
@@ -114,22 +119,15 @@ public class SecretariesController {
         SceneManager.showWithData(
                 "/app/secretaryForm.fxml",
                 "Dodaj novog sekretara",
-                (SecretaryFormController controller) -> {
-                    // You don’t have initCreate(), so just open the empty form
-                    // If you add initCreate() later, call it here
-                }
+                (SecretaryFormController controller) -> controller.initCreate()
         );
     }
 
     private void openEditSecretaryPage(SecretaryDTO dto) {
-        // You currently don’t have edit support in SecretaryFormController.
-        // When you add it, pass dto or staff/user ids here.
         SceneManager.showWithData(
                 "/app/secretaryForm.fxml",
                 "Uredi sekretara",
-                (SecretaryFormController controller) -> {
-                    // controller.initEdit(dto);  <-- implement later if needed
-                }
+                (SecretaryFormController controller) -> controller.initEdit(dto)
         );
     }
 

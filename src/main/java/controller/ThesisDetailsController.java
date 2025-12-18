@@ -165,7 +165,8 @@ public class ThesisDetailsController {
             }
 
             // Sekretar (iz Thesis, ne iz Commission!) - KLJUČNA ISPRAVKA
-            if (currentDetails != null && currentDetails.getSecretary() != null) {
+            if (currentDetails != null && currentDetails.getSecretary() != null
+                && currentDetails.getSecretary().getAcademicStaff() != null) {
                 secretaryCommissionName.setText(currentDetails.getSecretary().getUsername());
             } else {
                 secretaryCommissionName.setText("—");
