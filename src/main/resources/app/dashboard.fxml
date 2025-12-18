@@ -71,6 +71,20 @@
                     </VBox.margin>
                 </Label>
 
+                <!-- NEW: Secretaries -->
+                <Label fx:id="sekretariLabel" onMouseClicked="#handleSekretariClick" text="Sekretari"
+                       style="-fx-cursor: hand;
+                              -fx-padding: 12 20 12 20;
+                              -fx-font-size: 14;
+                              -fx-font-weight: 500;
+                              -fx-text-fill: #424242;
+                              -fx-background-radius: 8;
+                              -fx-background-color: transparent;">
+                    <VBox.margin>
+                        <Insets left="12.0" right="12.0" />
+                    </VBox.margin>
+                </Label>
+
                 <Region VBox.vgrow="ALWAYS" />
 
                 <Separator style="-fx-background-color: #f0f0f0;">

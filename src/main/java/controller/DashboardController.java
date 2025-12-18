@@ -32,6 +32,7 @@ public class DashboardController {
             case STUDENTS -> handleStudentiClick();
             case THESIS -> handleRadoviClick();
             case MENTORS -> handleMentoriClick();
+            case SECRETARIES -> handleSekretariClick();
         }
     }
 
@@ -100,4 +101,16 @@ public class DashboardController {
             e.printStackTrace();
         }
     }
+    @FXML
+    private void handleSekretariClick() {
+        try {
+            Parent secretariesView = FXMLLoader.load(
+                    getClass().getResource("/app/secretaries.fxml")
+            );
+            mainBorderPane.setCenter(secretariesView);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
