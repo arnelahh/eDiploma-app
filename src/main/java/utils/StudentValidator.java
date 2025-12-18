@@ -20,19 +20,19 @@ public class StudentValidator {
 
         // Name validation
         if (student.getFirstName() == null || student.getFirstName().isBlank())
-            errors.add("First name is required");
+            errors.add("Potrebno je unijeti Ime");
         if (student.getLastName() == null || student.getLastName().isBlank())
-            errors.add("Last name is required");
+            errors.add("Potrebno je unijeti Prezime");
         if (student.getFatherName() == null || student.getFatherName().isBlank())
-            errors.add("Father's name is required");
+            errors.add("Potreno je unijeti Ime Oca");
 
         // Birth Date
         LocalDate birth = student.getBirthDate();
         if (birth == null) {
-            errors.add("Birth date is required");
+            errors.add("Potrebno je unijeti Datum Rođenja");
         } else {
             if (birth.isAfter(LocalDate.now())) {
-                errors.add("Birth date cannot be in the future");
+                errors.add("Datum Rođenja ne može biti u budućnosti");
             }
 
             int age = LocalDate.now().getYear() - birth.getYear();
@@ -40,44 +40,44 @@ public class StudentValidator {
                 age--; // adjust if birthday hasn't occurred yet this year
             }
             if (age < 16) {
-                errors.add("Student must be at least 16 years old");
+                errors.add("Student mora imati više od 16 godina");
             }
         }
 
 
         // Location fields
         if (student.getBirthPlace() == null || student.getBirthPlace().isBlank())
-            errors.add("Birth place is required");
+            errors.add("Potrebno je unijeti Mjesto Rođenja");
         if (student.getMunicipality() == null || student.getMunicipality().isBlank())
-            errors.add("Municipality is required");
+            errors.add("Potrebno je unijeti Opštinu");
         if (student.getCountry() == null || student.getCountry().isBlank())
-            errors.add("Country is required");
+            errors.add("Potrebno je unijeti Državu");
 
         // Academic info
         if (student.getStudyProgram() == null || student.getStudyProgram().isBlank())
-            errors.add("Study program is required");
+            errors.add("Potrebno je unijeti Studijski Program");
         if (student.getCycle() <= 0)
-            errors.add("Cycle must be positive");
+            errors.add("Ciklus mora biti 1 ili više");
         if (student.getCycleDuration() <= 0)
-            errors.add("Cycle duration must be positive");
+            errors.add("Trajanje mora biti pozitivno");
         if (student.getECTS() < 0)
-            errors.add("ECTS must be non-negative");
+            errors.add("ECTS bodovi moraju biti pozitivni");
 
         // Email format
         String email = student.getEmail();
         if (email == null || email.isBlank()) {
-            errors.add("Email is required");
+            errors.add("Potrebno je unijeti Email");
         } else if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            errors.add("Email format is invalid");
+            errors.add("Email format nije ispravan");
         }
 
         // Status
         if (student.getStatus() == null)
-            errors.add("Student status must be selected");
+            errors.add("Potrebno je unijeti Status");
 
         // Index number
         if (student.getIndexNumber() <= 0)
-            errors.add("Index number must be positive");
+            errors.add("INDEX mora biti pozitivan");
 
         return errors;
     }
@@ -91,12 +91,12 @@ public class StudentValidator {
 
             // Check IndexNumber uniqueness
             if (studentDAO.isIndexNumberTaken(student.getIndexNumber(), student.getId())) {
-                errors.add("Index number is already taken");
+                errors.add("Index je vec iskorišten");
             }
 
             // Check Email uniqueness
             if (studentDAO.isEmailTaken(student.getEmail(), student.getId())) {
-                errors.add("Email is already used");
+                errors.add("Email je vec iskorišten");
             }
 
             return errors;

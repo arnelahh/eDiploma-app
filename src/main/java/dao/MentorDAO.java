@@ -137,5 +137,26 @@ public class MentorDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+
     }
+
+    public boolean isEmailTaken(String email, int mentorIdToIgnore) {
+        String sql = "SELECT COUNT(*) FROM AcademicStaff WHERE Email = ? AND Id != ?";
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+            ps.setInt(2, mentorIdToIgnore);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
+
 }
