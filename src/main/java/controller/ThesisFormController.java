@@ -243,18 +243,26 @@ public class ThesisFormController {
         selectItemById(departmentComboBox, thesis.getDepartmentId());
         selectItemById(subjectComboBox, thesis.getSubjectId());
         selectItemById(statusComboBox, thesis.getStatusId());
-
+        System.out.println(thesis.getSecretaryId());
         // PROMJENA: Selektujemo sekretara po AcademicStaff ID-u
+
         selectItemById(secretaryComboBox, thesis.getSecretaryId());
     }
 
-    private <T> void selectItemById(ComboBox<T> comboBox, Integer id) {
+    private <T> void selectItemById(ComboBox<T> comboBox, Object id) { // Promijeni Integer u Object da prima i Long
         if (id == null) return;
+        String idZaTraziti = id.toString(); // Pretvori u String (npr. "5")
         comboBox.getItems().stream().filter(item -> {
             try {
                 java.lang.reflect.Method m = item.getClass().getMethod("getId");
-                return ((Integer) m.invoke(item)).equals(id);
-            } catch (Exception e) { return false; }
+                Object rezultatMetode = m.invoke(item);
+                if (rezultatMetode == null) return false;
+                // Usporedi kao Stringove da izbjegneš Integer/Long problem
+                return rezultatMetode.toString().equals(idZaTraziti);
+
+            } catch (Exception e) {
+                return false;
+            }
         }).findFirst().ifPresent(comboBox::setValue);
     }
 

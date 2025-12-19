@@ -65,7 +65,16 @@ public class AcademicStaffDAO {
 
     public List<AcademicStaff> getAllActiveAcademicStaff() {
         List<AcademicStaff> staffList = new ArrayList<>();
-        String sqlUpit = "SELECT * FROM AcademicStaff WHERE IsActive = 1";
+        String sqlUpit = """
+select * from AcademicStaff as A
+where not EXISTS
+  (
+    Select 1
+    from AppUser AP
+    WHERE AP.AcademicStaffId=A.Id
+  ) AND IsActive=1;
+    
+""";
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              Statement stmt = conn.createStatement();
