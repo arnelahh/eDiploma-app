@@ -14,7 +14,12 @@ public class MentorDAO {
         SELECT a.*, 
         (SELECT COUNT(*) FROM Thesis t WHERE t.MentorId = a.Id) AS StudentCount
         FROM AcademicStaff a
-        WHERE a.IsActive = 1
+        WHERE NOT EXISTS(
+        SELECT 1
+        FROM AppUser AP
+        where AP.AcademicStaffId = a.Id
+        )
+         AND a.IsActive = 1
         """;
 
     public List<MentorDTO> getAllMentors() {
