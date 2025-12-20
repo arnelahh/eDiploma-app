@@ -5,7 +5,6 @@ import dto.CreateSecretaryDTO;
 import dto.CreateUserIdsDTO;
 import dto.SecretaryDTO;
 import dto.UpdateSecretaryDTO;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -28,6 +27,8 @@ public class SecretaryFormController {
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
     @FXML private TextField emailField;
+    @FXML private Label formTitle;
+    @FXML private Label formSubtitle;
 
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
@@ -52,6 +53,7 @@ public class SecretaryFormController {
 
     public void initCreate() {
         mode = Mode.CREATE;
+        updateFormTexts();
         appUserId = 0;
         academicStaffId = 0;
 
@@ -70,7 +72,7 @@ public class SecretaryFormController {
 
     public void initEdit(SecretaryDTO dto) {
         mode = Mode.EDIT;
-
+        updateFormTexts();
         AcademicStaff staff = dto.getSecretary();
         AppUser user = dto.getUser();
 
@@ -113,7 +115,7 @@ public class SecretaryFormController {
 
         ValidationResult vr = createValidator.validate(dto);
         if (!vr.isValid()) {
-            show(vr.joined("\n"), Alert.AlertType.ERROR);
+            GlobalErrorHandler.error(vr.joined("\n"));
             return;
         }
 
@@ -141,7 +143,7 @@ public class SecretaryFormController {
 
         ValidationResult vr = updateValidator.validate(dto);
         if (!vr.isValid()) {
-            show(vr.joined("\n"), Alert.AlertType.ERROR);
+            GlobalErrorHandler.error(vr.joined("\n"));
             return;
         }
 
@@ -194,9 +196,7 @@ public class SecretaryFormController {
             if (loader != null) loader.visibleProperty().unbind();
             if (loader != null) loader.setVisible(false);
 
-            Throwable ex = task.getException();
-            if (ex != null) ex.printStackTrace();
-            show("Error: " + (ex != null ? ex.getMessage() : "Unknown error"), Alert.AlertType.ERROR);
+            GlobalErrorHandler.error("Operacija nije uspjela.", task.getException());
         });
 
         new Thread(task, threadName).start();
@@ -221,12 +221,19 @@ public class SecretaryFormController {
         return tf == null ? null : tf.getText();
     }
 
-    private void show(String msg, Alert.AlertType type) {
-        Platform.runLater(() -> new Alert(type, msg).showAndWait());
-    }
-
     @FXML
     private void back() {
         redirectToSecretaries();
+    }
+    private void updateFormTexts() {
+        if (formTitle == null || formSubtitle == null) return;
+
+        if (mode == Mode.CREATE) {
+            formTitle.setText("Dodaj novog sekretara");
+            formSubtitle.setText("Unesite podatke o novom sekretaru");
+        } else {
+            formTitle.setText("Uredite sekretara");
+            formSubtitle.setText("Uredite podatke o sekretaru");
+        }
     }
 }

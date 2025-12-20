@@ -14,6 +14,7 @@ import utils.NavigationContext;
 import utils.SceneManager;
 import utils.StudentValidator;
 import utils.ValidationResult;
+import utils.GlobalErrorHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -117,13 +118,13 @@ public class StudentFormController {
         try {
             studentToSave = buildStudent();
         } catch (Exception e) {
-            show("Greška: Provjerite unos brojeva (INDEX/ECTS/Trajanje).", Alert.AlertType.ERROR);
+            GlobalErrorHandler.error("Greška: Provjerite unos brojeva (INDEX/ECTS/Trajanje).");
             return;
         }
 
         ValidationResult basicVr = StudentValidator.validateBasic(studentToSave);
         if (!basicVr.isValid()) {
-            show(basicVr.joined("\n"), Alert.AlertType.ERROR);
+            GlobalErrorHandler.error(basicVr.joined("\n"));
             return;
         }
 
@@ -133,7 +134,7 @@ public class StudentFormController {
             if (!uniqVr.isValid()) {
                 Platform.runLater(() -> {
                     setBusy(false);
-                    show(uniqVr.joined("\n"), Alert.AlertType.ERROR);
+                    GlobalErrorHandler.error(uniqVr.joined("\n"));
                 });
                 return;
             }
@@ -158,10 +159,7 @@ public class StudentFormController {
 
             saveTask.setOnFailed(e -> {
                 setBusy(false);
-                Throwable ex = saveTask.getException();
-                if (ex != null) ex.printStackTrace();
-                show("Greška pri snimanju: " + (ex != null ? ex.getMessage() : "Unknown error"),
-                        Alert.AlertType.ERROR);
+                GlobalErrorHandler.error("Greška pri snimanju.", saveTask.getException());
             });
 
             new Thread(saveTask, "save-student").start();
@@ -169,8 +167,7 @@ public class StudentFormController {
         }).exceptionally(ex -> {
             Platform.runLater(() -> {
                 setBusy(false);
-                show("Greška pri validaciji: " + (ex != null ? ex.getMessage() : "Unknown error"),
-                        Alert.AlertType.ERROR);
+                GlobalErrorHandler.error("Greška pri validaciji.", ex);
             });
             return null;
         });
@@ -200,7 +197,7 @@ public class StudentFormController {
                 studentDAO.deleteStudent(student.getId());
                 back();
             } catch (Exception e) {
-                show("Greška pri brisanju: " + e.getMessage(), Alert.AlertType.ERROR);
+                GlobalErrorHandler.error("Greška pri brisanju.", e);
             }
         }
     }
@@ -258,9 +255,5 @@ public class StudentFormController {
     private void back() {
         NavigationContext.setTargetView(DashboardView.STUDENTS);
         SceneManager.show("/app/dashboard.fxml", "Dashboard");
-    }
-
-    private void show(String msg, Alert.AlertType type) {
-        new Alert(type, msg).showAndWait();
     }
 }

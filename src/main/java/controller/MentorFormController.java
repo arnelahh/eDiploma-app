@@ -17,7 +17,6 @@ public class MentorFormController {
     private Mode mode;
     private AcademicStaff mentor;
 
-    // Instanciramo validator i DAO
     private final MentorValidator validator = new MentorValidator();
     private final MentorDAO mentorDAO = new MentorDAO();
 
@@ -29,18 +28,14 @@ public class MentorFormController {
     @FXML private HBox deleteButtonContainer;
     @FXML private Label formTitle;
     @FXML private Label formSubtitle;
-    @FXML private Button saveButton; // Dodaj fx:id="saveButton" u FXML ako želiš disable tokom snimanja
+    @FXML private Button saveButton;
 
     @FXML
     public void initCreate() {
         this.mode = Mode.CREATE;
 
-        if (formTitle != null) {
-            formTitle.setText("Dodaj novog mentora");
-        }
-        if (formSubtitle != null) {
-            formSubtitle.setText("Unesite podatke o novom mentoru");
-        }
+        if (formTitle != null) formTitle.setText("Dodaj novog mentora");
+        if (formSubtitle != null) formSubtitle.setText("Unesite podatke o novom mentoru");
 
         toggleDeleteButton(false);
     }
@@ -49,12 +44,8 @@ public class MentorFormController {
         this.mode = Mode.EDIT;
         this.mentor = mentor;
 
-        if (formTitle != null) {
-            formTitle.setText("Uredi mentora");
-        }
-        if (formSubtitle != null) {
-            formSubtitle.setText("Uredite podatke o mentoru");
-        }
+        if (formTitle != null) formTitle.setText("Uredi mentora");
+        if (formSubtitle != null) formSubtitle.setText("Uredite podatke o mentoru");
 
         toggleDeleteButton(true);
         fillFields();
@@ -80,10 +71,6 @@ public class MentorFormController {
         }
     }
 
-    /**
-     * Kreira privremeni objekat iz forme radi validacije.
-     * Uključuje ID ako je EDIT mode, da bi validator znao ignorisati trenutni red u bazi.
-     */
     private AcademicStaff extractFormData() {
         AcademicStaff staff = new AcademicStaff();
 
@@ -96,7 +83,6 @@ public class MentorFormController {
         staff.setTitle(titleField.getText() != null ? titleField.getText().trim() : "");
         staff.setEmail(emailField.getText() != null ? emailField.getText().trim() : "");
 
-        // Default vrijednosti
         staff.setIsDean(false);
         staff.setIsActive(true);
 
@@ -105,40 +91,30 @@ public class MentorFormController {
 
     @FXML
     private void handleSave() {
-        // 1. Preuzimanje podataka sa forme
         AcademicStaff tempStaff = extractFormData();
 
-        // 2. Osnovna validacija (Format podataka)
         ValidationResult basicResult = validator.validate(tempStaff);
-
         if (!basicResult.isValid()) {
             showErrorList(basicResult.getErrors());
             return;
         }
 
-        // Onemogući dugme da spriječiš višestruke klikove dok čekamo bazu
         if (saveButton != null) saveButton.setDisable(true);
 
-        // 3. Validacija jedinstvenosti (Email u bazi - Asinhrono)
         validator.validateUniqueness(tempStaff).thenAccept(uniqueResult -> {
-
-            // Vraćamo se na JavaFX Application Thread za ažuriranje UI-a
             Platform.runLater(() -> {
-                // Ponovo omogući dugme
                 if (saveButton != null) saveButton.setDisable(false);
 
                 if (!uniqueResult.isValid()) {
-                    // Prikaz grešaka iz baze (npr. Email zauzet)
                     showErrorList(uniqueResult.getErrors());
                 } else {
-                    // Sve validacije prošle, izvrši snimanje
                     performSave(tempStaff);
                 }
             });
         }).exceptionally(ex -> {
             Platform.runLater(() -> {
                 if (saveButton != null) saveButton.setDisable(false);
-                show("Došlo je do neočekivane greške pri validaciji: " + ex.getMessage(), Alert.AlertType.ERROR);
+                GlobalErrorHandler.error("Došlo je do neočekivane greške pri validaciji.", ex);
             });
             return null;
         });
@@ -148,17 +124,15 @@ public class MentorFormController {
         try {
             if (mode == Mode.CREATE) {
                 mentorDAO.insertMentor(validatedData);
-                show("Mentor je uspješno dodan!", Alert.AlertType.INFORMATION);
+                GlobalErrorHandler.info("Mentor je uspješno dodan!");
             } else {
-                // Ažuriramo originalni objekat (da zadržimo referencu ako treba)
                 updateOriginalMentor(validatedData);
                 mentorDAO.updateMentor(mentor);
-                show("Podaci o mentoru su ažurirani!", Alert.AlertType.INFORMATION);
+                GlobalErrorHandler.info("Podaci o mentoru su ažurirani!");
             }
             back();
         } catch (Exception e) {
-            show("Greška prilikom snimanja u bazu: " + e.getMessage(), Alert.AlertType.ERROR);
-            e.printStackTrace();
+            GlobalErrorHandler.error("Greška prilikom snimanja u bazu.", e);
         }
     }
 
@@ -180,10 +154,10 @@ public class MentorFormController {
             if (response == ButtonType.OK) {
                 try {
                     mentorDAO.deleteMentor(mentor.getId());
-                    show("Mentor je obrisan.", Alert.AlertType.INFORMATION);
+                    GlobalErrorHandler.info("Mentor je obrisan.");
                     back();
                 } catch (Exception e) {
-                    show("Greška pri brisanju: " + e.getMessage(), Alert.AlertType.ERROR);
+                    GlobalErrorHandler.error("Greška pri brisanju.", e);
                 }
             }
         });
@@ -195,19 +169,13 @@ public class MentorFormController {
         SceneManager.show("/app/dashboard.fxml", "Dashboard");
     }
 
-    private void show(String msg, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(type == Alert.AlertType.ERROR ? "Greška" : "Informacija");
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
-    }
-
     private void showErrorList(List<String> errors) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Neispravan unos");
-        alert.setHeaderText("Molimo ispravite sljedeće greške:");
-        alert.setContentText("• " + String.join("\n• ", errors));
-        alert.showAndWait();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Neispravan unos");
+            alert.setHeaderText("Molimo ispravite sljedeće greške:");
+            alert.setContentText("• " + String.join("\n• ", errors));
+            alert.showAndWait();
+        });
     }
 }

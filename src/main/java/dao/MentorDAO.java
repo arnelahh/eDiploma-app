@@ -92,8 +92,8 @@ public class MentorDAO {
             ps.setString(3, mentor.getLastName());
             ps.setString(4, mentor.getEmail());
 
+            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
             ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
-            ps.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
             ps.executeUpdate();
 
         } catch (SQLException e) {

@@ -10,7 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import model.Thesis;
+import utils.GlobalErrorHandler;
 import utils.SceneManager;
 
 import java.util.ArrayList;
@@ -66,11 +66,12 @@ public class ThesisController {
         });
 
         task.setOnFailed(e -> {
-            statusFilter.getItems().addAll("Svi statusi", "Greška u učitavanju");
+            statusFilter.getItems().setAll("Svi statusi");
             statusFilter.getSelectionModel().selectFirst();
+            GlobalErrorHandler.error("Greška pri učitavanju statusa.", task.getException());
         });
 
-        new Thread(task).start();
+        new Thread(task, "load-thesis-statuses").start();
     }
 
     private void filterThesis() {
@@ -113,9 +114,9 @@ public class ThesisController {
             displayTheses(masterList);
         });
         task.setOnFailed(e -> {
-            Throwable greska = task.getException();
+            GlobalErrorHandler.error("Greška pri učitavanju završnih radova.", task.getException());
         });
-        new Thread(task).start();
+        new Thread(task, "load-theses").start();
     }
 
     private void displayTheses(List<ThesisDTO> radovi) {

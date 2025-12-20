@@ -15,6 +15,7 @@ import model.Commission;
 import model.CommissionRole;
 import model.Thesis;
 import utils.SceneManager;
+import utils.GlobalErrorHandler;
 
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class CommissionFormController {
         try {
             roles = commissionRoleDAO.getCommissionRoles();
         } catch (Exception e) {
-            e.printStackTrace();
+            GlobalErrorHandler.error("Greška pri učitavanju uloga komisije.", e);
         }
     }
 
@@ -121,7 +122,7 @@ public class CommissionFormController {
         });
 
         task.setOnFailed(e -> {
-            showError("Greška pri učitavanju osoblja: " + task.getException().getMessage());
+            GlobalErrorHandler.error("Greška pri učitavanju osoblja.", task.getException());
         });
 
         new Thread(task, "load-academic-staff").start();
@@ -221,19 +222,19 @@ public class CommissionFormController {
     @FXML
     private void handleSave() {
         if (chairmanComboBox.getValue() == null) {
-            showWarning("Morate izabrati predsjednika komisije!");
+            GlobalErrorHandler.warning("Morate izabrati predsjednika komisije!");
             return;
         }
         if (mentorComboBox.getValue() == null) {
-            showWarning("Morate izabrati mentora!");
+            GlobalErrorHandler.warning("Morate izabrati mentora!");
             return;
         }
         if (memberComboBox.getValue() == null) {
-            showWarning("Morate izabrati člana komisije!");
+            GlobalErrorHandler.warning("Morate izabrati člana komisije!");
             return;
         }
         if (secretaryComboBox.getValue() == null) {
-            showWarning("Morate izabrati sekretara!");
+            GlobalErrorHandler.warning("Morate izabrati sekretara!");
             return;
         }
 
@@ -273,7 +274,7 @@ public class CommissionFormController {
                 thesisDAO.updateThesis(thesis);
             }
 
-            showInfo(isEditMode ? "Komisija je uspješno ažurirana!" : "Komisija je uspješno kreirana!");
+            GlobalErrorHandler.info(isEditMode ? "Komisija je uspješno ažurirana!" : "Komisija je uspješno kreirana!");
 
             SceneManager.showWithData(
                     "/app/thesisDetails.fxml",
@@ -283,8 +284,7 @@ public class CommissionFormController {
                     }
             );
         } catch (Exception e) {
-            e.printStackTrace();
-            showError("Greška pri čuvanju: " + e.getMessage());
+            GlobalErrorHandler.error("Greška pri čuvanju.", e);
         }
     }
 
@@ -305,23 +305,5 @@ public class CommissionFormController {
                     controller.initWithThesisId(thesisId);
                 }
         );
-    }
-
-    private void showError(String message) {
-        javafx.application.Platform.runLater(() -> {
-            new Alert(Alert.AlertType.ERROR, message).showAndWait();
-        });
-    }
-
-    private void showWarning(String message) {
-        javafx.application.Platform.runLater(() -> {
-            new Alert(Alert.AlertType.WARNING, message).showAndWait();
-        });
-    }
-
-    private void showInfo(String message) {
-        javafx.application.Platform.runLater(() -> {
-            new Alert(Alert.AlertType.INFORMATION, message).showAndWait();
-        });
     }
 }

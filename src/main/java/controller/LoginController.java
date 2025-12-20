@@ -1,9 +1,7 @@
 package controller;
 
 import dao.AppUserDAO;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
@@ -13,13 +11,15 @@ import org.mindrot.jbcrypt.BCrypt;
 import utils.SceneManager;
 import utils.SessionManager;
 import utils.UserSession;
+import utils.GlobalErrorHandler;
 
 public class LoginController {
-    @FXML
-    private Pane rootPane;
+    @FXML private Pane rootPane;
     @FXML private TextField emailField;
     @FXML private TextField passwordField;
     @FXML private ProgressIndicator loader;
+    @FXML private TextField passwordTextField;
+    @FXML private Button togglePasswordButton;
 
     public AppUserDAO userDao = new AppUserDAO();
 
@@ -53,15 +53,15 @@ public class LoginController {
             passwordField.setDisable(false);
 
             if (user == null) {
-                showError("User not found");
+                GlobalErrorHandler.error("User not found");
                 return;
             }
             if (!user.isActive()) {
-                showError("User is not active");
+                GlobalErrorHandler.error("User is not active");
                 return;
             }
             if (!BCrypt.checkpw(password, user.getPasswordHash())) {
-                showError("Wrong password");
+                GlobalErrorHandler.error("Wrong password");
                 return;
             }
 
@@ -73,30 +73,21 @@ public class LoginController {
                 UserSession.clear();
                 SceneManager.show("/app/login.fxml", "eDiploma");
             });
-
-            rootPane.setOnMouseMoved(ev -> SessionManager.resetTimer());
-            rootPane.setOnKeyPressed(ev -> SessionManager.resetTimer());
+            if(rootPane != null) {
+                rootPane.setOnMouseMoved(ev -> SessionManager.resetTimer());
+                rootPane.setOnKeyPressed(ev -> SessionManager.resetTimer());
+            }
         });
 
         task.setOnFailed(e -> {
             loader.setVisible(false);
             emailField.setDisable(false);
             passwordField.setDisable(false);
-            showError("Login failed: " + task.getException().getMessage());
+            GlobalErrorHandler.error("Login failed: " + task.getException());
         });
 
-        new Thread(task).start();
+        new Thread(task, "login-thread").start();
     }
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR, message);
-        alert.showAndWait();
-    }
-
-    @FXML
-    private TextField passwordTextField;
-
-    @FXML
-    private Button togglePasswordButton;
 
     @FXML
     private void togglePasswordVisibility() {
