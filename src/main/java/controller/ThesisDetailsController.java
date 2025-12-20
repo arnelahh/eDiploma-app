@@ -13,6 +13,7 @@ import model.Thesis;
 import utils.DashboardView;
 import utils.NavigationContext;
 import utils.SceneManager;
+import utils.GlobalErrorHandler;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -75,13 +76,12 @@ public class ThesisDetailsController {
                 // Učitaj komisiju NAKON što su thesis details učitani
                 loadCommission();
             } else {
-                showError("Završni rad nije pronađen");
+                GlobalErrorHandler.error("Završni rad nije pronađen.");
             }
         });
 
         task.setOnFailed(e -> {
-            task.getException().printStackTrace();
-            showError("Greška pri učitavanju: " + task.getException().getMessage());
+            GlobalErrorHandler.error("Greška pri učitavanju detalja završnog rada.", task.getException());
         });
 
         new Thread(task, "load-thesis-details").start();
@@ -102,6 +102,7 @@ public class ThesisDetailsController {
 
         task.setOnFailed(e -> {
             updateCommissionDisplay();
+            GlobalErrorHandler.error("Greška pri učitavanju komisije.", task.getException());
         });
 
         new Thread(task, "load-commission").start();
@@ -195,10 +196,10 @@ public class ThesisDetailsController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 thesisDAO.deleteThesis(thesisId);
-                showInfo("Završni rad je uspješno obrisan!");
+                GlobalErrorHandler.info("Završni rad je uspješno obrisan!");
                 back();
             } catch (Exception e) {
-                showError("Greška pri brisanju: " + e.getMessage());
+                GlobalErrorHandler.error("Greška pri brisanju završnog rada.", e);
             }
         }
     }
@@ -215,14 +216,14 @@ public class ThesisDetailsController {
                     }
             );
         } else {
-            showError("Greška pri dohvatanju podataka za uređivanje");
+            GlobalErrorHandler.error("Greška pri dohvatanju podataka za uređivanje.");
         }
     }
 
     @FXML
     private void handleFormCommission() {
         if (currentDetails == null) {
-            showError("Detalji rada nisu učitani");
+            GlobalErrorHandler.error("Detalji rada nisu učitani.");
             return;
         }
 
@@ -235,15 +236,14 @@ public class ThesisDetailsController {
                     }
             );
         } catch (Exception e) {
-            e.printStackTrace();
-            showError("Greška pri otvaranju forme: " + e.getMessage());
+            GlobalErrorHandler.error("Greška pri otvaranju forme komisije.", e);
         }
     }
 
     @FXML
     private void handleEditCommission() {
         if (currentDetails == null || currentCommission == null) {
-            showError("Podaci nisu dostupni");
+            GlobalErrorHandler.error("Podaci nisu dostupni.");
             return;
         }
 
@@ -256,8 +256,7 @@ public class ThesisDetailsController {
                     }
             );
         } catch (Exception e) {
-            e.printStackTrace();
-            showError("Greška: " + e.getMessage());
+            GlobalErrorHandler.error("Greška pri otvaranju forme za uređivanje komisije.", e);
         }
     }
 
@@ -265,19 +264,5 @@ public class ThesisDetailsController {
     private void back() {
         NavigationContext.setTargetView(DashboardView.THESIS);
         SceneManager.show("/app/dashboard.fxml", "eDiploma");
-    }
-
-    private void showError(String message) {
-        javafx.application.Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR, message);
-            alert.showAndWait();
-        });
-    }
-
-    private void showInfo(String message) {
-        javafx.application.Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
-            alert.showAndWait();
-        });
     }
 }

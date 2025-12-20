@@ -3,7 +3,6 @@ package controller;
 import Factory.MentorCardFactory;
 import dao.MentorDAO;
 import dto.MentorDTO;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -13,20 +12,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import model.AcademicStaff;
 import utils.SceneManager;
+import utils.GlobalErrorHandler;
 
 public class MentorsController {
 
-    @FXML
-    private VBox mentorsCardsContainer;
-
-    @FXML
-    private TextField searchField;
-
-    @FXML
-    private ProgressIndicator loader;
-
-    @FXML
-    private Button addMentorButton;
+    @FXML private VBox mentorsCardsContainer;
+    @FXML private TextField searchField;
+    @FXML private ProgressIndicator loader;
+    @FXML private Button addMentorButton;
 
     private final MentorDAO mentorDAO = new MentorDAO();
     private final MentorCardFactory cardFactory = new MentorCardFactory();
@@ -71,8 +64,7 @@ public class MentorsController {
         });
 
         task.setOnFailed(e -> {
-            task.getException().printStackTrace();
-            showError("Greška pri učitavanju mentora");
+            GlobalErrorHandler.error("Greška pri učitavanju mentora.", task.getException());
         });
 
         new Thread(task, "load-mentors-thread").start();
@@ -131,12 +123,6 @@ public class MentorsController {
                 (MentorFormController controller) -> {
                     controller.initEdit(mentor);
                 }
-        );
-    }
-
-    private void showError(String msg) {
-        Platform.runLater(() ->
-                new Alert(Alert.AlertType.ERROR, msg).showAndWait()
         );
     }
 }

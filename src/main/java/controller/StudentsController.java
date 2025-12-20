@@ -11,20 +11,15 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import model.Student;
 import utils.SceneManager;
+import utils.GlobalErrorHandler;
+
 
 public class StudentsController {
 
-    @FXML
-    private VBox studentsCardsContainer;
-
-    @FXML
-    private TextField searchField;
-
-    @FXML
-    private ProgressIndicator loader;
-
-    @FXML
-    private Button addStudentButton;
+    @FXML private VBox studentsCardsContainer;
+    @FXML private TextField searchField;
+    @FXML private ProgressIndicator loader;
+    @FXML private Button addStudentButton;
 
     private final StudentDAO studentDAO = new StudentDAO();
     private final StudentCardFactory cardFactory = new StudentCardFactory();
@@ -59,8 +54,7 @@ public class StudentsController {
         });
 
         task.setOnFailed(e -> {
-            task.getException().printStackTrace();
-            showError("Greška pri učitavanju studenata");
+            GlobalErrorHandler.error("Greška pri učitavanju studenata.", task.getException());
         });
 
         new Thread(task, "load-students-thread").start();
@@ -121,9 +115,5 @@ public class StudentsController {
                     controller.initEdit(student);
                 }
         );
-    }
-
-    private void showError(String message) {
-        new Alert(Alert.AlertType.ERROR, message).showAndWait();
     }
 }

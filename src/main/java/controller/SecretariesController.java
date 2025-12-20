@@ -3,7 +3,6 @@ package controller;
 import Factory.SecretaryCardFactory;
 import dao.SecretaryDAO;
 import dto.SecretaryDTO;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -12,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import model.AcademicStaff;
+import utils.GlobalErrorHandler;
 import utils.SceneManager;
 
 public class SecretariesController {
@@ -66,8 +66,7 @@ public class SecretariesController {
             if (loader != null) loader.visibleProperty().unbind();
             if (loader != null) loader.setVisible(false);
 
-            task.getException().printStackTrace();
-            showError("Greška pri učitavanju sekretara");
+            GlobalErrorHandler.error("Greška pri učitavanju sekretara.", task.getException());
         });
 
         new Thread(task, "load-secretaries-thread").start();
@@ -129,9 +128,5 @@ public class SecretariesController {
                 "Uredi sekretara",
                 (SecretaryFormController controller) -> controller.initEdit(dto)
         );
-    }
-
-    private void showError(String msg) {
-        Platform.runLater(() -> new Alert(Alert.AlertType.ERROR, msg).showAndWait());
     }
 }
