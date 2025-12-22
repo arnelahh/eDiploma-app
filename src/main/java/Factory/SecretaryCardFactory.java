@@ -3,6 +3,7 @@ package Factory;
 import dto.SecretaryDTO;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
@@ -20,7 +21,8 @@ public class SecretaryCardFactory {
         card.setAlignment(Pos.CENTER_LEFT);
         card.setPadding(new Insets(20, 25, 20, 25));
         card.getStyleClass().add("thesis-card");
-
+        card.setCursor(Cursor.HAND);
+        card.setOnMouseClicked(e -> onEdit.accept(dto));
         // Avatar (initials)
         VBox avatar = new VBox();
         avatar.setAlignment(Pos.CENTER);
@@ -51,12 +53,7 @@ public class SecretaryCardFactory {
 
         info.getChildren().addAll(name, details);
 
-        // Edit button
-        Button edit = new Button("✎");
-        edit.getStyleClass().add("edit-button-icon");
-        edit.setOnAction(e -> onEdit.accept(dto));
-
-        card.getChildren().addAll(avatar, info, edit);
+        card.getChildren().addAll(avatar, info);
         return card;
     }
 

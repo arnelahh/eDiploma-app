@@ -73,16 +73,13 @@ public class MentorFormController {
 
     private AcademicStaff extractFormData() {
         AcademicStaff staff = new AcademicStaff();
-
         if (mode == Mode.EDIT && mentor != null) {
             staff.setId(mentor.getId());
         }
-
         staff.setFirstName(firstNameField.getText() != null ? firstNameField.getText().trim() : "");
         staff.setLastName(lastNameField.getText() != null ? lastNameField.getText().trim() : "");
         staff.setTitle(titleField.getText() != null ? titleField.getText().trim() : "");
         staff.setEmail(emailField.getText() != null ? emailField.getText().trim() : "");
-
         staff.setIsDean(false);
         staff.setIsActive(true);
 

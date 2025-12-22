@@ -3,6 +3,7 @@ package Factory;
 import dto.MentorDTO;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
@@ -20,7 +21,8 @@ public class MentorCardFactory {
         card.setAlignment(Pos.CENTER_LEFT);
         card.setPadding(new Insets(20, 25, 20, 25));
         card.getStyleClass().add("thesis-card");
-
+        card.setCursor(Cursor.HAND);
+        card.setOnMouseClicked(e -> onEdit.accept(mentor));
         VBox avatar = new VBox();
         avatar.setAlignment(Pos.CENTER);
         avatar.getStyleClass().add("student-avatar");
@@ -63,13 +65,29 @@ public class MentorCardFactory {
         studentInfo.getChildren().addAll(greenDot, studentCountText);
         details.getChildren().add(studentInfo);
 
+        // Dohvatimo broj (koji smo izračunali onim SQL upitom)
+        int activeCount = mentorDTO.getOngoingThesisCount();
+
+// Kreiramo tekst (npr. "2 aktivne teze")
+        String activeLabel = activeCount + " " + getThesisLabel(activeCount);
+
+        HBox ongoingInfo = new HBox(6);
+        ongoingInfo.setAlignment(Pos.CENTER_LEFT);
+
+// Narančasta točka za "U izradi / Aktivno"
+        Circle orangeDot = new Circle(4);
+        orangeDot.setStyle("-fx-fill: #ff9f43;"); // Pastelna narančasta
+
+        Text ongoingCountText = new Text(activeLabel);
+// Koristimo istu klasu za stil teksta radi konzistentnosti
+        ongoingCountText.getStyleClass().add("card-info");
+
+        ongoingInfo.getChildren().addAll(orangeDot, ongoingCountText);
+        details.getChildren().add(ongoingInfo);
+
         info.getChildren().addAll(name, details);
 
-        Button edit = new Button("✎");
-        edit.getStyleClass().add("edit-button-icon");
-        edit.setOnAction(e -> onEdit.accept(mentor));
-
-        card.getChildren().addAll(avatar, info, edit);
+        card.getChildren().addAll(avatar, info);
         return card;
     }
 
@@ -94,6 +112,18 @@ public class MentorCardFactory {
             return "studenta";
         } else {
             return "studenata";
+        }
+    }
+    private String getThesisLabel(int count) {
+        int mod10 = count % 10;
+        int mod100 = count % 100;
+
+        if (mod10 == 1 && mod100 != 11) {
+            return "aktivan rad";
+        } else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+            return "aktivna rada";
+        } else {
+            return "aktivnih radova";
         }
     }
 }
