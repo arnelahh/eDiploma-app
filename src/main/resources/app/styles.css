@@ -662,3 +662,63 @@
 .edit-commission-button:hover {
     -fx-background-color: #e8e3ff;
 }
+/* Container */
+.form-container {
+    -fx-padding: 30;
+    -fx-background-color: #FFFFFF;
+}
+
+/* Typography */
+.section-title {
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-fill: #2D3436;
+}
+
+.page-subtitle {
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-fill: #636E72;
+}
+
+.section-separator {
+    -fx-padding: 10 0 20 0;
+}
+
+/* Labels */
+.field-label {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2D3436;
+}
+
+/* Input Fields (TextField, ComboBox, DatePicker) */
+.form-field {
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #DFE6E9;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8;
+    -fx-font-size: 13px;
+    -fx-pref-height: 38; /* Consistent height for all inputs */
+}
+
+/* Focus State - The "Modern Glow" */
+.form-field:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #0984E3; /* Modern Blue */
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(three-pass-box, rgba(9, 132, 227, 0.2), 5, 0, 0, 0);
+}
+
+/* Fix for ComboBox and DatePicker looking like buttons */
+.combo-box, .date-picker {
+    -fx-padding: 0; /* Remove padding so inner text aligns with TextFields */
+}
+
+.combo-box .list-cell, .date-picker .text-field {
+    -fx-background-color: transparent;
+    -fx-padding: 8;
+}

@@ -34,7 +34,7 @@
             <ScrollPane fitToWidth="true" styleClass="cards-scroll-pane">
                 <VBox spacing="25" styleClass="main-content">
                     <padding>
-                        <Insets top="40" right="50" bottom="40" left="50"/>
+                        <Insets top="30" right="50" bottom="30" left="50"/>
                     </padding>
 
                     <!-- TITLE -->
@@ -161,11 +161,11 @@
                             </VBox>
 
                             <!-- Status -->
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                <Label text="Status *" styleClass="field-label"/>
-                                <ComboBox fx:id="statusComboBox" promptText="Izaberite status"
-                                          prefWidth="9999" styleClass="form-field"/>
-                            </VBox>
+<!--                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">-->
+<!--                                <Label text="Status *" styleClass="field-label"/>-->
+<!--                                <ComboBox fx:id="statusComboBox" promptText="Izaberite status"-->
+<!--                                          prefWidth="9999" styleClass="form-field"/>-->
+<!--                            </VBox>-->
 
                             <columnConstraints>
                                 <ColumnConstraints percentWidth="50"/>

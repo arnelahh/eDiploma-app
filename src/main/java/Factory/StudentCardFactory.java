@@ -2,6 +2,7 @@ package Factory;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
@@ -19,6 +20,10 @@ public class StudentCardFactory {
         card.setPadding(new Insets(20, 25, 20, 25));
         card.getStyleClass().add("thesis-card");
 
+        card.setCursor(Cursor.HAND);
+
+        card.setOnMouseClicked(e -> onEdit.accept(student));
+
         // Avatar
         VBox avatar = new VBox();
         avatar.setAlignment(Pos.CENTER);
@@ -26,8 +31,8 @@ public class StudentCardFactory {
         avatar.setPrefSize(50, 50);
 
         Text initials = new Text(
-                student.getFirstName().substring(0, 1).toUpperCase() +
-                        student.getLastName().substring(0, 1).toUpperCase()
+                student.getFirstName().substring(0, 1).toUpperCase() + "." +
+                        student.getLastName().substring(0, 1).toUpperCase()+"."
         );
         initials.getStyleClass().add("avatar-text");
         avatar.getChildren().add(initials);
@@ -52,12 +57,8 @@ public class StudentCardFactory {
 
         info.getChildren().addAll(name, details);
 
-        // Edit button
-        Button edit = new Button("✎");
-        edit.getStyleClass().add("edit-button-icon");
-        edit.setOnAction(e -> onEdit.accept(student));
 
-        card.getChildren().addAll(avatar, info, edit);
+        card.getChildren().addAll(avatar, info);
         return card;
     }
 
