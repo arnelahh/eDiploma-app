@@ -16,15 +16,6 @@ public class DashboardController {
     private BorderPane mainBorderPane;
 
     @FXML
-    private Label lblOdjava;
-
-    @FXML
-    private Label pocetnaLabel, radoviLabel, studentiLabel, mentoriLabel;
-
-    @FXML
-    private AnchorPane rootPane;
-
-    @FXML
     public void initialize(){
         DashboardView view = NavigationContext.consumeTargetView();
 
@@ -40,7 +31,7 @@ public class DashboardController {
     private void handleLogout() {
         try {
             UserSession.clear();
-            SceneManager.show("/app/login.fxml", "Login");
+            SceneManager.show("/app/login.fxml", "eDiploma");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,19 +51,6 @@ public class DashboardController {
         }
     }
 
-    @FXML
-    private void handlePocetnaClick(){
-        try{
-            Parent homeView = FXMLLoader.load(
-                    getClass().getResource("/app/home.fxml")
-            );
-
-            mainBorderPane.setCenter(homeView);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @FXML
     private void handleRadoviClick(){

@@ -51,8 +51,8 @@ public class ThesisDAO {
 
     public void insertThesis(Thesis thesis){
         String sql= """
-                INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId,StatusId)
-                VALUES(?,?,?,?,?,?,?,?)
+                INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId)
+                VALUES(?,?,?,?,?,?,?)
                 """;
         try (Connection connection=CloudDatabaseConnection.Konekcija();
              PreparedStatement stmt=connection.prepareStatement(sql))
@@ -67,7 +67,7 @@ public class ThesisDAO {
             stmt.setInt(5,thesis.getAcademicStaffId());
             stmt.setInt(6,thesis.getSecretaryId()); // Ovo je AppUser ID
             stmt.setInt(7,thesis.getSubjectId());
-            stmt.setInt(8,thesis.getStatusId());
+
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {

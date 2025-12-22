@@ -62,7 +62,6 @@ public class ThesisFormController {
         loadMentors();
         loadDepartments();
         loadSubjects();
-        loadStatuses();
         loadSecretaries();
     }
 
@@ -126,20 +125,20 @@ public class ThesisFormController {
         new Thread(task).start();
     }
 
-    private void loadStatuses() {
-        Task<List<ThesisStatus>> task = new Task<>() {
-            @Override
-            protected List<ThesisStatus> call() throws Exception {
-                return statusDAO.getAllThesisStatuses();
-            }
-        };
-        task.setOnSucceeded(e -> {
-            statusComboBox.getItems().setAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(e -> onDataLoaded());
-        new Thread(task).start();
-    }
+//    private void loadStatuses() {
+//        Task<List<ThesisStatus>> task = new Task<>() {
+//            @Override
+//            protected List<ThesisStatus> call() throws Exception {
+//                return statusDAO.getAllThesisStatuses();
+//            }
+//        };
+//        task.setOnSucceeded(e -> {
+//            statusComboBox.getItems().setAll(task.getValue());
+//            onDataLoaded();
+//        });
+//        task.setOnFailed(e -> onDataLoaded());
+//        new Thread(task).start();
+//    }
 
     // PROMJENA: Sada učitavamo AcademicStaff objekte koji su sekretari
     private void loadSecretaries() {
@@ -189,10 +188,10 @@ public class ThesisFormController {
             public Subject fromString(String s) { return null; }
         });
 
-        statusComboBox.setConverter(new javafx.util.StringConverter<>() {
-            public String toString(ThesisStatus s) { return s != null ? s.getName() : ""; }
-            public ThesisStatus fromString(String s) { return null; }
-        });
+//        statusComboBox.setConverter(new javafx.util.StringConverter<>() {
+//            public String toString(ThesisStatus s) { return s != null ? s.getName() : ""; }
+//            public ThesisStatus fromString(String s) { return null; }
+//        });
 
         // PROMJENA: Converter za AcademicStaff (sekretar)
         secretaryComboBox.setConverter(new javafx.util.StringConverter<>() {
@@ -242,7 +241,7 @@ public class ThesisFormController {
         selectItemById(mentorComboBox, thesis.getAcademicStaffId());
         selectItemById(departmentComboBox, thesis.getDepartmentId());
         selectItemById(subjectComboBox, thesis.getSubjectId());
-        selectItemById(statusComboBox, thesis.getStatusId());
+        //selectItemById(statusComboBox, thesis.getStatusId());
         System.out.println(thesis.getSecretaryId());
         // PROMJENA: Selektujemo sekretara po AcademicStaff ID-u
 
@@ -314,7 +313,6 @@ public class ThesisFormController {
                 .department(departmentComboBox.getValue())
                 .subject(subjectComboBox.getValue())
                 .secretary(secretaryComboBox.getValue()) // PROMJENA: Sada je AcademicStaff
-                .status(statusComboBox.getValue() != null ? statusComboBox.getValue().getName() : null)
                 .build();
     }
 
@@ -358,7 +356,7 @@ public class ThesisFormController {
         if (mentorComboBox.getValue() != null) t.setAcademicStaffId(mentorComboBox.getValue().getId());
         if (departmentComboBox.getValue() != null) t.setDepartmentId(departmentComboBox.getValue().getId());
         if (subjectComboBox.getValue() != null) t.setSubjectId(subjectComboBox.getValue().getId());
-        if (statusComboBox.getValue() != null) t.setStatusId(statusComboBox.getValue().getId());
+        //if (statusComboBox.getValue() != null) t.setStatusId(statusComboBox.getValue().getId());
 
         // PROMJENA: Uzimamo AcademicStaff ID, ali moramo ga konvertovati u AppUser ID za bazu
         if (secretaryComboBox.getValue() != null) {

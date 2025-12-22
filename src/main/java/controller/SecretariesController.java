@@ -38,10 +38,6 @@ public class SecretariesController {
         needsRefresh = false;
     }
 
-    public static void requestRefresh() {
-        needsRefresh = true;
-    }
-
     private void loadSecretariesAsync() {
         Task<Void> task = new Task<>() {
             @Override

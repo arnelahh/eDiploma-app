@@ -12,4 +12,5 @@ import model.AcademicStaff;
 public class MentorDTO {
     private AcademicStaff mentor;
     private int studentCount;
+    private int OngoingThesisCount;
 }
