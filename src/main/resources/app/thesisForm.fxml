@@ -68,6 +68,27 @@
                                 <DatePicker fx:id="applicationDatePicker" prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
+                            <!-- Datum odobrenja (EDIT ONLY) -->
+                            <VBox fx:id="approvalDateContainer" spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                  visible="false" managed="false">
+                                <Label text="Datum odobrenja" styleClass="field-label"/>
+                                <DatePicker fx:id="approvalDatePicker" prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Datum odbrane (EDIT ONLY) -->
+                            <VBox fx:id="defenseDateContainer" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                                  visible="false" managed="false">
+                                <Label text="Datum odbrane" styleClass="field-label"/>
+                                <DatePicker fx:id="defenseDatePicker" prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Ocjena (EDIT ONLY) -->
+                            <VBox fx:id="gradeContainer" spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2"
+                                  visible="false" managed="false">
+                                <Label text="Ocjena" styleClass="field-label"/>
+                                <TextField fx:id="gradeField" promptText="6-10" styleClass="form-field"/>
+                            </VBox>
+
                             <columnConstraints>
                                 <ColumnConstraints percentWidth="50"/>
                                 <ColumnConstraints percentWidth="50"/>
@@ -138,6 +159,14 @@
                             <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                 <Label text="Predmet *" styleClass="field-label"/>
                                 <ComboBox fx:id="subjectComboBox" promptText="Izaberite predmet"
+                                          prefWidth="9999" styleClass="form-field"/>
+                            </VBox>
+
+                            <!-- Status (EDIT ONLY) -->
+                            <VBox fx:id="statusContainer" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                                  visible="false" managed="false">
+                                <Label text="Status" styleClass="field-label"/>
+                                <ComboBox fx:id="statusComboBox" promptText="Izaberite status"
                                           prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
