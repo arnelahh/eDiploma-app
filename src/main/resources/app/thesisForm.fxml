@@ -68,25 +68,6 @@
                                 <DatePicker fx:id="applicationDatePicker" prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
-                            <!-- Datum odobrenja -->
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                <Label text="Datum odobrenja" styleClass="field-label"/>
-                                <DatePicker fx:id="approvalDatePicker" prefWidth="9999" styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- Datum odbrane -->
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                <Label text="Datum odbrane" styleClass="field-label"/>
-                                <DatePicker fx:id="defenseDatePicker" prefWidth="9999" styleClass="form-field"/>
-                            </VBox>
-
-                            <!-- Ocjena -->
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                <Label text="Ocjena (6-10)" styleClass="field-label"/>
-                                <TextField fx:id="gradeField" promptText="Unesite ocjenu"
-                                           styleClass="form-field"/>
-                            </VBox>
-
                             <columnConstraints>
                                 <ColumnConstraints percentWidth="50"/>
                                 <ColumnConstraints percentWidth="50"/>
@@ -159,13 +140,6 @@
                                 <ComboBox fx:id="subjectComboBox" promptText="Izaberite predmet"
                                           prefWidth="9999" styleClass="form-field"/>
                             </VBox>
-
-                            <!-- Status -->
-<!--                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">-->
-<!--                                <Label text="Status *" styleClass="field-label"/>-->
-<!--                                <ComboBox fx:id="statusComboBox" promptText="Izaberite status"-->
-<!--                                          prefWidth="9999" styleClass="form-field"/>-->
-<!--                            </VBox>-->
 
                             <columnConstraints>
                                 <ColumnConstraints percentWidth="50"/>
