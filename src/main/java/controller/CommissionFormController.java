@@ -6,7 +6,6 @@ import dao.CommissionDAO;
 import dao.CommissionRoleDAO;
 import dao.ThesisDAO;
 import dto.ThesisDetailsDTO;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
@@ -14,6 +13,7 @@ import model.AcademicStaff;
 import model.Commission;
 import model.CommissionRole;
 import model.Thesis;
+import utils.AsyncHelper;
 import utils.SceneManager;
 import utils.GlobalErrorHandler;
 
@@ -87,70 +87,49 @@ public class CommissionFormController {
     }
 
     private void loadAcademicStaff() {
-        Task<List<AcademicStaff>> task = new Task<>() {
-            @Override
-            protected List<AcademicStaff> call() throws Exception {
-                return academicStaffDAO.getAllActiveAcademicStaff();
-            }
-        };
+        AsyncHelper.executeAsyncWithLoader(
+            () -> academicStaffDAO.getAllActiveAcademicStaff(),
+            staffList -> {
+                chairmanComboBox.getItems().clear();
+                mentorComboBox.getItems().clear();
+                memberComboBox.getItems().clear();
+                substituteComboBox.getItems().clear();
 
-        if (loader != null) {
-            loader.visibleProperty().bind(task.runningProperty());
-        }
+                chairmanComboBox.getItems().addAll(staffList);
+                mentorComboBox.getItems().addAll(staffList);
+                memberComboBox.getItems().addAll(staffList);
+                substituteComboBox.getItems().addAll(staffList);
 
-        task.setOnSucceeded(e -> {
-            List<AcademicStaff> staffList = task.getValue();
-
-            chairmanComboBox.getItems().clear();
-            mentorComboBox.getItems().clear();
-            memberComboBox.getItems().clear();
-            substituteComboBox.getItems().clear();
-
-            chairmanComboBox.getItems().addAll(staffList);
-            mentorComboBox.getItems().addAll(staffList);
-            memberComboBox.getItems().addAll(staffList);
-            substituteComboBox.getItems().addAll(staffList);
-
-            if (isEditMode && existingCommission != null) {
-                fillExistingCommission();
-            } else if (thesisDetails != null && thesisDetails.getMentor() != null) {
-                mentorComboBox.getItems().stream()
-                        .filter(s -> s.getId() == thesisDetails.getMentor().getId())
-                        .findFirst()
-                        .ifPresent(mentorComboBox::setValue);
-            }
-        });
-
-        task.setOnFailed(e -> {
-            GlobalErrorHandler.error("Greška pri učitavanju osoblja.", task.getException());
-        });
-
-        new Thread(task, "load-academic-staff").start();
+                if (isEditMode && existingCommission != null) {
+                    fillExistingCommission();
+                } else if (thesisDetails != null && thesisDetails.getMentor() != null) {
+                    mentorComboBox.getItems().stream()
+                            .filter(s -> s.getId() == thesisDetails.getMentor().getId())
+                            .findFirst()
+                            .ifPresent(mentorComboBox::setValue);
+                }
+            },
+            error -> GlobalErrorHandler.error("Greška pri učitavanju osoblja.", error),
+            loader
+        );
     }
 
     private void loadSecretaries() {
-        Task<List<AcademicStaff>> task = new Task<>() {
-            @Override
-            protected List<AcademicStaff> call() throws Exception {
-                return appUserDAO.getAllSecretariesAsStaff();
-            }
-        };
+        AsyncHelper.executeAsync(
+            () -> appUserDAO.getAllSecretariesAsStaff(),
+            secretaries -> {
+                secretaryComboBox.getItems().clear();
+                secretaryComboBox.getItems().addAll(secretaries);
 
-        task.setOnSucceeded(e -> {
-            List<AcademicStaff> secretaries = task.getValue();
-
-            secretaryComboBox.getItems().clear();
-            secretaryComboBox.getItems().addAll(secretaries);
-
-            if (thesisDetails != null && thesisDetails.getSecretary() != null) {
-                secretaryComboBox.getItems().stream()
-                        .filter(s -> s.getId() == thesisDetails.getSecretary().getId())
-                        .findFirst()
-                        .ifPresent(secretaryComboBox::setValue);
-            }
-        });
-
-        new Thread(task, "load-secretaries").start();
+                if (thesisDetails != null && thesisDetails.getSecretary() != null) {
+                    secretaryComboBox.getItems().stream()
+                            .filter(s -> s.getId() == thesisDetails.getSecretary().getId())
+                            .findFirst()
+                            .ifPresent(secretaryComboBox::setValue);
+                }
+            },
+            error -> GlobalErrorHandler.error("Greška pri učitavanju sekretara.", error)
+        );
     }
 
     public void initWithThesis(int thesisId, ThesisDetailsDTO details) {
@@ -270,7 +249,7 @@ public class CommissionFormController {
             Thesis thesis = thesisDAO.getThesisById(thesisId);
             if (thesis != null) {
                 thesis.setAcademicStaffId(mentorComboBox.getValue().getId());
-                thesis.setSecretaryId(secretaryAppUserId); // Ovo je AppUser ID (kako je u bazi)
+                thesis.setSecretaryId(secretaryAppUserId);
                 thesisDAO.updateThesis(thesis);
             }
 

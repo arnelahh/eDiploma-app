@@ -3,18 +3,12 @@ package controller;
 import dao.StudentDAO;
 import dao.StudentStatusDAO;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import model.Student;
 import model.StudentStatus;
-import utils.DashboardView;
-import utils.NavigationContext;
-import utils.SceneManager;
-import utils.StudentValidator;
-import utils.ValidationResult;
-import utils.GlobalErrorHandler;
+import utils.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -139,30 +133,25 @@ public class StudentFormController {
                 return;
             }
 
-            Task<Void> saveTask = new Task<>() {
-                @Override
-                protected Void call() {
+            // Korištenje AsyncHelper umjesto direktnog Task-a
+            AsyncHelper.executeAsyncVoid(
+                () -> {
                     if (mode == Mode.CREATE) {
                         studentDAO.insertStudent(studentToSave);
                     } else {
                         Platform.runLater(() -> updateStudent());
                         studentDAO.updateStudent(studentToSave);
                     }
-                    return null;
+                },
+                () -> {
+                    setBusy(false);
+                    back();
+                },
+                error -> {
+                    setBusy(false);
+                    GlobalErrorHandler.error("Greška pri snimanju.", error);
                 }
-            };
-
-            saveTask.setOnSucceeded(e -> {
-                setBusy(false);
-                back();
-            });
-
-            saveTask.setOnFailed(e -> {
-                setBusy(false);
-                GlobalErrorHandler.error("Greška pri snimanju.", saveTask.getException());
-            });
-
-            new Thread(saveTask, "save-student").start();
+            );
 
         }).exceptionally(ex -> {
             Platform.runLater(() -> {
