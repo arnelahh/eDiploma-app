@@ -722,3 +722,85 @@
     -fx-background-color: transparent;
     -fx-padding: 8;
 }
+/* General Text Styles */
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-fill: #2d3436;
+}
+
+.page-subtitle {
+    -fx-font-size: 12px;
+    -fx-fill: #636e72;
+    -fx-padding: 0 0 10 0;
+}
+
+/* BASE CARD STYLE */
+.document-card {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-width: 1px;
+    -fx-padding: 12 15 12 15; /* Top Right Bottom Left */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+/* COLOR VARIANTS (Matching the Image) */
+
+/* Green: Rješenje o izradi / Komisija */
+.document-green {
+    -fx-background-color: #e8f8f5; /* Light Mint */
+    -fx-border-color: #2ecc71;     /* Vivid Green */
+}
+/* Hover effect for green cards */
+.document-green:hover {
+    -fx-background-color: #d1f2eb;
+}
+
+/* Yellow: Obavijest */
+.document-yellow {
+    -fx-background-color: #e8f5e9; /* Wait, image is Greenish, but user asked for Yellow/Orange for "Obavijest" in code */
+    /* Let's match the provided image's "Obavijest" which is green,
+       BUT based on your code class 'yellow', here is a nice yellow style: */
+    -fx-background-color: #fff8e1; /* Light Amber */
+    -fx-border-color: #ffc107;     /* Amber Gold */
+}
+
+/* Red: Zapisnik (Action Needed) */
+.document-red {
+    -fx-background-color: #ffebee; /* Light Red */
+    -fx-border-color: #ef5350;     /* Soft Red */
+}
+
+/* Gray/White: Future Documents */
+.document-gray {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+}
+
+/* CARD CONTENT STYLES */
+.document-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-fill: #2d3436;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* BUTTONS (ICONS) */
+.document-icon-btn {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-text-fill: #555555;
+    -fx-font-size: 14px;
+    -fx-padding: 5 8 5 8;
+    -fx-border-radius: 4;
+}
+
+.document-icon-btn:hover {
+    -fx-background-color: rgba(0,0,0,0.05); /* Slight gray on hover */
+    -fx-text-fill: #000000;
+}
+
+/* Disable default button focus ring */
+.document-icon-btn:focused {
+    -fx-background-insets: 0;
+}
