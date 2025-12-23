@@ -9,7 +9,6 @@ import javafx.scene.text.Text;
 import model.*;
 import utils.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -37,9 +36,6 @@ public class ThesisFormController {
     @FXML private Text formSubtitle;
     @FXML private TextField titleField;
     @FXML private DatePicker applicationDatePicker;
-    @FXML private DatePicker approvalDatePicker;
-    @FXML private DatePicker defenseDatePicker;
-    @FXML private TextField gradeField;
     @FXML private ComboBox<Student> studentComboBox;
     @FXML private ComboBox<AcademicStaff> mentorComboBox;
     @FXML private ComboBox<Department> departmentComboBox;
@@ -203,9 +199,6 @@ public class ThesisFormController {
     private void fillFields() {
         titleField.setText(thesis.getTitle());
         applicationDatePicker.setValue(thesis.getApplicationDate());
-        approvalDatePicker.setValue(thesis.getApprovalDate());
-        defenseDatePicker.setValue(thesis.getDefenseDate());
-        if (thesis.getGrade() != null) gradeField.setText(thesis.getGrade().toString());
 
         selectItemById(studentComboBox, thesis.getStudentId());
         selectItemById(mentorComboBox, thesis.getAcademicStaffId());
@@ -239,7 +232,6 @@ public class ThesisFormController {
         ThesisDetailsDTO dto = extractDtoFromForm();
         ValidationResult result = thesisValidator.validate(dto);
         List<String> errors = result.getErrors();
-        validateGradeManually(errors);
 
         if (!errors.isEmpty()) {
             showErrorList(errors);
@@ -275,27 +267,14 @@ public class ThesisFormController {
         return ThesisDetailsDTO.builder()
                 .title(titleField.getText())
                 .applicationDate(applicationDatePicker.getValue())
-                .approvalDate(approvalDatePicker.getValue())
-                .defenseDate(defenseDatePicker.getValue())
+                .approvalDate(null)  // Više ne postoji u formi
+                .defenseDate(null)   // Više ne postoji u formi
                 .student(studentComboBox.getValue())
                 .mentor(mentorComboBox.getValue())
                 .department(departmentComboBox.getValue())
                 .subject(subjectComboBox.getValue())
                 .secretary(secretaryComboBox.getValue())
                 .build();
-    }
-
-    private void validateGradeManually(List<String> errors) {
-        if (gradeField.getText() != null && !gradeField.getText().trim().isEmpty()) {
-            try {
-                double grade = Double.parseDouble(gradeField.getText().trim());
-                if (grade < 6.0 || grade > 10.0) {
-                    errors.add("Ocjena mora biti između 6 i 10");
-                }
-            } catch (NumberFormatException e) {
-                errors.add("Ocjena mora biti ispravan broj");
-            }
-        }
     }
 
     private Thesis buildThesisFromForm() {
@@ -312,14 +291,11 @@ public class ThesisFormController {
     private void fillThesisData(Thesis t) {
         t.setTitle(titleField.getText().trim());
         t.setApplicationDate(applicationDatePicker.getValue());
-        t.setApprovalDate(approvalDatePicker.getValue());
-        t.setDefenseDate(defenseDatePicker.getValue());
-
-        if (gradeField.getText() != null && !gradeField.getText().trim().isEmpty()) {
-            t.setGrade(new BigDecimal(gradeField.getText().trim()));
-        } else {
-            t.setGrade(null);
-        }
+        
+        // Ova polja se ne postavljaju iz forme - ostaju kako jesu ili null
+        // t.setApprovalDate() - ne diramo
+        // t.setDefenseDate() - ne diramo  
+        // t.setGrade() - ne diramo
 
         if (studentComboBox.getValue() != null) t.setStudentId(studentComboBox.getValue().getId());
         if (mentorComboBox.getValue() != null) t.setAcademicStaffId(mentorComboBox.getValue().getId());

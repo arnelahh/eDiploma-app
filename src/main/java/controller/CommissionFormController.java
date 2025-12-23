@@ -14,8 +14,10 @@ import model.Commission;
 import model.CommissionRole;
 import model.Thesis;
 import utils.AsyncHelper;
+import utils.CommissionValidator;
 import utils.SceneManager;
 import utils.GlobalErrorHandler;
+import utils.ValidationResult;
 
 import java.util.List;
 
@@ -37,6 +39,7 @@ public class CommissionFormController {
     private final CommissionDAO commissionDAO = new CommissionDAO();
     private final CommissionRoleDAO commissionRoleDAO = new CommissionRoleDAO();
     private final ThesisDAO thesisDAO = new ThesisDAO();
+    private final CommissionValidator validator = new CommissionValidator();
 
     private int thesisId;
     private ThesisDetailsDTO thesisDetails;
@@ -200,20 +203,17 @@ public class CommissionFormController {
 
     @FXML
     private void handleSave() {
-        if (chairmanComboBox.getValue() == null) {
-            GlobalErrorHandler.warning("Morate izabrati predsjednika komisije!");
-            return;
-        }
-        if (mentorComboBox.getValue() == null) {
-            GlobalErrorHandler.warning("Morate izabrati mentora!");
-            return;
-        }
-        if (memberComboBox.getValue() == null) {
-            GlobalErrorHandler.warning("Morate izabrati člana komisije!");
-            return;
-        }
-        if (secretaryComboBox.getValue() == null) {
-            GlobalErrorHandler.warning("Morate izabrati sekretara!");
+        // Validacija komisije - provjera da isti član nije na više uloga
+        ValidationResult validationResult = validator.validateCommission(
+            chairmanComboBox.getValue(),
+            mentorComboBox.getValue(),
+            memberComboBox.getValue(),
+            substituteComboBox.getValue(),
+            secretaryComboBox.getValue()
+        );
+
+        if (!validationResult.isValid()) {
+            showErrorList(validationResult.getErrors());
             return;
         }
 
@@ -284,5 +284,13 @@ public class CommissionFormController {
                     controller.initWithThesisId(thesisId);
                 }
         );
+    }
+
+    private void showErrorList(List<String> errors) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Neispravan unos");
+        alert.setHeaderText("Molimo ispravite sljedeće greške:");
+        alert.setContentText("• " + String.join("\n• ", errors));
+        alert.showAndWait();
     }
 }
