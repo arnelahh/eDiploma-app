@@ -3,6 +3,8 @@ package controller;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -10,6 +12,8 @@ import utils.DashboardView;
 import utils.NavigationContext;
 import utils.SceneManager;
 import utils.UserSession;
+
+import java.util.Optional;
 
 public class DashboardController {
     @FXML
@@ -29,12 +33,29 @@ public class DashboardController {
 
     @FXML
     private void handleLogout() {
-        try {
-            UserSession.clear();
-            SceneManager.show("/app/login.fxml", "eDiploma");
+        // Create the confirmation dialog
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Odjava");
+        alert.setHeaderText("Da li ste sigurni da se želite odjaviti?");
+        alert.setContentText(null); // Removes the detailed content text to keep it clean
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Create custom buttons
+        ButtonType buttonTypeNo = new ButtonType("Ne");
+        ButtonType buttonTypeYes = new ButtonType("Da");
+
+        // Set buttons (Order matters: No first means it appears on the left)
+        alert.getButtonTypes().setAll(buttonTypeNo, buttonTypeYes);
+
+        // Show and wait for response
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == buttonTypeYes) {
+            try {
+                UserSession.clear();
+                SceneManager.show("/app/login.fxml", "eDiploma");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
