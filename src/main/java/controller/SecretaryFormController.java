@@ -5,13 +5,13 @@ import dto.CreateSecretaryDTO;
 import dto.CreateUserIdsDTO;
 import dto.SecretaryDTO;
 import dto.UpdateSecretaryDTO;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import model.AcademicStaff;
 import model.AppUser;
 import utils.*;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 public class SecretaryFormController {
@@ -119,14 +119,27 @@ public class SecretaryFormController {
             return;
         }
 
-        Task<CreateUserIdsDTO> task = new Task<>() {
-            @Override
-            protected CreateUserIdsDTO call() throws Exception {
-                return secretaryDAO.createSecretary(dto);
-            }
-        };
+        setBusy(true);
 
-        runTask(task, "create-secretary", true);
+        // Korištenje AsyncHelper - Callable može da baci Exception
+        AsyncHelper.executeAsyncWithLoader(
+            () -> {
+                try {
+                    return secretaryDAO.createSecretary(dto);
+                } catch (SQLException e) {
+                    throw new RuntimeException("Greška pri kreiranju sekretara", e);
+                }
+            },
+            result -> {
+                setBusy(false);
+                redirectToSecretaries();
+            },
+            error -> {
+                setBusy(false);
+                GlobalErrorHandler.error("Operacija nije uspjela.", error);
+            },
+            loader
+        );
     }
 
     private void handleUpdate() {
@@ -138,7 +151,7 @@ public class SecretaryFormController {
                 .lastName(textOrNull(lastNameField))
                 .email(textOrNull(emailField))
                 .username(textOrNull(usernameField))
-                .rawPassword(passwordField != null ? passwordField.getText() : null) // optional
+                .rawPassword(passwordField != null ? passwordField.getText() : null)
                 .build();
 
         ValidationResult vr = updateValidator.validate(dto);
@@ -147,15 +160,26 @@ public class SecretaryFormController {
             return;
         }
 
-        Task<Void> task = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                secretaryDAO.updateSecretary(dto);
-                return null;
-            }
-        };
+        setBusy(true);
 
-        runTask(task, "update-secretary", true);
+        // Korištenje AsyncHelper za void operaciju
+        AsyncHelper.executeAsyncVoid(
+            () -> {
+                try {
+                    secretaryDAO.updateSecretary(dto);
+                } catch (SQLException e) {
+                    throw new RuntimeException("Greška pri ažuriranju sekretara", e);
+                }
+            },
+            () -> {
+                setBusy(false);
+                redirectToSecretaries();
+            },
+            error -> {
+                setBusy(false);
+                GlobalErrorHandler.error("Operacija nije uspjela.", error);
+            }
+        );
     }
 
     @FXML
@@ -170,36 +194,26 @@ public class SecretaryFormController {
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isEmpty() || result.get() != ButtonType.OK) return;
 
-        Task<Void> task = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                secretaryDAO.deleteSecretary(appUserId, academicStaffId);
-                return null;
-            }
-        };
-
-        runTask(task, "delete-secretary", true);
-    }
-
-    private void runTask(Task<?> task, String threadName, boolean redirectOnSuccess) {
         setBusy(true);
-        if (loader != null) loader.visibleProperty().bind(task.runningProperty());
 
-        task.setOnSucceeded(e -> {
-            setBusy(false);
-            if (loader != null) loader.visibleProperty().unbind();
-            if (redirectOnSuccess) redirectToSecretaries();
-        });
-
-        task.setOnFailed(e -> {
-            setBusy(false);
-            if (loader != null) loader.visibleProperty().unbind();
-            if (loader != null) loader.setVisible(false);
-
-            GlobalErrorHandler.error("Operacija nije uspjela.", task.getException());
-        });
-
-        new Thread(task, threadName).start();
+        // Korištenje AsyncHelper za delete operaciju
+        AsyncHelper.executeAsyncVoid(
+            () -> {
+                try {
+                    secretaryDAO.deleteSecretary(appUserId, academicStaffId);
+                } catch (SQLException e) {
+                    throw new RuntimeException("Greška pri brisanju sekretara", e);
+                }
+            },
+            () -> {
+                setBusy(false);
+                redirectToSecretaries();
+            },
+            error -> {
+                setBusy(false);
+                GlobalErrorHandler.error("Operacija nije uspjela.", error);
+            }
+        );
     }
 
     private void redirectToSecretaries() {
@@ -225,6 +239,7 @@ public class SecretaryFormController {
     private void back() {
         redirectToSecretaries();
     }
+
     private void updateFormTexts() {
         if (formTitle == null || formSubtitle == null) return;
 

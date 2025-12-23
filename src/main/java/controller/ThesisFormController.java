@@ -2,7 +2,6 @@ package controller;
 
 import dao.*;
 import dto.ThesisDetailsDTO;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -64,78 +63,73 @@ public class ThesisFormController {
     }
 
     private void loadStudents() {
-        Task<List<Student>> task = new Task<>() {
-            @Override
-            protected List<Student> call() throws Exception {
-                return studentDAO.getAllStudents();
+        AsyncHelper.executeAsync(
+            () -> studentDAO.getAllStudents(),
+            students -> {
+                studentComboBox.getItems().setAll(students);
+                onDataLoaded();
+            },
+            error -> {
+                GlobalErrorHandler.error("Greška pri učitavanju studenata", error);
+                onDataLoaded();
             }
-        };
-        task.setOnSucceeded(e -> {
-            studentComboBox.getItems().setAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(e -> onDataLoaded());
-        new Thread(task).start();
+        );
     }
 
     private void loadMentors() {
-        Task<List<AcademicStaff>> task = new Task<>() {
-            @Override
-            protected List<AcademicStaff> call() throws Exception {
-                return mentorDAO.getAllActiveAcademicStaff();
+        AsyncHelper.executeAsync(
+            () -> mentorDAO.getAllActiveAcademicStaff(),
+            mentors -> {
+                mentorComboBox.getItems().setAll(mentors);
+                onDataLoaded();
+            },
+            error -> {
+                GlobalErrorHandler.error("Greška pri učitavanju mentora", error);
+                onDataLoaded();
             }
-        };
-        task.setOnSucceeded(e -> {
-            mentorComboBox.getItems().setAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(e -> onDataLoaded());
-        new Thread(task).start();
+        );
     }
 
     private void loadDepartments() {
-        Task<List<Department>> task = new Task<>() {
-            @Override
-            protected List<Department> call() throws Exception {
-                return departmentDAO.getAllDepartments();
+        AsyncHelper.executeAsync(
+            () -> departmentDAO.getAllDepartments(),
+            departments -> {
+                departmentComboBox.getItems().setAll(departments);
+                onDataLoaded();
+            },
+            error -> {
+                GlobalErrorHandler.error("Greška pri učitavanju odjela", error);
+                onDataLoaded();
             }
-        };
-        task.setOnSucceeded(e -> {
-            departmentComboBox.getItems().setAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(e -> onDataLoaded());
-        new Thread(task).start();
+        );
     }
 
     private void loadSubjects() {
-        Task<List<Subject>> task = new Task<>() {
-            @Override
-            protected List<Subject> call() throws Exception {
-                return subjectDAO.getAllSubjects();
+        AsyncHelper.executeAsync(
+            () -> subjectDAO.getAllSubjects(),
+            subjects -> {
+                subjectComboBox.getItems().setAll(subjects);
+                onDataLoaded();
+            },
+            error -> {
+                GlobalErrorHandler.error("Greška pri učitavanju predmeta", error);
+                onDataLoaded();
             }
-        };
-        task.setOnSucceeded(e -> {
-            subjectComboBox.getItems().setAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(e -> onDataLoaded());
-        new Thread(task).start();
+        );
     }
 
     private void loadSecretaries() {
-        Task<List<AcademicStaff>> task = new Task<>() {
-            @Override
-            protected List<AcademicStaff> call() throws Exception {
-                return secretaryDAO.getAllSecretariesAsStaff();
+        AsyncHelper.executeAsync(
+            () -> secretaryDAO.getAllSecretariesAsStaff(),
+            secretaries -> {
+                secretaryComboBox.getItems().setAll(secretaries);
+                onDataLoaded();
+            },
+            error -> {
+                GlobalErrorHandler.error("Greška pri učitavanju sekretara", error);
+                onDataLoaded();
             }
-        };
-        task.setOnSucceeded(e -> {
-            secretaryComboBox.getItems().setAll(task.getValue());
-            onDataLoaded();
-        });
-        task.setOnFailed(e -> onDataLoaded());
-        new Thread(task).start();
+        );
     }
 
     private void onDataLoaded() {

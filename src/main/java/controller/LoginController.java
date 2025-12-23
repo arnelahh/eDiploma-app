@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import model.AppUser;
 import org.mindrot.jbcrypt.BCrypt;
+import utils.AsyncHelper;
 import utils.SceneManager;
 import utils.SessionManager;
 import utils.UserSession;
@@ -35,58 +36,60 @@ public class LoginController {
         String email = emailField.getText().trim();
         String password = passwordField.getText().trim();
 
+        // Validacija praznih polja
+        if (email.isEmpty() || password.isEmpty()) {
+            GlobalErrorHandler.error("Molimo unesite email i lozinku");
+            return;
+        }
+
         loader.setVisible(true);
-        emailField.setDisable(true);
-        passwordField.setDisable(true);
 
-        javafx.concurrent.Task<AppUser> task = new javafx.concurrent.Task<>() {
-            @Override
-            protected AppUser call() {
-                return userDao.findByEmail(email);
-            }
-        };
+        // Korištenje AsyncHelper sa disable funkcionalnošću
+        AsyncHelper.executeAsyncWithDisable(
+            () -> userDao.findByEmail(email),
+            user -> handleLoginSuccess(user, password),
+            error -> {
+                loader.setVisible(false);
+                GlobalErrorHandler.error("Greška prilikom prijave: " + error.getMessage());
+            },
+            emailField, passwordField
+        );
+    }
 
-        task.setOnSucceeded(e -> {
-            AppUser user = task.getValue();
-            loader.setVisible(false);
-            emailField.setDisable(false);
-            passwordField.setDisable(false);
+    /**
+     * Hendluje uspješnu autentifikaciju korisnika.
+     * Izdvojeno u posebnu metodu radi bolje čitljivosti.
+     */
+    private void handleLoginSuccess(AppUser user, String password) {
+        loader.setVisible(false);
 
-            if (user == null) {
-                GlobalErrorHandler.error("User not found");
-                return;
-            }
-            if (!user.isActive()) {
-                GlobalErrorHandler.error("User is not active");
-                return;
-            }
-            if (!BCrypt.checkpw(password, user.getPasswordHash())) {
-                GlobalErrorHandler.error("Wrong password");
-                return;
-            }
+        // Security improvement: Generic error message
+        if (user == null || !BCrypt.checkpw(password, user.getPasswordHash())) {
+            GlobalErrorHandler.error("Netačan email ili lozinka");
+            return;
+        }
 
-            UserSession.setUser(user);
-            SceneManager.show("/app/dashboard.fxml", "eDiploma");
+        if (!user.isActive()) {
+            GlobalErrorHandler.error("Korisnički nalog nije aktivan");
+            return;
+        }
 
-            SessionManager.startSession(() -> {
-                System.out.println("Session expired!");
-                UserSession.clear();
-                SceneManager.show("/app/login.fxml", "eDiploma");
-            });
-            if(rootPane != null) {
-                rootPane.setOnMouseMoved(ev -> SessionManager.resetTimer());
-                rootPane.setOnKeyPressed(ev -> SessionManager.resetTimer());
-            }
+        // Uspješna prijava
+        UserSession.setUser(user);
+        SceneManager.show("/app/dashboard.fxml", "eDiploma");
+
+        // Pokretanje session managera
+        SessionManager.startSession(() -> {
+            System.out.println("Session expired!");
+            UserSession.clear();
+            SceneManager.show("/app/login.fxml", "eDiploma");
         });
 
-        task.setOnFailed(e -> {
-            loader.setVisible(false);
-            emailField.setDisable(false);
-            passwordField.setDisable(false);
-            GlobalErrorHandler.error("Login failed: " + task.getException());
-        });
-
-        new Thread(task, "login-thread").start();
+        // Resetovanje timera na aktivnost
+        if (rootPane != null) {
+            rootPane.setOnMouseMoved(ev -> SessionManager.resetTimer());
+            rootPane.setOnKeyPressed(ev -> SessionManager.resetTimer());
+        }
     }
 
     @FXML
