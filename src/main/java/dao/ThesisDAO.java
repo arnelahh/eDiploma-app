@@ -103,7 +103,7 @@ public class ThesisDAO {
                     java.sql.Date.valueOf(thesis.getApprovalDate()) : null);
             ps.setDate(4, thesis.getDefenseDate() != null ?
                     java.sql.Date.valueOf(thesis.getDefenseDate()) : null);
-            ps.setBigDecimal(5, thesis.getGrade());
+            ps.setInt(5, thesis.getGrade());
             ps.setInt(6, thesis.getStudentId());
             ps.setInt(7, thesis.getAcademicStaffId());
             ps.setInt(8, thesis.getDepartmentId());
@@ -177,7 +177,7 @@ public class ThesisDAO {
                         rs.getDate("ApprovalDate").toLocalDate() : null);
                 thesis.setDefenseDate(rs.getDate("DefenseDate") != null ?
                         rs.getDate("DefenseDate").toLocalDate() : null);
-                thesis.setGrade(rs.getBigDecimal("Grade"));
+                thesis.setGrade(rs.getInt("Grade"));
                 thesis.setStudentId(rs.getInt("StudentId"));
                 thesis.setAcademicStaffId(rs.getInt("MentorId"));
                 thesis.setDepartmentId(rs.getInt("DepartmentId"));
@@ -296,7 +296,7 @@ public class ThesisDAO {
                                 rs.getDate("ApprovalDate").toLocalDate() : null)
                         .defenseDate(rs.getDate("DefenseDate") != null ?
                                 rs.getDate("DefenseDate").toLocalDate() : null)
-                        .grade(rs.getBigDecimal("Grade"))
+                        .grade(rs.getInt("Grade"))
                         .status(rs.getString("StatusName"))
                         .student(student)
                         .mentor(mentor)
