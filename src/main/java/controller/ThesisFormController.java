@@ -207,14 +207,6 @@ public class ThesisFormController {
     }
 
     private void fillFields() {
-        System.out.println("=== FILLING FIELDS ===");
-        System.out.println("Thesis ID: " + thesis.getId());
-        System.out.println("Student ID: " + thesis.getStudentId());
-        System.out.println("Mentor ID: " + thesis.getAcademicStaffId());
-        System.out.println("Secretary ID (AcademicStaff): " + thesis.getSecretaryId());
-        System.out.println("Department ID: " + thesis.getDepartmentId());
-        System.out.println("Subject ID: " + thesis.getSubjectId());
-
         titleField.setText(thesis.getTitle());
         applicationDatePicker.setValue(thesis.getApplicationDate());
         approvalDatePicker.setValue(thesis.getApprovalDate());
@@ -225,41 +217,27 @@ public class ThesisFormController {
         selectItemById(mentorComboBox, thesis.getAcademicStaffId());
         selectItemById(departmentComboBox, thesis.getDepartmentId());
         selectItemById(subjectComboBox, thesis.getSubjectId());
-
-        // ===== KLJUČNA ISPRAVKA: Secretary ID je sada AcademicStaff ID =====
         selectItemById(secretaryComboBox, thesis.getSecretaryId());
-
-        System.out.println("=== FIELDS FILLED ===");
     }
 
-    // ===== ISPRAVLJENA selectItemById metoda =====
     private <T> void selectItemById(ComboBox<T> comboBox, Object id) {
         if (id == null || comboBox == null || comboBox.getItems() == null) {
-            System.out.println("WARNING: Cannot select - null value or empty ComboBox");
             return;
         }
-
-        System.out.println("Trying to select ID: " + id + " in " + comboBox.getId());
 
         for (T item : comboBox.getItems()) {
             try {
                 java.lang.reflect.Method m = item.getClass().getMethod("getId");
                 Object itemId = m.invoke(item);
 
-                if (itemId != null) {
-                    // Poređenje kao String da izbjegnemo Integer/Long probleme
-                    if (itemId.toString().equals(id.toString())) {
-                        comboBox.setValue(item);
-                        System.out.println("✓ Successfully selected item with ID: " + itemId);
-                        return;
-                    }
+                if (itemId != null && itemId.toString().equals(id.toString())) {
+                    comboBox.setValue(item);
+                    return;
                 }
             } catch (Exception e) {
-                System.err.println("Error selecting item: " + e.getMessage());
+                // Ignorisanje greške pri refleksiji
             }
         }
-
-        System.out.println("✗ Item with ID " + id + " NOT FOUND in ComboBox");
     }
 
     @FXML
@@ -354,15 +332,12 @@ public class ThesisFormController {
         if (departmentComboBox.getValue() != null) t.setDepartmentId(departmentComboBox.getValue().getId());
         if (subjectComboBox.getValue() != null) t.setSubjectId(subjectComboBox.getValue().getId());
 
-        // ===== KLJUČNA ISPRAVKA: Konvertujemo AcademicStaff ID u AppUser ID =====
         if (secretaryComboBox.getValue() != null) {
             try {
                 int academicStaffId = secretaryComboBox.getValue().getId();
                 int appUserId = secretaryDAO.getAppUserIdByAcademicStaffId(academicStaffId);
-                t.setSecretaryId(appUserId); // Čuvamo AppUser ID u bazu
-                System.out.println("Secretary - AcademicStaff ID: " + academicStaffId + " -> AppUser ID: " + appUserId);
+                t.setSecretaryId(appUserId);
             } catch (Exception e) {
-                System.err.println("Error converting secretary ID: " + e.getMessage());
                 e.printStackTrace();
             }
         }
