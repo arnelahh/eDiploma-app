@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ThesisDAO {
 
-    public List<ThesisDTO> getAllThesis(){
+    public List<ThesisDTO> getAllThesis() {
         List<ThesisDTO> thesis = new ArrayList<>();
         String sql = """
                 SELECT T.Id,
@@ -28,10 +28,9 @@ public class ThesisDAO {
                 ORDER BY T.Id DESC
                 """;
 
-        try(Connection conn=CloudDatabaseConnection.Konekcija();
-            Statement stmt=conn.createStatement();
-            ResultSet rs=stmt.executeQuery(sql))
-        {
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 ThesisDTO thesisDTO = new ThesisDTO();
                 thesisDTO.setId(rs.getInt("Id"));
@@ -49,30 +48,29 @@ public class ThesisDAO {
         return thesis;
     }
 
-    public void insertThesis(Thesis thesis){
-        String sql= """
+    public void insertThesis(Thesis thesis) {
+        String sql = """
                 INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId)
                 VALUES(?,?,?,?,?,?,?)
                 """;
-        try (Connection connection=CloudDatabaseConnection.Konekcija();
-             PreparedStatement stmt=connection.prepareStatement(sql))
-        {
+        try (Connection connection = CloudDatabaseConnection.Konekcija();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             java.time.LocalDate applicationLocalDate = thesis.getApplicationDate();
             java.sql.Date sqlDate = java.sql.Date.valueOf(applicationLocalDate);
 
             stmt.setString(1, thesis.getTitle());
             stmt.setDate(2, sqlDate);
-            stmt.setInt(3,thesis.getDepartmentId());
-            stmt.setInt(4,thesis.getStudentId());
-            stmt.setInt(5,thesis.getAcademicStaffId());
-            stmt.setInt(6,thesis.getSecretaryId()); // Ovo je AppUser ID
-            stmt.setInt(7,thesis.getSubjectId());
+            stmt.setInt(3, thesis.getDepartmentId());
+            stmt.setInt(4, thesis.getStudentId());
+            stmt.setInt(5, thesis.getAcademicStaffId());
+            stmt.setInt(6, thesis.getSecretaryId());
+            stmt.setInt(7, thesis.getSubjectId());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
                 throw new RuntimeException("Error in inserting thesis");
             }
-        } catch(SQLException e){
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -111,7 +109,7 @@ public class ThesisDAO {
             ps.setInt(8, thesis.getDepartmentId());
             ps.setInt(9, thesis.getSubjectId());
             ps.setInt(10, thesis.getStatusId());
-            ps.setInt(11, thesis.getSecretaryId()); // Ovo je AppUser ID
+            ps.setInt(11, thesis.getSecretaryId());
             ps.setTimestamp(12, Timestamp.valueOf(java.time.LocalDateTime.now()));
             ps.setInt(13, thesis.getId());
 
@@ -137,7 +135,6 @@ public class ThesisDAO {
         }
     }
 
-    // ===== KLJUČNA ISPRAVKA: Dohvatamo SecretaryId (koji je AppUser.Id u bazi) =====
     public Thesis getThesisById(int id) {
         String sql = """
         SELECT 
@@ -162,6 +159,8 @@ public class ThesisDAO {
         WHERE T.Id = ? AND T.IsActive = 1
         """;
 
+
+
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -184,8 +183,6 @@ public class ThesisDAO {
                 thesis.setDepartmentId(rs.getInt("DepartmentId"));
                 thesis.setSubjectId(rs.getInt("SubjectId"));
                 thesis.setStatusId(rs.getInt("StatusId"));
-
-                // ===== KLJUČNO: Čuvamo AcademicStaffId sekretara, NE AppUser.Id =====
                 thesis.setSecretaryId(rs.getInt("SecretaryAcademicStaffId"));
                 thesis.setActive(rs.getBoolean("IsActive"));
 
@@ -209,28 +206,20 @@ public class ThesisDAO {
         String sql = """
         SELECT 
             T.Id, T.Title, T.ApplicationDate, T.ApprovalDate, T.DefenseDate, T.Grade,
-            
             TS.Name AS StatusName,
             U.AcademicStaffId as SecretaryAcademicStaffId, 
-            
             S.Id AS StudentId, S.FirstName AS StudentFirstName, S.LastName AS StudentLastName,
             S.FatherName AS StudentFatherName, S.IndexNumber, S.BirthDate, S.BirthPlace,
             S.Municipality, S.Country, S.StudyProgram, S.ECTS, S.Cycle, S.CycleDuration,
             S.Email AS StudentEmail,
-            
             SS.Id AS StudentStatusId, SS.Name AS StudentStatusName,
-            
             A.Id AS MentorId, A.Title AS MentorTitle, A.FirstName AS MentorFirstName,
             A.LastName AS MentorLastName, A.Email AS MentorEmail,
-            
             SEC.Id AS SecretaryId, SEC.Title AS SecretaryTitle, 
             SEC.FirstName AS SecretaryFirstName, SEC.LastName AS SecretaryLastName,
             SEC.Email AS SecretaryEmail,
-            
             D.Id AS DepartmentId, D.Name AS DepartmentName,
-            
             SUB.Id AS SubjectId, SUB.Name AS SubjectName
-            
         FROM Thesis T
         JOIN ThesisStatus TS ON T.StatusId = TS.Id
         JOIN Student S ON T.StudentId = S.Id
@@ -241,7 +230,7 @@ public class ThesisDAO {
         JOIN Department D ON T.DepartmentId = D.Id
         JOIN Subject SUB ON T.SubjectId = SUB.Id
         WHERE T.Id = ? AND T.IsActive = 1
-    """;
+        """;
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -316,9 +305,7 @@ public class ThesisDAO {
                         .subject(subject)
                         .build();
             }
-
             return null;
-
         } catch (SQLException e) {
             throw new RuntimeException("Greška pri dohvatanju detalja rada: " + e.getMessage(), e);
         }
