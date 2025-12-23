@@ -68,7 +68,6 @@ public class ThesisDAO {
             stmt.setInt(6,thesis.getSecretaryId()); // Ovo je AppUser ID
             stmt.setInt(7,thesis.getSubjectId());
 
-
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
                 throw new RuntimeException("Error in inserting thesis");
@@ -138,15 +137,29 @@ public class ThesisDAO {
         }
     }
 
+    // ===== KLJUČNA ISPRAVKA: Dohvatamo SecretaryId (koji je AppUser.Id u bazi) =====
     public Thesis getThesisById(int id) {
         String sql = """
-        
-        SELECT T.Id,T.Title,T.ApplicationDate,T.ApprovalDate,T.DefenseDate,T.Grade,T.SubjectId,T.StatusId,T.MentorId,T.StudentId,T.CreatedAt,T.UpdatedAt,T.IsActive,T.DepartmentId,U.AcademicStaffId AS SecretaryAcademicStaffId
-          FROM Thesis T 
-          join AppUser U on U.Id=T.SecretaryId
-        WHERE T.Id = ? AND T.IsActive = 1;
-        
-        
+        SELECT 
+            T.Id,
+            T.Title,
+            T.ApplicationDate,
+            T.ApprovalDate,
+            T.DefenseDate,
+            T.Grade,
+            T.SubjectId,
+            T.StatusId,
+            T.MentorId,
+            T.StudentId,
+            T.CreatedAt,
+            T.UpdatedAt,
+            T.IsActive,
+            T.DepartmentId,
+            T.SecretaryId,
+            U.AcademicStaffId AS SecretaryAcademicStaffId
+        FROM Thesis T 
+        JOIN AppUser U ON U.Id = T.SecretaryId
+        WHERE T.Id = ? AND T.IsActive = 1
         """;
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
@@ -172,9 +185,8 @@ public class ThesisDAO {
                 thesis.setSubjectId(rs.getInt("SubjectId"));
                 thesis.setStatusId(rs.getInt("StatusId"));
 
-                // PROMJENA: Dohvatamo AppUser ID iz baze, ali ćemo ga koristiti
-                // da pronađemo AcademicStaff ID preko AppUser.AcademicStaffId
-                thesis.setSecretaryId(rs.getInt("SecretaryAcademicStaffId")); // Ovo je AppUser ID iz baze
+                // ===== KLJUČNO: Čuvamo AcademicStaffId sekretara, NE AppUser.Id =====
+                thesis.setSecretaryId(rs.getInt("SecretaryAcademicStaffId"));
                 thesis.setActive(rs.getBoolean("IsActive"));
 
                 if (rs.getTimestamp("CreatedAt") != null) {
@@ -193,10 +205,6 @@ public class ThesisDAO {
         }
     }
 
-    /**
-     * KLJUČNA METODA: Dohvata kompletne detalje završnog rada
-     * PROMJENA: Secretary je sada AcademicStaff objekat umjesto AppUser
-     */
     public ThesisDetailsDTO getThesisDetails(int thesisId) {
         String sql = """
         SELECT 
@@ -274,7 +282,6 @@ public class ThesisDAO {
                         .Email(rs.getString("MentorEmail"))
                         .build();
 
-                // PROMJENA: Secretary je sada AcademicStaff
                 AcademicStaff secretary = AcademicStaff.builder()
                         .Id(rs.getInt("SecretaryId"))
                         .Title(rs.getString("SecretaryTitle"))
@@ -304,7 +311,7 @@ public class ThesisDAO {
                         .status(rs.getString("StatusName"))
                         .student(student)
                         .mentor(mentor)
-                        .secretary(secretary) // PROMJENA: Sada je AcademicStaff
+                        .secretary(secretary)
                         .department(department)
                         .subject(subject)
                         .build();

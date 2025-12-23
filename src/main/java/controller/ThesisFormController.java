@@ -22,7 +22,7 @@ public class ThesisFormController {
     private Thesis thesis;
 
     private final AtomicInteger loadedCount = new AtomicInteger(0);
-    private static final int TOTAL_LOADERS = 6;
+    private static final int TOTAL_LOADERS = 5;
     private Integer returnToThesisId = null;
 
     private final ThesisValidator thesisValidator = new ThesisValidator();
@@ -32,8 +32,7 @@ public class ThesisFormController {
     private final AcademicStaffDAO mentorDAO = new AcademicStaffDAO();
     private final DepartmentDAO departmentDAO = new DepartmentDAO();
     private final SubjectDAO subjectDAO = new SubjectDAO();
-    private final ThesisStatusDAO statusDAO = new ThesisStatusDAO();
-    private final AppUserDAO secretaryDAO = new AppUserDAO(); // Još uvijek koristimo za dohvatanje ID-a
+    private final AppUserDAO secretaryDAO = new AppUserDAO();
 
     @FXML private Text formTitle;
     @FXML private Text formSubtitle;
@@ -46,8 +45,7 @@ public class ThesisFormController {
     @FXML private ComboBox<AcademicStaff> mentorComboBox;
     @FXML private ComboBox<Department> departmentComboBox;
     @FXML private ComboBox<Subject> subjectComboBox;
-    @FXML private ComboBox<ThesisStatus> statusComboBox;
-    @FXML private ComboBox<AcademicStaff> secretaryComboBox; // PROMJENA: Sada je AcademicStaff
+    @FXML private ComboBox<AcademicStaff> secretaryComboBox;
     @FXML private Button deleteButton;
     @FXML private HBox deleteButtonContainer;
 
@@ -125,22 +123,6 @@ public class ThesisFormController {
         new Thread(task).start();
     }
 
-//    private void loadStatuses() {
-//        Task<List<ThesisStatus>> task = new Task<>() {
-//            @Override
-//            protected List<ThesisStatus> call() throws Exception {
-//                return statusDAO.getAllThesisStatuses();
-//            }
-//        };
-//        task.setOnSucceeded(e -> {
-//            statusComboBox.getItems().setAll(task.getValue());
-//            onDataLoaded();
-//        });
-//        task.setOnFailed(e -> onDataLoaded());
-//        new Thread(task).start();
-//    }
-
-    // PROMJENA: Sada učitavamo AcademicStaff objekte koji su sekretari
     private void loadSecretaries() {
         Task<List<AcademicStaff>> task = new Task<>() {
             @Override
@@ -188,12 +170,6 @@ public class ThesisFormController {
             public Subject fromString(String s) { return null; }
         });
 
-//        statusComboBox.setConverter(new javafx.util.StringConverter<>() {
-//            public String toString(ThesisStatus s) { return s != null ? s.getName() : ""; }
-//            public ThesisStatus fromString(String s) { return null; }
-//        });
-
-        // PROMJENA: Converter za AcademicStaff (sekretar)
         secretaryComboBox.setConverter(new javafx.util.StringConverter<>() {
             public String toString(AcademicStaff u) {
                 return u != null ? (u.getTitle() != null ? u.getTitle() + " " : "") + u.getFirstName() + " " + u.getLastName() : "";
@@ -231,6 +207,14 @@ public class ThesisFormController {
     }
 
     private void fillFields() {
+        System.out.println("=== FILLING FIELDS ===");
+        System.out.println("Thesis ID: " + thesis.getId());
+        System.out.println("Student ID: " + thesis.getStudentId());
+        System.out.println("Mentor ID: " + thesis.getAcademicStaffId());
+        System.out.println("Secretary ID (AcademicStaff): " + thesis.getSecretaryId());
+        System.out.println("Department ID: " + thesis.getDepartmentId());
+        System.out.println("Subject ID: " + thesis.getSubjectId());
+
         titleField.setText(thesis.getTitle());
         applicationDatePicker.setValue(thesis.getApplicationDate());
         approvalDatePicker.setValue(thesis.getApprovalDate());
@@ -241,28 +225,41 @@ public class ThesisFormController {
         selectItemById(mentorComboBox, thesis.getAcademicStaffId());
         selectItemById(departmentComboBox, thesis.getDepartmentId());
         selectItemById(subjectComboBox, thesis.getSubjectId());
-        //selectItemById(statusComboBox, thesis.getStatusId());
-        System.out.println(thesis.getSecretaryId());
-        // PROMJENA: Selektujemo sekretara po AcademicStaff ID-u
 
+        // ===== KLJUČNA ISPRAVKA: Secretary ID je sada AcademicStaff ID =====
         selectItemById(secretaryComboBox, thesis.getSecretaryId());
+
+        System.out.println("=== FIELDS FILLED ===");
     }
 
-    private <T> void selectItemById(ComboBox<T> comboBox, Object id) { // Promijeni Integer u Object da prima i Long
-        if (id == null) return;
-        String idZaTraziti = id.toString(); // Pretvori u String (npr. "5")
-        comboBox.getItems().stream().filter(item -> {
+    // ===== ISPRAVLJENA selectItemById metoda =====
+    private <T> void selectItemById(ComboBox<T> comboBox, Object id) {
+        if (id == null || comboBox == null || comboBox.getItems() == null) {
+            System.out.println("WARNING: Cannot select - null value or empty ComboBox");
+            return;
+        }
+
+        System.out.println("Trying to select ID: " + id + " in " + comboBox.getId());
+
+        for (T item : comboBox.getItems()) {
             try {
                 java.lang.reflect.Method m = item.getClass().getMethod("getId");
-                Object rezultatMetode = m.invoke(item);
-                if (rezultatMetode == null) return false;
-                // Usporedi kao Stringove da izbjegneš Integer/Long problem
-                return rezultatMetode.toString().equals(idZaTraziti);
+                Object itemId = m.invoke(item);
 
+                if (itemId != null) {
+                    // Poređenje kao String da izbjegnemo Integer/Long probleme
+                    if (itemId.toString().equals(id.toString())) {
+                        comboBox.setValue(item);
+                        System.out.println("✓ Successfully selected item with ID: " + itemId);
+                        return;
+                    }
+                }
             } catch (Exception e) {
-                return false;
+                System.err.println("Error selecting item: " + e.getMessage());
             }
-        }).findFirst().ifPresent(comboBox::setValue);
+        }
+
+        System.out.println("✗ Item with ID " + id + " NOT FOUND in ComboBox");
     }
 
     @FXML
@@ -312,7 +309,7 @@ public class ThesisFormController {
                 .mentor(mentorComboBox.getValue())
                 .department(departmentComboBox.getValue())
                 .subject(subjectComboBox.getValue())
-                .secretary(secretaryComboBox.getValue()) // PROMJENA: Sada je AcademicStaff
+                .secretary(secretaryComboBox.getValue())
                 .build();
     }
 
@@ -356,14 +353,16 @@ public class ThesisFormController {
         if (mentorComboBox.getValue() != null) t.setAcademicStaffId(mentorComboBox.getValue().getId());
         if (departmentComboBox.getValue() != null) t.setDepartmentId(departmentComboBox.getValue().getId());
         if (subjectComboBox.getValue() != null) t.setSubjectId(subjectComboBox.getValue().getId());
-        //if (statusComboBox.getValue() != null) t.setStatusId(statusComboBox.getValue().getId());
 
-        // PROMJENA: Uzimamo AcademicStaff ID, ali moramo ga konvertovati u AppUser ID za bazu
+        // ===== KLJUČNA ISPRAVKA: Konvertujemo AcademicStaff ID u AppUser ID =====
         if (secretaryComboBox.getValue() != null) {
             try {
-                int appUserId = secretaryDAO.getAppUserIdByAcademicStaffId(secretaryComboBox.getValue().getId());
-                t.setSecretaryId(appUserId);
+                int academicStaffId = secretaryComboBox.getValue().getId();
+                int appUserId = secretaryDAO.getAppUserIdByAcademicStaffId(academicStaffId);
+                t.setSecretaryId(appUserId); // Čuvamo AppUser ID u bazu
+                System.out.println("Secretary - AcademicStaff ID: " + academicStaffId + " -> AppUser ID: " + appUserId);
             } catch (Exception e) {
+                System.err.println("Error converting secretary ID: " + e.getMessage());
                 e.printStackTrace();
             }
         }
