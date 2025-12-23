@@ -26,7 +26,7 @@ public class Thesis {
     private LocalDate applicationDate;
     private LocalDate approvalDate;
     private LocalDate defenseDate;
-    private BigDecimal grade;
+    private Integer grade;
     private boolean isActive;
     private Department department;
     private Student student;

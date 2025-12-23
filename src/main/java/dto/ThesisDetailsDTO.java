@@ -20,7 +20,7 @@ public class ThesisDetailsDTO {
     private LocalDate applicationDate;
     private LocalDate approvalDate;
     private LocalDate defenseDate;
-    private BigDecimal grade;
+    private Integer grade;
     private String status;
 
     // Student info

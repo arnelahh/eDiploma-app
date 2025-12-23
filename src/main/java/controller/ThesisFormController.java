@@ -9,8 +9,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import model.*;
 import utils.*;
-
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -266,8 +264,8 @@ public class ThesisFormController {
         if (defenseDatePicker != null) {
             defenseDatePicker.setValue(thesis.getDefenseDate());
         }
-        if (gradeField != null && thesis.getGrade() != null) {
-            gradeField.setText(thesis.getGrade().toString());
+        if (gradeField != null && thesis.getGrade() >0) {
+            gradeField.setText(String.valueOf(thesis.getGrade()));
         }
         
         // Status selection - statusId je int (primitive), ne može biti null
@@ -353,8 +351,8 @@ public class ThesisFormController {
     private void validateGradeManually(List<String> errors) {
         if (gradeField != null && gradeField.getText() != null && !gradeField.getText().trim().isEmpty()) {
             try {
-                double grade = Double.parseDouble(gradeField.getText().trim());
-                if (grade < 6.0 || grade > 10.0) {
+                int grade = Integer.parseInt(gradeField.getText().trim());
+                if (grade < 6 || grade > 10) {
                     errors.add("Ocjena mora biti između 6 i 10");
                 }
             } catch (NumberFormatException e) {
@@ -401,7 +399,12 @@ public class ThesisFormController {
                 t.setDefenseDate(defenseDatePicker.getValue());
             }
             if (gradeField != null && gradeField.getText() != null && !gradeField.getText().trim().isEmpty()) {
-                t.setGrade(new BigDecimal(gradeField.getText().trim()));
+                try {
+                    t.setGrade(Integer.parseInt(gradeField.getText().trim()));
+                } catch (NumberFormatException e) {
+                    // Ovo bi trebalo biti uhvaćeno validatorom, ali za sigurnost:
+                    t.setGrade(null);
+                }
             } else {
                 t.setGrade(null);
             }

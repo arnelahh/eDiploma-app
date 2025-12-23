@@ -9,7 +9,7 @@ import java.util.List;
 public class SubjectDAO {
     public List<Subject> getAllSubjects(){
         List<Subject> predmeti = new ArrayList<>();
-        String sqlUpit = "SELECT * FROM Subject";
+        String sqlUpit = "SELECT * FROM Subject ORDER BY Name";
         try(Connection conn = CloudDatabaseConnection.Konekcija();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sqlUpit)){
