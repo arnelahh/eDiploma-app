@@ -125,7 +125,7 @@
                                 </VBox>
 
                                 <!-- BUTTONS: Obriši i Uredi -->
-                                <HBox spacing="15" alignment="CENTER_LEFT">
+                                <HBox spacing="15" alignment="CENTER_RIGHT">
                                     <Button text="Obriši" onAction="#handleDelete" styleClass="delete-button-outline"/>
                                     <Button text="Uredi" onAction="#handleEdit" styleClass="edit-button-outline"/>
                                 </HBox>

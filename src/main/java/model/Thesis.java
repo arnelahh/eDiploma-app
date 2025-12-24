@@ -36,4 +36,6 @@ public class Thesis {
     private AcademicStaff mentor;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String description;
+    private String literature;
 }

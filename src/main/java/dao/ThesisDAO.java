@@ -50,8 +50,8 @@ public class ThesisDAO {
 
     public void insertThesis(Thesis thesis) {
         String sql = """
-                INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId)
-                VALUES(?,?,?,?,?,?,?)
+                INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId, Description, Literature)
+                VALUES(?,?,?,?,?,?,?,?,?)
                 """;
         try (Connection connection = CloudDatabaseConnection.Konekcija();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -65,6 +65,8 @@ public class ThesisDAO {
             stmt.setInt(5, thesis.getAcademicStaffId());
             stmt.setInt(6, thesis.getSecretaryId());
             stmt.setInt(7, thesis.getSubjectId());
+            stmt.setString(8, thesis.getDescription());
+            stmt.setString(9, thesis.getLiterature());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
@@ -89,7 +91,9 @@ public class ThesisDAO {
             SubjectId = ?,
             StatusId = ?,
             SecretaryId = ?,
-            UpdatedAt = ?
+            UpdatedAt = ?,
+            Description = ?,
+            Literature = ?
         WHERE Id = ?
         """;
 
@@ -103,7 +107,12 @@ public class ThesisDAO {
                     java.sql.Date.valueOf(thesis.getApprovalDate()) : null);
             ps.setDate(4, thesis.getDefenseDate() != null ?
                     java.sql.Date.valueOf(thesis.getDefenseDate()) : null);
-            ps.setInt(5, thesis.getGrade());
+            if (thesis.getGrade() != null) {
+                ps.setInt(5, thesis.getGrade());
+            } else {
+                // Ako je null, moramo eksplicitno reći bazi da je NULL
+                ps.setNull(5, java.sql.Types.INTEGER);
+            }
             ps.setInt(6, thesis.getStudentId());
             ps.setInt(7, thesis.getAcademicStaffId());
             ps.setInt(8, thesis.getDepartmentId());
@@ -111,8 +120,9 @@ public class ThesisDAO {
             ps.setInt(10, thesis.getStatusId());
             ps.setInt(11, thesis.getSecretaryId());
             ps.setTimestamp(12, Timestamp.valueOf(java.time.LocalDateTime.now()));
-            ps.setInt(13, thesis.getId());
-
+            ps.setString(13, thesis.getDescription());
+            ps.setString(14, thesis.getLiterature());
+            ps.setInt(15, thesis.getId());
             ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -136,6 +146,7 @@ public class ThesisDAO {
     }
 
     public Thesis getThesisById(int id) {
+        // FIXED: Now correctly returns T.SecretaryId (AppUser.Id) instead of AcademicStaffId
         String sql = """
         SELECT 
             T.Id,
@@ -153,13 +164,11 @@ public class ThesisDAO {
             T.IsActive,
             T.DepartmentId,
             T.SecretaryId,
-            U.AcademicStaffId AS SecretaryAcademicStaffId
+            T.Description,
+            T.Literature
         FROM Thesis T 
-        JOIN AppUser U ON U.Id = T.SecretaryId
         WHERE T.Id = ? AND T.IsActive = 1
         """;
-
-
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -177,14 +186,27 @@ public class ThesisDAO {
                         rs.getDate("ApprovalDate").toLocalDate() : null);
                 thesis.setDefenseDate(rs.getDate("DefenseDate") != null ?
                         rs.getDate("DefenseDate").toLocalDate() : null);
-                thesis.setGrade(rs.getInt("Grade"));
+
+                // Handling Grade correctly (checking for NULL)
+                int grade = rs.getInt("Grade");
+                if (rs.wasNull()) {
+                    thesis.setGrade(null);
+                } else {
+                    thesis.setGrade(grade);
+                }
+
                 thesis.setStudentId(rs.getInt("StudentId"));
                 thesis.setAcademicStaffId(rs.getInt("MentorId"));
                 thesis.setDepartmentId(rs.getInt("DepartmentId"));
                 thesis.setSubjectId(rs.getInt("SubjectId"));
                 thesis.setStatusId(rs.getInt("StatusId"));
-                thesis.setSecretaryId(rs.getInt("SecretaryAcademicStaffId"));
+                // FIXED: Now correctly sets AppUser.Id for secretary
+                thesis.setSecretaryId(rs.getInt("SecretaryId"));
                 thesis.setActive(rs.getBoolean("IsActive"));
+
+                // Fields mapping for Description and Literature
+                thesis.setDescription(rs.getString("Description"));
+                thesis.setLiterature(rs.getString("Literature"));
 
                 if (rs.getTimestamp("CreatedAt") != null) {
                     thesis.setCreatedAt(rs.getTimestamp("CreatedAt").toLocalDateTime());
@@ -203,9 +225,11 @@ public class ThesisDAO {
     }
 
     public ThesisDetailsDTO getThesisDetails(int thesisId) {
+        // UPDATED SQL to select Description and Literature
         String sql = """
         SELECT 
             T.Id, T.Title, T.ApplicationDate, T.ApprovalDate, T.DefenseDate, T.Grade,
+            T.Description, T.Literature,
             TS.Name AS StatusName,
             U.AcademicStaffId as SecretaryAcademicStaffId, 
             S.Id AS StudentId, S.FirstName AS StudentFirstName, S.LastName AS StudentLastName,
@@ -239,6 +263,7 @@ public class ThesisDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
+                // ... (Student, AcademicStaff, etc. mappings remain same) ...
                 StudentStatus studentStatus = StudentStatus.builder()
                         .Id(rs.getInt("StudentStatusId"))
                         .Name(rs.getString("StudentStatusName"))
@@ -297,6 +322,9 @@ public class ThesisDAO {
                         .defenseDate(rs.getDate("DefenseDate") != null ?
                                 rs.getDate("DefenseDate").toLocalDate() : null)
                         .grade(rs.getInt("Grade"))
+                        // NEW FIELDS MAPPED HERE
+                        .description(rs.getString("Description"))
+                        .literature(rs.getString("Literature"))
                         .status(rs.getString("StatusName"))
                         .student(student)
                         .mentor(mentor)

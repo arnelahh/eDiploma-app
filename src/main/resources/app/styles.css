@@ -550,11 +550,11 @@
 
 /* Edit Button Outline Style */
 .edit-button-outline {
-    -fx-background-color: #ffffff;
-    -fx-text-fill: #2d3436;
+    -fx-background-color: #6c5ce7;
+    -fx-text-fill: #ffffff;
     -fx-font-size: 14px;
     -fx-background-radius: 8;
-    -fx-border-color: #dfe6e9;
+    -fx-border-color: #6c5ce7;
     -fx-border-width: 1;
     -fx-border-radius: 8;
     -fx-padding: 10 20 10 20;
@@ -562,7 +562,7 @@
 }
 
 .edit-button-outline:hover {
-    -fx-background-color: #f8f9fa;
+    -fx-background-color: #5f50d9;
 }
 
 /* Poboljšani stilovi za Document Cards sa lijevim borderom u boji */
@@ -803,4 +803,36 @@
 /* Disable default button focus ring */
 .document-icon-btn:focused {
     -fx-background-insets: 0;
+}
+.text-area.form-field {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #2d3436;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1px;
+    -fx-padding: 2; /* Malo paddinga oko scrollbara */
+}
+
+/* Uklanja unutrašnji bijeli okvir i boju pozadine viewport-a */
+.text-area.form-field .viewport,
+.text-area.form-field .content {
+    -fx-background-color: transparent;
+}
+
+/* Kada se klikne na TextArea (Fokus) */
+.text-area.form-field:focused {
+    -fx-border-color: #0984e3; /* Tvoja plava boja */
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(three-pass-box, rgba(9, 132, 227, 0.1), 5, 0, 0, 2);
+}
+
+/* Sakrij scroll bar ako nije potreban ili ga stiliziraj da bude suptilan */
+.text-area.form-field .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+.text-area.form-field .scroll-bar:vertical .thumb {
+    -fx-background-color: #b2bec3;
+    -fx-background-radius: 5em;
 }
