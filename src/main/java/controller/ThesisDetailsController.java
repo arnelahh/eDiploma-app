@@ -26,7 +26,7 @@ public class ThesisDetailsController {
     @FXML private Text statusValue;
     @FXML private Text applicationDateValue;
     @FXML private Text defenseDateValue;
-
+    @FXML private Text gradeValue;
     @FXML private Text studentName;
     @FXML private Text studentIndex;
     @FXML private Text studentEmail;
@@ -109,8 +109,8 @@ public class ThesisDetailsController {
     }
 
     private void populateFields() {
-        titleValue.setText(currentDetails.getTitle() != null ? currentDetails.getTitle() : "—");
-        descriptionValue.setText(currentDetails.getDescription());
+        titleValue.setText(currentDetails.getTitle() != null ? currentDetails.getTitle().toUpperCase() : "—");
+        //descriptionValue.setText(currentDetails.getDescription());
         subjectValue.setText(currentDetails.getSubject() != null ? currentDetails.getSubject().getName() : "—");
 
         if (currentDetails.getStatus() != null) {
@@ -123,6 +123,12 @@ public class ThesisDetailsController {
                 currentDetails.getApplicationDate().format(DATE_FORMATTER) : "--/--/----");
         defenseDateValue.setText(currentDetails.getDefenseDate() != null ?
                 currentDetails.getDefenseDate().format(DATE_FORMATTER) : "--/--/----");
+
+        if (currentDetails.getGrade() != null) {
+            gradeValue.setText(String.valueOf(currentDetails.getGrade()));
+        } else {
+            gradeValue.setText("—");
+        }
 
         if (currentDetails.getStudent() != null) {
             studentName.setText(currentDetails.getStudent().getFirstName() + " " +
