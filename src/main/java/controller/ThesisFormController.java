@@ -20,8 +20,9 @@ public class ThesisFormController {
     private Thesis thesis;
 
     private final AtomicInteger loadedCount = new AtomicInteger(0);
-    private static final int TOTAL_LOADERS = 6; // Increased to 6 for status loader
+    private static final int TOTAL_LOADERS = 6;
     private Integer returnToThesisId = null;
+    private boolean fieldsAlreadyFilled = false;
 
     private final ThesisValidator thesisValidator = new ThesisValidator();
 
@@ -33,10 +34,13 @@ public class ThesisFormController {
     private final AppUserDAO secretaryDAO = new AppUserDAO();
     private final ThesisStatusDAO statusDAO = new ThesisStatusDAO();
 
+
     @FXML private Text formTitle;
     @FXML private Text formSubtitle;
     @FXML private TextField titleField;
     @FXML private DatePicker applicationDatePicker;
+    @FXML private TextArea descriptionArea;
+    @FXML private TextArea literatureArea;
     
     // Edit-only fields
     @FXML private VBox approvalDateContainer;
@@ -159,7 +163,7 @@ public class ThesisFormController {
 
     private void onDataLoaded() {
         int count = loadedCount.incrementAndGet();
-        if (count == TOTAL_LOADERS && mode == Mode.EDIT && thesis != null) {
+        if (count >= TOTAL_LOADERS && mode == Mode.EDIT && thesis != null && !fieldsAlreadyFilled) {
             javafx.application.Platform.runLater(this::fillFields);
         }
     }
@@ -207,6 +211,7 @@ public class ThesisFormController {
     public void initCreate() {
         this.mode = Mode.CREATE;
         this.returnToThesisId = null;
+        this.fieldsAlreadyFilled = false;
         if (formTitle != null) formTitle.setText("Dodaj novi završni rad");
         if (formSubtitle != null) formSubtitle.setText("Unesite podatke o novom završnom radu");
         toggleDeleteButton(false);
@@ -217,10 +222,17 @@ public class ThesisFormController {
         this.mode = Mode.EDIT;
         this.thesis = thesis;
         this.returnToThesisId = returnToThesisId;
+        this.fieldsAlreadyFilled = false;
+        
         if (formTitle != null) formTitle.setText("Uredi završni rad");
         if (formSubtitle != null) formSubtitle.setText("Uredite podatke o završnom radu");
         toggleDeleteButton(true);
         toggleEditOnlyFields(true);
+        
+        // Try to fill fields immediately if data is already loaded
+        if (loadedCount.get() >= TOTAL_LOADERS) {
+            javafx.application.Platform.runLater(this::fillFields);
+        }
     }
 
     private void toggleDeleteButton(boolean visible) {
@@ -254,8 +266,19 @@ public class ThesisFormController {
     }
 
     private void fillFields() {
-        titleField.setText(thesis.getTitle());
-        applicationDatePicker.setValue(thesis.getApplicationDate());
+        if (fieldsAlreadyFilled || thesis == null) {
+            return;
+        }
+        
+        fieldsAlreadyFilled = true;
+        
+        // Basic fields
+        if (titleField != null && thesis.getTitle() != null) {
+            titleField.setText(thesis.getTitle());
+        }
+        if (applicationDatePicker != null) {
+            applicationDatePicker.setValue(thesis.getApplicationDate());
+        }
 
         // Edit-only fields
         if (approvalDatePicker != null) {
@@ -264,12 +287,11 @@ public class ThesisFormController {
         if (defenseDatePicker != null) {
             defenseDatePicker.setValue(thesis.getDefenseDate());
         }
-        if (gradeField != null && thesis.getGrade() >0) {
+        if (gradeField != null && thesis.getGrade() != null && thesis.getGrade() > 0) {
             gradeField.setText(String.valueOf(thesis.getGrade()));
         }
         
-        // Status selection - statusId je int (primitive), ne može biti null
-        // Ako je 0, znači nije postavljen (default vrijednost za int)
+        // Status selection
         if (statusComboBox != null && thesis.getStatusId() > 0) {
             int thesisStatusId = thesis.getStatusId();
             for (ThesisStatus status : statusComboBox.getItems()) {
@@ -279,12 +301,47 @@ public class ThesisFormController {
                 }
             }
         }
-
+        
+        // Description and Literature
+        if (descriptionArea != null && thesis.getDescription() != null) {
+            descriptionArea.setText(thesis.getDescription());
+        }
+        if (literatureArea != null && thesis.getLiterature() != null) {
+            literatureArea.setText(thesis.getLiterature());
+        }
+        
+        // ComboBox selections
         selectItemById(studentComboBox, thesis.getStudentId());
         selectItemById(mentorComboBox, thesis.getAcademicStaffId());
         selectItemById(departmentComboBox, thesis.getDepartmentId());
         selectItemById(subjectComboBox, thesis.getSubjectId());
-        selectItemById(secretaryComboBox, thesis.getSecretaryId());
+        
+        // Secretary selection - AppUser.Id is stored in thesis.secretaryId
+        selectSecretaryByAppUserId(thesis.getSecretaryId());
+    }
+
+    private void selectSecretaryByAppUserId(Integer appUserId) {
+        if (appUserId == null || secretaryComboBox == null || secretaryComboBox.getItems() == null) {
+            return;
+        }
+
+        try {
+            List<AcademicStaff> allSecretaries = secretaryComboBox.getItems();
+            
+            for (AcademicStaff secretary : allSecretaries) {
+                try {
+                    int secretaryAppUserId = secretaryDAO.getAppUserIdByAcademicStaffId(secretary.getId());
+                    if (secretaryAppUserId == appUserId) {
+                        secretaryComboBox.setValue(secretary);
+                        return;
+                    }
+                } catch (Exception e) {
+                    // Continue checking other secretaries
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error selecting secretary: " + e.getMessage());
+        }
     }
 
     private <T> void selectItemById(ComboBox<T> comboBox, Object id) {
@@ -313,7 +370,6 @@ public class ThesisFormController {
         ValidationResult result = thesisValidator.validate(dto);
         List<String> errors = result.getErrors();
 
-        // Validate grade if in edit mode and field is filled
         if (mode == Mode.EDIT) {
             validateGradeManually(errors);
         }
@@ -372,6 +428,8 @@ public class ThesisFormController {
                 .department(departmentComboBox.getValue())
                 .subject(subjectComboBox.getValue())
                 .secretary(secretaryComboBox.getValue())
+                .description(descriptionArea != null ? descriptionArea.getText() : null)
+                .literature(literatureArea != null ? literatureArea.getText() : null)
                 .build();
     }
 
@@ -390,7 +448,6 @@ public class ThesisFormController {
         t.setTitle(titleField.getText().trim());
         t.setApplicationDate(applicationDatePicker.getValue());
         
-        // Edit-only fields - samo u EDIT modu
         if (mode == Mode.EDIT) {
             if (approvalDatePicker != null) {
                 t.setApprovalDate(approvalDatePicker.getValue());
@@ -400,13 +457,13 @@ public class ThesisFormController {
             }
             if (gradeField != null && gradeField.getText() != null && !gradeField.getText().trim().isEmpty()) {
                 try {
-                    t.setGrade(Integer.parseInt(gradeField.getText().trim()));
+                    int grade = Integer.parseInt(gradeField.getText().trim());
+                    t.setGrade(grade);
                 } catch (NumberFormatException e) {
-                    // Ovo bi trebalo biti uhvaćeno validatorom, ali za sigurnost:
-                    t.setGrade(null);
+                    // Ignore invalid input
                 }
             } else {
-                t.setGrade(null);
+                t.setGrade(0);
             }
             if (statusComboBox != null && statusComboBox.getValue() != null) {
                 t.setStatusId(statusComboBox.getValue().getId());
@@ -426,6 +483,12 @@ public class ThesisFormController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        if (descriptionArea != null && descriptionArea.getText() != null) {
+            t.setDescription(descriptionArea.getText().trim());
+        }
+        if (literatureArea != null && literatureArea.getText() != null) {
+            t.setLiterature(literatureArea.getText().trim());
         }
     }
 

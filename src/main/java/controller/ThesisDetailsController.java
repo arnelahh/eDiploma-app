@@ -110,7 +110,7 @@ public class ThesisDetailsController {
 
     private void populateFields() {
         titleValue.setText(currentDetails.getTitle() != null ? currentDetails.getTitle() : "—");
-        descriptionValue.setText("Razvoj moderne web aplikacije sa React frameworkom i Node.js backend-om");
+        descriptionValue.setText(currentDetails.getDescription());
         subjectValue.setText(currentDetails.getSubject() != null ? currentDetails.getSubject().getName() : "—");
 
         if (currentDetails.getStatus() != null) {

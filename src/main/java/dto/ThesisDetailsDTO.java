@@ -22,6 +22,8 @@ public class ThesisDetailsDTO {
     private LocalDate defenseDate;
     private Integer grade;
     private String status;
+    private String description;
+    private String literature;
 
     // Student info
     private Student student;
