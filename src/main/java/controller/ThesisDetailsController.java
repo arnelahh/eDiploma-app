@@ -271,4 +271,19 @@ public class ThesisDetailsController {
         NavigationContext.setTargetView(DashboardView.THESIS);
         SceneManager.show("/app/dashboard.fxml", "eDiploma");
     }
+
+    @FXML
+    private void handleOpenWrittenExamReport() {
+        // Check if commission is formed
+        if (currentCommission == null || currentCommission.getMember1() == null) {
+            GlobalErrorHandler.error("Komisija mora biti formirana prije kreiranja zapisnika.");
+            return;
+        }
+
+        SceneManager.showWithData(
+                "/app/writtenExamReport.fxml",
+                "Zapisnik o pismenom dijelu",
+                (WrittenExamReportController controller) -> controller.initWithThesisId(thesisId)
+        );
+    }
 }
