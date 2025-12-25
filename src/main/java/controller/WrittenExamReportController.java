@@ -71,8 +71,7 @@ public class WrittenExamReportController {
     private void populateFields() {
         // Student
         if (thesisDetails.getStudent() != null) {
-            studentNameText.setText(thesisDetails.getStudent().getFirstName() + " " +
-                    thesisDetails.getStudent().getLastName());
+            studentNameText.setText(thesisDetails.getStudent().getLastName() + " " + thesisDetails.getStudent().getFirstName());
         }
 
         // Thesis title
@@ -185,8 +184,7 @@ public class WrittenExamReportController {
                 thesisDetails.getApplicationDate();
 
         WrittenExamReportDTO dto = WrittenExamReportDTO.builder()
-                .studentFullName(thesisDetails.getStudent().getFirstName() + " " +
-                        thesisDetails.getStudent().getLastName())
+                .studentFullName(thesisDetails.getStudent().getLastName() + " " + thesisDetails.getStudent().getFirstName())
                 .thesisTitle(thesisDetails.getTitle())
                 .mentorFullName(formatMemberName(thesisDetails.getMentor()))
                 .submissionDate(dateToShow)
