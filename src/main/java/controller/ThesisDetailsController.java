@@ -286,4 +286,25 @@ public class ThesisDetailsController {
                 (WrittenExamReportController controller) -> controller.initWithThesisId(thesisId)
         );
     }
+
+    @FXML
+    private void handleOpenDefenseReport() {
+        // Check if commission is formed
+        if (currentCommission == null || currentCommission.getMember1() == null) {
+            GlobalErrorHandler.error("Komisija mora biti formirana prije kreiranja zapisnika.");
+            return;
+        }
+
+        // Check if defense date is set
+        if (currentDetails.getDefenseDate() == null) {
+            GlobalErrorHandler.error("Datum odbrane mora biti unesen prije kreiranja zapisnika.");
+            return;
+        }
+
+        SceneManager.showWithData(
+                "/app/defenseReport.fxml",
+                "Zapisnik sa odbrane",
+                (DefenseReportController controller) -> controller.initWithThesisId(thesisId)
+        );
+    }
 }
