@@ -16,7 +16,7 @@ module main.ediploma {
     requires jbcrypt;
     requires java.desktop;
     requires com.zaxxer.hikari;
-
+    requires openhtmltopdf.pdfbox;
 
 
     opens main.ediploma to javafx.fxml;

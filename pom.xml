@@ -14,6 +14,16 @@
 <junit.version>5.12.1</junit.version>  </properties>
 
   <dependencies>
+      <dependency>
+          <groupId>com.openhtmltopdf</groupId>
+          <artifactId>openhtmltopdf-pdfbox</artifactId>
+          <version>1.0.10</version>
+      </dependency>
+      <dependency>
+          <groupId>com.openhtmltopdf</groupId>
+          <artifactId>openhtmltopdf-core</artifactId>
+          <version>1.0.10</version>
+      </dependency>
       <!--Dependency za dotenv -->
       <dependency>
           <groupId>io.github.cdimascio</groupId>

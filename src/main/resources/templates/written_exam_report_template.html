@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Zapisnik</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.3;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* VODENI ŽIG */
+        .watermark {
+            position: fixed;
+            top: 25%; /* Pomjereno malo gore da bude centrirano */
+            left: 10%;
+            width: 80%;
+            z-index: -999;
+            text-align: center;
+            opacity: 0.15;
+        }
+
+        .watermark img {
+            width: 100%;
+            height: auto;
+        }
+
+        /* ZAGLAVLJE - GLAVNA TABELA */
+        table.header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #000; /* Vanjski okvir */
+            margin-bottom: 30px;
+        }
+
+        table.header-table td {
+            border: 1px solid #000;
+            padding: 5px;
+            vertical-align: middle;
+        }
+
+        /* Logo ćelija */
+        .cell-logo {
+            width: 15%;
+            text-align: center;
+        }
+        .cell-logo img {
+            width: 60px;
+            height: auto;
+        }
+
+        /* Srednja ćelija zaglavlja */
+        .cell-faculty {
+            text-align: center;
+            font-weight: bold;
+            width: 60%;
+        }
+        .uni-text { font-size: 11pt; margin-top: 5px; }
+        .faculty-text { font-size: 12pt; text-transform: uppercase; }
+
+        /* Zapisnik ćelija */
+        .cell-zapisnik {
+            text-align: center;
+            font-weight: bold;
+            width: 25%;
+            font-size: 12pt;
+        }
+
+        /* Donji red zaglavlja */
+        .cell-commission {
+            font-weight: bold;
+            padding-left: 10px !important;
+        }
+
+        /* Tabela za kućice u zaglavlju */
+        .boxes-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin: 0;
+        }
+        .boxes-table td {
+            border: 1px solid #000;
+            text-align: center;
+            font-size: 10pt;
+            padding: 2px;
+            width: 25px; /* Fiksna širina kućica */
+        }
+        .date-row td {
+            border: none;
+            text-align: left;
+            padding-top: 5px;
+            font-weight: normal;
+        }
+
+        /* GLAVNI NASLOV */
+        .main-title {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .main-title h1 {
+            font-size: 16pt;
+            font-weight: bold;
+            letter-spacing: 3px;
+            margin: 0;
+        }
+        .main-title p {
+            font-size: 12pt;
+            font-weight: bold;
+            margin: 5px 0 0 0;
+        }
+
+        /* SADRŽAJ */
+        .content {
+            text-align: justify;
+        }
+
+        .student-block {
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .student-name { text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .thesis-title { display: block; }
+
+        /* Komisija lista */
+        .commission-list {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        .commission-table {
+            width: 100%;
+            border: none;
+        }
+        .commission-table td {
+            border: none;
+            padding: 2px;
+            vertical-align: top;
+        }
+        .label-col { width: 100px; font-weight: bold; }
+
+        /* POTPISI */
+        .signatures-area {
+            margin-top: 50px;
+            width: 100%;
+        }
+        .sig-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+        }
+        .sig-table td {
+            border: none;
+            vertical-align: top;
+        }
+
+        /* Linije za potpis (Predsjednik/Sekretar) */
+        .sig-line-top {
+            border-top: 1px solid #000;
+            width: 80%;
+            margin: 0 auto;
+            padding-top: 5px;
+            text-align: center;
+        }
+
+        /* Donji dio sa "Dostavljeno" i članovima */
+        .bottom-section {
+            margin-top: 40px;
+        }
+
+        /* Okvir Dostavljeno */
+        .delivered-box {
+            border: 1px solid #000;
+            padding: 5px;
+            width: 180px;
+            font-size: 10pt;
+        }
+        .delivered-box p { margin: 2px 0; }
+
+        /* Linije za članove */
+        .member-sig-line {
+            border-bottom: 1px solid #000;
+            width: 250px;
+            margin-bottom: 25px;
+            height: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="watermark">
+    <img src="logo_ptf.png" alt="PTF Logo"/>
+</div>
+
+<table class="header-table">
+    <tr>
+        <td class="cell-logo" rowspan="2">
+            <img src="logo_ptf.png" alt="Logo" width="60"/>
+        </td>
+        <td class="cell-faculty">
+            <div class="faculty-text">POLITEHNIČKI FAKULTET</div>
+            <div class="uni-text">Univerzitet u Zenici</div>
+        </td>
+        <td class="cell-zapisnik">
+            ZAPISNIK
+        </td>
+    </tr>
+    <tr>
+        <td class="cell-commission">Komisija za diplomski ispit</td>
+        <td style="padding: 0;">
+            <table class="boxes-table">
+                <tr>
+                    <td style="border-top: none; border-left: none; width: auto;"></td> <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>/</td>
+                    <td style="border-top: none; border-right: none; width: 10px;"></td> </tr>
+                <tr class="date-row">
+                    <td colspan="6" style="padding-left: 10px; border-top: 1px solid #000;">
+                        Datum: {{submissionDate}}
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<div class="main-title">
+    <h1>Z A P I S N I K</h1>
+    <p>o pismenom dijelu diplomskog rada</p>
+</div>
+
+<div class="content">
+    <p>Komisija u dolje navedenom sastavu pregledala je pismeni dio diplomskog rada kandidata</p>
+
+    <div class="student-block">
+        <span class="student-name">{{studentFullName}}</span>
+        <span class="thesis-title">"{{thesisTitle}}"</span>
+    </div>
+
+    <p>Mentor diplomskog rada: {{mentorFullName}}</p>
+
+    <p><strong>Sastav Komisije:</strong></p>
+    <div class="commission-list">
+        <table class="commission-table">
+            <tr>
+                <td class="label-col">Predsjednik:</td>
+                <td>{{chairmanFullName}}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Član:</td>
+                <td>{{member1FullName}}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Član:</td>
+                <td>{{member2FullName}}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Sekretar:</td>
+                <td>{{secretaryFullName}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <p>Razrada teoretskog i praktičnog dijela diplomskog rada slijedila je prema utvrđenom zadatku diplomskog rada po rješenju Fakulteta br. <strong>{{facultyDecisionNumber}}</strong></p>
+
+    <p>Komisija je konstatirala da je kandidat na vrijeme predao-la diplomski rad i da se Komisija u predviđenom roku sastala i rad pregledala.</p>
+
+    <p>Nakon pregleda rada mentor je predložio ocjenu <strong>{{proposedGrade}}</strong> za pismeni dio diplomskog rada. Komisija je donijela odluku da je kandidat zadovoljio-la na pismenom dijelu ispita i da mu se može dozvoliti polaganje usmenog dijela ispita.</p>
+</div>
+
+<div class="signatures-area">
+    <table class="sig-table" style="margin-bottom: 60px;">
+        <tr>
+            <td width="50%" align="center">
+                <div style="height: 40px;"></div> <div class="sig-line-top">Sekretar Komisije</div>
+            </td>
+            <td width="50%" align="center">
+                <div style="height: 40px;"></div>
+                <div class="sig-line-top">Predsjednik Komisije</div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="sig-table bottom-section">
+        <tr>
+            <td width="40%" style="vertical-align: bottom;">
+                <div class="delivered-box">
+                    <strong>Dostavljeno:</strong><br/>
+                    <table style="width: 100%; font-size: 10pt; border: none;">
+                        <tr><td width="20">1 x</td><td>Stud. služba</td></tr>
+                        <tr><td>1 x</td><td>a/a</td></tr>
+                        <tr><td>x</td><td></td></tr>
+                        <tr><td>x</td><td></td></tr>
+                    </table>
+                </div>
+                <div style="font-size: 7pt; margin-top: 5px;">Obrazac PTF-SS-021</div>
+            </td>
+
+            <td width="60%" align="right">
+                <div style="text-align: left; display: inline-block;">
+                    <div style="margin-bottom: 10px;">Članovi Komisije:</div>
+                    <div class="member-sig-line"></div>
+                    <div class="member-sig-line"></div>
+                    <div class="member-sig-line"></div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>

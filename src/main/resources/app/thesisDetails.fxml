@@ -146,8 +146,8 @@
                                         <VBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
                                             <Text text="Zapisnik o pismenom dijelu diplomskog rada" styleClass="document-title"/>
                                         </VBox>
-                                        <Button text="👁" styleClass="document-icon-btn"/>
-                                        <Button text="✏" styleClass="document-icon-btn"/>
+                                        <Button text="👁" styleClass="document-icon-btn" onAction="#handleOpenWrittenExamReport"/>
+                                        <Button text="✏" styleClass="document-icon-btn" onAction="#handleOpenWrittenExamReport"/>
                                     </HBox>
 
                                     <HBox styleClass="document-card, document-gray" alignment="CENTER_LEFT" spacing="10">
