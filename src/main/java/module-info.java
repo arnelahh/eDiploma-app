@@ -17,6 +17,7 @@ module main.ediploma {
     requires java.desktop;
     requires com.zaxxer.hikari;
     requires openhtmltopdf.pdfbox;
+    requires openhtmltopdf.core;
 
 
     opens main.ediploma to javafx.fxml;
