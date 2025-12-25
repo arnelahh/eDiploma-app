@@ -38,68 +38,99 @@
         table.header-table {
             width: 100%;
             border-collapse: collapse;
-            border: 2px solid #000; /* Vanjski okvir */
+            border: 2px solid #000;
+            table-layout: fixed;
+            font-family: 'Times New Roman', serif;
             margin-bottom: 30px;
         }
 
         table.header-table td {
             border: 1px solid #000;
-            padding: 5px;
             vertical-align: middle;
+            padding: 0; /* Resetujemo padding jer koristimo unutrašnje tabele */
         }
 
-        /* Logo ćelija */
-        .cell-logo {
-            width: 15%;
-            text-align: center;
-        }
-        .cell-logo img {
-            width: 60px;
+        /* --- PRVI RED --- */
+
+        /* Lijeva strana (Logo + Tekst) */
+        .cell-header-left {
+            /* Nema width ovdje, kontroliše ga colgroup */
+            padding-left: 5px !important;
             height: auto;
         }
 
-        /* Srednja ćelija zaglavlja */
-        .cell-faculty {
-            text-align: center;
+        .faculty-text {
+            font-size: 14pt;
             font-weight: bold;
-            width: 60%;
+            text-transform: uppercase;
+            margin-bottom: 8px;
         }
-        .uni-text { font-size: 11pt; margin-top: 5px; }
-        .faculty-text { font-size: 12pt; text-transform: uppercase; }
+        .uni-text {
+            font-size: 14pt;
+            font-weight: bold;
+        }
 
-        /* Zapisnik ćelija */
+        /* Desna strana (Zapisnik) */
         .cell-zapisnik {
             text-align: center;
             font-weight: bold;
-            width: 25%;
-            font-size: 12pt;
+            font-size: 16pt;
+            letter-spacing: 1px;
+            padding: 2px !important;
         }
 
-        /* Donji red zaglavlja */
+        /* --- DRUGI RED --- */
+
         .cell-commission {
             font-weight: bold;
-            padding-left: 10px !important;
+            font-size: 14pt;
+            padding-left: 20px !important;
+            text-align: center;
+            height: 60px;
         }
 
-        /* Tabela za kućice u zaglavlju */
+        .cell-grid-container {
+            vertical-align: top;
+            height: 30px;
+        }
+
+        /* Stilovi za kockice ostaju isti... */
         .boxes-table {
             width: 100%;
+            height: 100%;
             border-collapse: collapse;
             border: none;
-            margin: 0;
+            table-layout: fixed;
         }
+
         .boxes-table td {
-            border: 1px solid #000;
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            border-top: none;
+            border-left: none;
             text-align: center;
-            font-size: 10pt;
-            padding: 2px;
-            width: 25px; /* Fiksna širina kućica */
+            vertical-align: middle;
+            font-size: 11pt;
         }
+
+        /* Prvi red unutrašnje tabele (kockice) treba biti visine cca 50% ukupne ćelije */
+        .boxes-row td {
+            height: 30px;
+        }
+
+        /* Ukloni zadnju crtu desno */
+        .boxes-table td:last-child {
+            border-right: none;
+        }
+
+        /* Red za datum */
         .date-row td {
             border: none;
             text-align: left;
-            padding-top: 5px;
-            font-weight: normal;
+            padding-left: 5px !important;
+            font-size: 12pt;
+            height: 30px; /* Ostatak visine */
+            vertical-align: middle;
         }
 
         /* GLAVNI NASLOV */
@@ -108,47 +139,59 @@
             margin: 30px 0;
         }
         .main-title h1 {
-            font-size: 16pt;
+            font-size: 20pt;
             font-weight: bold;
             letter-spacing: 3px;
             margin: 0;
         }
         .main-title p {
-            font-size: 12pt;
+            font-size: 18pt;
             font-weight: bold;
             margin: 5px 0 0 0;
         }
 
-        /* SADRŽAJ */
         .content {
             text-align: justify;
         }
 
         .student-block {
             text-align: center;
-            margin: 20px 0;
+            margin: 25px 0;
             font-weight: bold;
         }
-        .student-name { text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .thesis-title { display: block; }
+        .student-name { text-transform: uppercase; display: block; margin-bottom: 5px; font-size: 13pt; }
+        .thesis-title { display: block; font-style: italic; }
 
-        /* Komisija lista */
+        /* --- SREDEN DIO ZA KOMISIJU --- */
+        .commission-section {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
         .commission-list {
-            margin-left: 20px;
-            margin-bottom: 20px;
+            /* Ovo pravi uvlačenje kao Tab u Wordu */
+            margin-left: 40px;
+            margin-top: 5px;
         }
+
         .commission-table {
-            width: 100%;
             border: none;
+            border-collapse: collapse;
         }
+
         .commission-table td {
             border: none;
-            padding: 2px;
+            padding-bottom: 5px; /* Razmak izmedju redova */
             vertical-align: top;
+            font-size: 12pt;
         }
-        .label-col { width: 100px; font-weight: bold; }
 
-        /* POTPISI */
+        .label-col {
+            width: 110px; /* Fiksna širina da imena budu poravnata */
+            font-weight: bold;
+        }
+
+        /* --- POTPISI --- */
         .signatures-area {
             margin-top: 50px;
             width: 100%;
@@ -163,7 +206,6 @@
             vertical-align: top;
         }
 
-        /* Linije za potpis (Predsjednik/Sekretar) */
         .sig-line-top {
             border-top: 1px solid #000;
             width: 80%;
@@ -172,12 +214,10 @@
             text-align: center;
         }
 
-        /* Donji dio sa "Dostavljeno" i članovima */
         .bottom-section {
             margin-top: 40px;
         }
 
-        /* Okvir Dostavljeno */
         .delivered-box {
             border: 1px solid #000;
             padding: 5px;
@@ -186,47 +226,63 @@
         }
         .delivered-box p { margin: 2px 0; }
 
-        /* Linije za članove */
         .member-sig-line {
             border-bottom: 1px solid #000;
             width: 250px;
             margin-bottom: 25px;
             height: 20px;
         }
-
     </style>
 </head>
 <body>
 
 <div class="watermark">
-    <img src="logo_ptf.png" alt="PTF Logo"/>
+    <img src="pozadina.png" alt="PTF Logo"/>
 </div>
 
 <table class="header-table">
+    <colgroup>
+        <col style="width: 50%;" />
+        <col style="width: 20%;" />
+        <col style="width: 30%;" />
+    </colgroup>
+
     <tr>
-        <td class="cell-logo" rowspan="2">
-            <img src="logo_ptf.png" alt="Logo" width="60"/>
+        <td class="cell-header-left" colspan="2">
+            <table style="width: 100%; border: none;">
+                <tr>
+                    <td style="width: 20%; border: none; text-align: center;">
+                        <img src="pozadina.png" alt="Logo" width="70"/>
+                    </td>
+                    <td style="width: 80%; border: none; text-align: center;">
+                        <div class="faculty-text">POLITEHNIČKI FAKULTET</div>
+                        <div class="uni-text">Univerzitet u Zenici</div>
+                    </td>
+                </tr>
+            </table>
         </td>
-        <td class="cell-faculty">
-            <div class="faculty-text">POLITEHNIČKI FAKULTET</div>
-            <div class="uni-text">Univerzitet u Zenici</div>
-        </td>
+
         <td class="cell-zapisnik">
             ZAPISNIK
         </td>
     </tr>
+
     <tr>
-        <td class="cell-commission">Komisija za diplomski ispit</td>
-        <td style="padding: 0;">
+        <td class="cell-commission">
+            Komisija za diplomski ispit
+        </td>
+
+        <td class="cell-grid-container" colspan="2">
             <table class="boxes-table">
-                <tr>
-                    <td style="border-top: none; border-left: none; width: auto;"></td> <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>/</td>
-                    <td style="border-top: none; border-right: none; width: 10px;"></td> </tr>
+                <tr class="boxes-row">
+                    <td></td> <td></td> <td>-</td>
+                    <td></td> <td></td> <td>-</td>
+                    <td></td> <td></td> <td>-</td>
+                    <td></td> <td></td> <td>/</td>
+                    <td></td> <td></td>
+                </tr>
                 <tr class="date-row">
-                    <td colspan="6" style="padding-left: 10px; border-top: 1px solid #000;">
+                    <td colspan="14">
                         Datum: {{submissionDate}}
                     </td>
                 </tr>
@@ -236,7 +292,7 @@
 </table>
 
 <div class="main-title">
-    <h1>Z A P I S N I K</h1>
+    <h1>ZAPISNIK</h1>
     <p>o pismenom dijelu diplomskog rada</p>
 </div>
 
@@ -248,28 +304,30 @@
         <span class="thesis-title">"{{thesisTitle}}"</span>
     </div>
 
-    <p>Mentor diplomskog rada: {{mentorFullName}}</p>
+    <div class="commission-section">
+        <p>Mentor diplomskog rada: <strong>{{mentorFullName}}</strong></p>
 
-    <p><strong>Sastav Komisije:</strong></p>
-    <div class="commission-list">
-        <table class="commission-table">
-            <tr>
-                <td class="label-col">Predsjednik:</td>
-                <td>{{chairmanFullName}}</td>
-            </tr>
-            <tr>
-                <td class="label-col">Član:</td>
-                <td>{{member1FullName}}</td>
-            </tr>
-            <tr>
-                <td class="label-col">Član:</td>
-                <td>{{member2FullName}}</td>
-            </tr>
-            <tr>
-                <td class="label-col">Sekretar:</td>
-                <td>{{secretaryFullName}}</td>
-            </tr>
-        </table>
+        <p><strong>Sastav Komisije:</strong></p>
+        <div class="commission-list">
+            <table class="commission-table">
+                <tr>
+                    <td class="label-col">Predsjednik:</td>
+                    <td>{{chairmanFullName}}</td>
+                </tr>
+                <tr>
+                    <td class="label-col">Član:</td>
+                    <td>{{member1FullName}}</td>
+                </tr>
+                <tr>
+                    <td class="label-col">Član:</td>
+                    <td>{{member2FullName}}</td>
+                </tr>
+                <tr>
+                    <td class="label-col">Sekretar:</td>
+                    <td>{{secretaryFullName}}</td>
+                </tr>
+            </table>
+        </div>
     </div>
 
     <p>Razrada teoretskog i praktičnog dijela diplomskog rada slijedila je prema utvrđenom zadatku diplomskog rada po rješenju Fakulteta br. <strong>{{facultyDecisionNumber}}</strong></p>

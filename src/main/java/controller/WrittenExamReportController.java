@@ -1,5 +1,6 @@
 package controller;
 
+import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import dao.CommissionDAO;
 import dao.ThesisDAO;
@@ -161,6 +162,23 @@ public class WrittenExamReportController {
         }
     }
 
+    private File getFontFileFromResources(String fileName) throws IOException {
+        InputStream inputStream = getClass().getResourceAsStream("/fonts/" + fileName);
+        if (inputStream == null) {
+            throw new FileNotFoundException("Font file not found in resources: " + fileName);
+        }
+
+        // Create a temp file
+        File tempFile = File.createTempFile("pdf_font_", ".ttf");
+        tempFile.deleteOnExit(); // Clean up on exit
+
+        // Copy resource to temp file
+        try (FileOutputStream out = new FileOutputStream(tempFile)) {
+            inputStream.transferTo(out);
+        }
+        return tempFile;
+    }
+
     private void generatePDF(File outputFile) throws Exception {
         LocalDate dateToShow = thesisDetails.getApprovalDate() != null ?
                 thesisDetails.getApprovalDate() :
@@ -197,12 +215,27 @@ public class WrittenExamReportController {
 
         try (OutputStream os = new FileOutputStream(outputFile)) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
-            builder.useFastMode(); // Opcionalno, ali preporučeno
+            builder.useFastMode();
 
-            // KLJUČNO ZA SLIKU: Dobijamo putanju do foldera gdje je HTML i slika
+            // 1. Učitaj REGULAR (za običan tekst)
+            // Težina: 400, Stil: NORMAL
+            builder.useFont(getFontFileFromResources("LiberationSerif-Regular.ttf"), "Times New Roman");
+
+            // 2. Učitaj BOLD (za naslove "POLITEHNIČKI FAKULTET", "ZAPISNIK", "Komisija...")
+            // Težina: 700, Stil: NORMAL
+            File fontBold = getFontFileFromResources("LiberationSerif-Bold.ttf");
+            builder.useFont(fontBold, "Times New Roman", 700, BaseRendererBuilder.FontStyle.NORMAL, true);
+
+            // 3. Učitaj ITALIC (ako zatreba)
+            File fontItalic = getFontFileFromResources("LiberationSerif-Italic.ttf");
+            builder.useFont(fontItalic, "Times New Roman", 400, BaseRendererBuilder.FontStyle.ITALIC, true);
+
+            // 4. Učitaj BOLD ITALIC (ako zatreba)
+            File fontBoldItalic = getFontFileFromResources("LiberationSerif-BoldItalic.ttf");
+            builder.useFont(fontBoldItalic, "Times New Roman", 700, BaseRendererBuilder.FontStyle.ITALIC, true);
+
             String baseUrl = getClass().getResource("/templates/").toExternalForm();
-
-            builder.withHtmlContent(html, baseUrl); // Ovdje prosljeđujemo baseUrl umjesto null
+            builder.withHtmlContent(html, baseUrl);
             builder.toStream(os);
             builder.run();
         }
