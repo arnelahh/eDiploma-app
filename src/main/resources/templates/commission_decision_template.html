@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Rješenje o formiranju Komisije</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm 20mm;
+        }
+
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.4;
+            color: #000;
+            margin: 0;
+            padding: 20px;
+            background-color: transparent;
+        }
+
+        #watermark-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            z-index: -999;
+            pointer-events: none;
+            display: block;
+            text-align: center;
+        }
+
+        #watermark-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 100%;
+            position: relative;
+        }
+
+        /* ZAGLAVLJE */
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5pt;
+        }
+
+        .header p {
+            font-size: 12pt;
+            margin: 2px 0 0 0;
+        }
+
+        /* INFO RED */
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 25px 0 15px 0;
+            font-size: 11pt;
+        }
+
+        .doc-number {
+            text-align: left;
+        }
+
+        .doc-date {
+            text-align: right;
+        }
+
+        /* PRAVNI OSNOV */
+        .legal-basis {
+            text-align: justify;
+            margin: 20px 0;
+            font-size: 11pt;
+            line-height: 1.5;
+        }
+
+        /* NASLOV RJEŠENJA */
+        .title {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .title h2 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 1pt;
+        }
+
+        .title p {
+            font-size: 11pt;
+            margin: 0;
+        }
+
+        /* SADRŽAJ - BULLET POINTS */
+        .content {
+            margin: 20px 0;
+        }
+
+        .bullet-item {
+            margin: 15px 0 15px 20px;
+            text-align: justify;
+            font-size: 11pt;
+            line-height: 1.5;
+        }
+
+        .bullet-item::before {
+            content: "● ";
+            margin-left: -20px;
+            margin-right: 5px;
+        }
+
+        /* LISTA KOMISIJE */
+        .commission-list {
+            margin: 10px 0 10px 40px;
+        }
+
+        .commission-list p {
+            margin: 5px 0;
+            line-height: 1.4;
+            font-size: 11pt;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 40px;
+        }
+
+        .delivered {
+            margin-bottom: 30px;
+            font-size: 11pt;
+        }
+
+        .delivered p {
+            margin: 3px 0;
+        }
+
+        .delivered p:first-child {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        /* POTPIS */
+        .signature {
+            text-align: right;
+            margin-top: 40px;
+        }
+
+        .signature p {
+            margin: 5px 0;
+            font-size: 11pt;
+        }
+
+        .form-number {
+            margin-top: 50px;
+            text-align: left;
+            font-size: 10pt;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div id="watermark-container">
+    <img src="pozadina_2.png" alt="Watermark"/>
+</div>
+
+<div class="container">
+
+    <!-- ZAGLAVLJE -->
+    <div class="header">
+        <h1>POLITEHNIČKI FAKULTET</h1>
+        <p>Univerzitet u Zenici</p>
+    </div>
+
+    <!-- RJEŠENJE NASLOV -->
+    <div class="title">
+        <h2>RJEŠENJE</h2>
+    </div>
+
+    <!-- INFO RED: Studentska služba | Broj | Datum -->
+    <div class="header-info">
+        <div class="doc-number">Studentska služba<br/>11-403-103-${referenceNumber}/25</div>
+        <div class="doc-date">Datum: ${decisionDate}</div>
+    </div>
+
+    <!-- PRAVNI OSNOV -->
+    <div class="legal-basis">
+        Na osnovu člana 206. Statuta Univerziteta u Zenici, a u skladu sa članovima 45 i 46. Pravilnika o
+        organizovanju dodiplomskog, magistarskog i doktorskog studija na Univerzitetu u Zenici, dekan
+        Fakulteta donosi
+    </div>
+
+    <!-- NASLOV -->
+    <div class="title">
+        <h2>RJEŠENJE</h2>
+        <p>o formiranju Komisije za Diplomski rad</p>
+    </div>
+
+    <!-- SADRŽAJ -->
+    <div class="content">
+        <div class="bullet-item">
+            Formira se Komisija za polaganje diplomskog ispita studenta<br/>
+            <strong>${studentFullName}</strong>
+        </div>
+
+        <div class="bullet-item">
+            U Komisiju iz prethodne tačke imenuju se:
+            <div class="commission-list">
+                <p>1. ${chairmanFullName}, predsjednik Komisije</p>
+                <p>2. ${member1FullName}, član Komisije</p>
+                <p>3. ${member2FullName}, član Komisije i Mentor</p>
+                <p>4. ${secretaryFullName}, sekretar Komisije</p>
+            </div>
+        </div>
+
+        <div class="bullet-item">
+            Zadatak Komisije je da izvrši pregled diplomskog rada i donese odluku o tome da li je kandidat
+            zadovoljio na pismenom dijelu ispita i da li mu se može dozvoliti polaganje usmenog dijela
+            ispita.
+        </div>
+
+        <div class="bullet-item">
+            Ukoliko Komisija utvrdi da se diplomski rad može ocijeniti sa "zadovoljio", odredit će dan i
+            vrijeme polaganja usmenog dijela ispita i o tome će se obavijestiti kandidat i javnost.
+        </div>
+
+        <div class="bullet-item">
+            Ovo rješenje stupa na snagu danom donošenja.
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <!-- DOSTAVLJENO -->
+        <div class="delivered">
+            <p>Dostavljeno:</p>
+            <p>Dekan Fakulteta</p>
+            <p>3 × Komisiji</p>
+            <p>1 × Dosije studenta</p>
+            <p>1 × a/a</p>
+        </div>
+
+        <!-- POTPIS -->
+        <div class="signature">
+            <p>_______________________</p>
+            <p>${deanName}</p>
+        </div>
+    </div>
+
+    <div class="form-number">
+        Obrazac MFZ-NN-005
+    </div>
+
+</div>
+
+</body>
+</html>

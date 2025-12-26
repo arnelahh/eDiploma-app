@@ -128,9 +128,8 @@
                                         <VBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
                                             <Text text="Rješenje o formiranju Komisije" styleClass="document-title"/>
                                         </VBox>
-                                        <Button text="⬇" styleClass="document-icon-btn"/>
-                                        <Button text="👁" styleClass="document-icon-btn"/>
-                                        <Button text="✏" styleClass="document-icon-btn"/>
+                                        <Button text="👁" styleClass="document-icon-btn" onAction="#handleOpenCommissionDecision"/>
+                                        <Button text="✏" styleClass="document-icon-btn" onAction="#handleOpenCommissionDecision"/>
                                     </HBox>
 
                                     <HBox styleClass="document-card, document-green" alignment="CENTER_LEFT" spacing="10">

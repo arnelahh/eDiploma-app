@@ -273,6 +273,21 @@ public class ThesisDetailsController {
     }
 
     @FXML
+    private void handleOpenCommissionDecision() {
+        // Check if commission is formed
+        if (currentCommission == null || currentCommission.getMember1() == null) {
+            GlobalErrorHandler.error("Komisija mora biti formirana prije kreiranja rješenja.");
+            return;
+        }
+
+        SceneManager.showWithData(
+                "/app/commissionDecision.fxml",
+                "Rješenje o formiranju komisije",
+                (CommissionDecisionController controller) -> controller.initWithThesisId(thesisId)
+        );
+    }
+
+    @FXML
     private void handleOpenWrittenExamReport() {
         // Check if commission is formed
         if (currentCommission == null || currentCommission.getMember1() == null) {
