@@ -178,14 +178,36 @@ public class WrittenExamReportController {
         return tempFile;
     }
 
+    // --- OVO KOPIRAJ U KONTROLER ---
+
     private void generatePDF(File outputFile) throws Exception {
         LocalDate dateToShow = thesisDetails.getApprovalDate() != null ?
                 thesisDetails.getApprovalDate() :
                 thesisDetails.getApplicationDate();
 
+        String fullTitle = thesisDetails.getTitle() != null ? thesisDetails.getTitle().toUpperCase() : "";
+        // 1. LOGIKA ZA PODJELU TEKSTA
+        String[] titleParts = splitTitle(fullTitle, 60);
+        String rawLine1 = titleParts[0]; // Sirovi tekst prve linije
+        String rawLine2 = titleParts[1]; // Sirovi tekst druge linije
+
+        String line1=rawLine1;
+        String line2=rawLine2;
+
+        if (rawLine2 == null || rawLine2.isBlank()) {
+            // KRATAK NASLOV – sve ide u prvu liniju sa oba navodnika
+            line1 = "\"" + rawLine1 + "\"";
+            line2 = "";
+        } else {
+            // DUG NASLOV – navodnici se dijele
+            line1 = "\"" + rawLine1;
+            line2 = rawLine2 + "\"";
+        }
+
+
         WrittenExamReportDTO dto = WrittenExamReportDTO.builder()
                 .studentFullName(thesisDetails.getStudent().getLastName() + " " + thesisDetails.getStudent().getFirstName())
-                .thesisTitle(thesisDetails.getTitle())
+                // Ovdje više ne šaljemo "thesisTitle" kao jedan komad, nego ćemo ga ručno ubaciti dolje
                 .mentorFullName(formatMemberName(thesisDetails.getMentor()))
                 .submissionDate(dateToShow)
                 .chairmanFullName(formatMemberName(commission.getMember1()))
@@ -198,8 +220,11 @@ public class WrittenExamReportController {
                 .build();
 
         String html = loadTemplate();
+
+        // 2. ZAMJENA NOVIH PLACEHOLDERA
         html = html.replace("{{studentFullName}}", dto.getStudentFullName())
-                .replace("{{thesisTitle}}", dto.getThesisTitle())
+                .replace("{{line1}}", line1) // <--- PRVI RED NASLOVA
+                .replace("{{line2}}", line2) // <--- DRUGI RED NASLOVA
                 .replace("{{mentorFullName}}", dto.getMentorFullName())
                 .replace("{{submissionDate}}", dto.getSubmissionDate() != null ?
                         dto.getSubmissionDate().format(DATE_FORMAT) : "—")
@@ -215,20 +240,12 @@ public class WrittenExamReportController {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
 
-            // 1. Učitaj REGULAR (za običan tekst)
-            // Težina: 400, Stil: NORMAL
+            // Fontovi (ostaje isto kao prije)
             builder.useFont(getFontFileFromResources("LiberationSerif-Regular.ttf"), "Times New Roman");
-
-            // 2. Učitaj BOLD (za naslove "POLITEHNIČKI FAKULTET", "ZAPISNIK", "Komisija...")
-            // Težina: 700, Stil: NORMAL
             File fontBold = getFontFileFromResources("LiberationSerif-Bold.ttf");
             builder.useFont(fontBold, "Times New Roman", 700, BaseRendererBuilder.FontStyle.NORMAL, true);
-
-            // 3. Učitaj ITALIC (ako zatreba)
             File fontItalic = getFontFileFromResources("LiberationSerif-Italic.ttf");
             builder.useFont(fontItalic, "Times New Roman", 400, BaseRendererBuilder.FontStyle.ITALIC, true);
-
-            // 4. Učitaj BOLD ITALIC (ako zatreba)
             File fontBoldItalic = getFontFileFromResources("LiberationSerif-BoldItalic.ttf");
             builder.useFont(fontBoldItalic, "Times New Roman", 700, BaseRendererBuilder.FontStyle.ITALIC, true);
 
@@ -237,6 +254,29 @@ public class WrittenExamReportController {
             builder.toStream(os);
             builder.run();
         }
+    }
+
+    /**
+     * Pomoćna metoda koja dijeli string na dva dijela na najbližem razmaku,
+     * pazeći da ne presiječe riječ na pola.
+     */
+    private String[] splitTitle(String text, int limit) {
+        if (text == null || text.length() <= limit) {
+            return new String[]{text != null ? text : "", ""};
+        }
+
+        // Nađi zadnji razmak prije limita (npr. prije 60-og karaktera)
+        int splitIndex = text.lastIndexOf(' ', limit);
+
+        // Ako nema razmaka (jedna ogromna riječ) ili je razmak predaleko, sijeci silom na limitu
+        if (splitIndex == -1) {
+            splitIndex = limit;
+        }
+
+        String part1 = text.substring(0, splitIndex).trim();
+        String part2 = text.substring(splitIndex).trim();
+
+        return new String[]{part1, part2};
     }
 
     private String loadTemplate() throws IOException {
