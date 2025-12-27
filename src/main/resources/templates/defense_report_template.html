@@ -6,7 +6,7 @@
     <style>
         @font-face {
             font-family: 'Toronto BH';
-            src: url('/fonts/Toronto Bold.ttf') format('truetype');
+            src: url('/fonts/TorontoBold.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
@@ -136,14 +136,14 @@
         .main-title p {
             font-size: 18pt;
             font-weight: bold;
-            margin-top: 5px;
+            margin-top: 1px;
             margin-bottom: 0;
         }
 
         .content { text-align: justify; }
         .content p { margin-top: 10px; margin-bottom: 10px; }
 
-        .first-sentence { text-align: center; margin-bottom: 10px; margin-top: 0; }
+        .first-sentence { text-align: left; margin-bottom: 10px; margin-top: 0; }
 
         .student-block { text-align: center; margin: 15px 0; font-weight: bold; justify-content: center }
         .student-name {
@@ -156,27 +156,40 @@
             font-size: 13pt;
         }
 
-        .thesis-wrapper {
+        .thesis-table {
             width: 100%;
-            text-align: center;
-            margin-top: 5px;
-            display: block;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            border: none;
         }
 
-        .thesis-title {
-            font-family:'Times New Roman', 'Toronto BH';
+        .thesis-label {
+            width: 1px; /* Trik da se kolona skupi na širinu teksta */
+            white-space: nowrap; /* Tekst "Tema diplomskog rada:" neće prelaziti u novi red */
+            vertical-align: bottom; /* Poravnanje sa donjom ivicom linije */
+            padding-right: 10px;
+            padding-bottom: 3px; /* Odmak teksta od zamišljene linije */
             font-size: 12pt;
+            border: none;
+        }
+
+        .thesis-line {
+            border-bottom: 1px solid #000; /* Crna linija ispod */
+            text-align: center; /* Centriranje naslova na liniji */
+            vertical-align: bottom;
             font-weight: bold;
-            display: inline;
-            border-bottom: 1px solid #000;
-            line-height: 1.5;
-            padding-bottom: 1px;
+            font-size: 12pt;
+            padding-bottom: 3px;
+            height: 25px; /* Minimalna visina reda */
+            font-family: 'Times New Roman', serif; /* Osigurava font */
         }
 
         .commission-section { margin-top: 10px; margin-bottom: 10px; width: 100%; }
 
         .mentor-table { width: 100%; border-collapse: collapse; border: none; }
         .mentor-table td { border: none; padding: 2px 0; vertical-align: bottom; }
+        .mentor-table td:first-child { border: none; padding: 2px 0; padding-right: 20px;vertical-align: bottom; }
         .mentor-label { white-space: nowrap; width: 1px; padding-right: 10px;}
 
         .outer-commission-table { width: 100%; border-collapse: collapse; border: none; margin-top: 5px; }
@@ -251,7 +264,15 @@
             margin: 0 auto;
             height: 1px;
         }
-
+        .date-line {
+            display: inline-block;      /* Omogućava definisanje širine */
+            border-bottom: 1px solid #000; /* Crna linija ispod */
+            min-width: 200px;           /* Ovdje definišete minimalnu dužinu linije */
+            text-align: center;         /* Centrira datum na liniji */
+            font-weight: bold;          /* Podebljan tekst kao na slici */
+            padding: 0 10px;            /* Malo prostora lijevo i desno ako je tekst duži */
+            line-height: 1.2;           /* Da linija ne bude prenisko */
+        }
         .bottom-section { margin-top: 20px; }
         .member-sig-line { border-bottom: 1px solid #000; width: 250px; margin-bottom: 15px; height: 15px; }
     </style>
@@ -305,7 +326,7 @@
 </div>
 
 <div class="content">
-    <p class="first-sentence">Odbrana diplomskog rada održana je dana <strong>{{defenseDate}}</strong> godine.</p>
+    <p class="first-sentence">Odbrana diplomskog rada održana je dana <span class="date-line">{{defenseDate}}</span> godine.</p>
 
     <p style="margin-top: 10px; margin-bottom: 10px;">Usmenoj odbrani diplomskog rada pristupio-la je</p>
 
@@ -313,18 +334,22 @@
         <span class="student-name">{{studentFullName}}</span>
     </div>
 
-    <p style="margin-top: 10px; margin-bottom: 5px;">Tema diplomskog rada:</p>
-
-    <div class="thesis-wrapper">
-        <span class="thesis-title">"{{thesisTitle}}"</span>
-    </div>
+    <table class="thesis-table">
+        <tr>
+            <td class="thesis-label">Tema diplomskog rada: </td>
+            <td class="thesis-line">{{thesisTitle}}</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="thesis-line"></td>
+        </tr>
+    </table>
 
     <div class="commission-section">
         <table class="mentor-table">
             <tr>
-                <td class="mentor-label">Mentor diplomskog rada:</td>
+                <td class="mentor-label">Mentor diplomskog rada:      </td>
                 <td>
-                    <div class="line-wrapper">{{mentorFullName}}</div>
+                    <div class="line-wrapper" style="width: auto;">{{mentorFullName}}</div>
                 </td>
             </tr>
         </table>
