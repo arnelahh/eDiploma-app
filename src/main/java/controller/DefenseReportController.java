@@ -7,11 +7,6 @@ import dao.ThesisDAO;
 import dto.DefenseReportDTO;
 import dto.ThesisDetailsDTO;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import model.Commission;
@@ -21,8 +16,6 @@ import utils.SceneManager;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DefenseReportController {
 

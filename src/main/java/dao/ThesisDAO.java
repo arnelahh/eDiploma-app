@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ThesisDAO {
+    private static final int LOCK_TIMEOUT_MINUTES = 30;
 
     public List<ThesisDTO> getAllThesis() {
         List<ThesisDTO> thesis = new ArrayList<>();
@@ -336,6 +337,84 @@ public class ThesisDAO {
             return null;
         } catch (SQLException e) {
             throw new RuntimeException("Greška pri dohvatanju detalja rada: " + e.getMessage(), e);
+        }
+    }
+
+    public boolean lockThesis(int thesisId, int userId) {
+        String sql = """
+        UPDATE Thesis
+        SET LockedBy = ?, LockedAt = CURRENT_TIMESTAMP
+        WHERE Id = ?
+          AND LockedBy IS NULL
+          AND IsActive = 1
+    """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            clearExpiredLocks(conn);
+            ps.setInt(1, userId);
+            ps.setInt(2, thesisId);
+            return ps.executeUpdate() == 1;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri zaključavanju rada", e);
+        }
+    }
+
+    public void unlockThesis(int thesisId, int userId) {
+        String sql = """
+        UPDATE Thesis
+        SET LockedBy = NULL,
+            LockedAt = NULL
+        WHERE Id = ?
+          AND LockedBy = ?
+    """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, thesisId);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri otključavanju rada", e);
+        }
+    }
+
+    public Integer getLockedBy(int thesisId) {
+        String sql = "SELECT LockedBy FROM Thesis WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, thesisId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                int v = rs.getInt("LockedBy");
+                return rs.wasNull() ? null : v;
+            }
+            return null;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void clearExpiredLocks(Connection conn) throws SQLException {
+
+        String sql = """
+        UPDATE Thesis
+        SET LockedBy = NULL,
+            LockedAt = NULL
+        WHERE LockedAt IS NOT NULL
+          AND LockedAt < CURRENT_TIMESTAMP - INTERVAL ? MINUTE
+    """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, LOCK_TIMEOUT_MINUTES);
+            ps.executeUpdate();
         }
     }
 }
