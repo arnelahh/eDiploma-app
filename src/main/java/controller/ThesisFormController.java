@@ -384,19 +384,24 @@ public class ThesisFormController {
         try {
             if (mode == Mode.CREATE) {
                 thesisDAO.insertThesis(buildThesisFromForm());
-                show("Završni rad je uspješno dodat!", Alert.AlertType.INFORMATION);
+                GlobalErrorHandler.info("Završni rad je uspješno dodat!");
                 NavigationContext.setTargetView(DashboardView.THESIS);
                 SceneManager.show("/app/dashboard.fxml", "eDiploma");
             } else {
+                int userId = NavigationContext.getCurrentUser().getId();
+
+                if (!thesisDAO.isLockedByUser(thesis.getId(), userId)) {
+                    GlobalErrorHandler.warning("Vaša sesija za uređivanje je istekla ili je rad preuzeo drugi korisnik.");
+                    back();
+                    return;
+                }
+
                 updateThesisFromForm();
                 thesisDAO.updateThesis(thesis);
 
-                thesisDAO.unlockThesis(
-                        thesis.getId(),
-                        NavigationContext.getCurrentUser().getId()
-                );
+                thesisDAO.unlockThesis(thesis.getId(), userId);
 
-                show("Završni rad je uspješno ažuriran!", Alert.AlertType.INFORMATION);
+                GlobalErrorHandler.info("Završni rad je uspješno ažuriran!");
                 MentorsController.requestRefresh();
 
                 if (returnToThesisId != null) {
@@ -407,8 +412,7 @@ public class ThesisFormController {
                 }
             }
         } catch (Exception e) {
-            show("Greška: " + e.getMessage(), Alert.AlertType.ERROR);
-            e.printStackTrace();
+            GlobalErrorHandler.error("Greška pri snimanju završnog rada.", e);
         }
     }
 
@@ -511,12 +515,12 @@ public class ThesisFormController {
             if (response == ButtonType.OK) {
                 try {
                     thesisDAO.deleteThesis(thesis.getId());
-                    show("Završni rad je uspješno obrisan!", Alert.AlertType.INFORMATION);
+                    GlobalErrorHandler.info("Završni rad je uspješno obrisan!");
                     MentorsController.requestRefresh();
                     NavigationContext.setTargetView(DashboardView.THESIS);
                     SceneManager.show("/app/dashboard.fxml", "eDiploma");
                 } catch (Exception e) {
-                    show("Greška pri brisanju: " + e.getMessage(), Alert.AlertType.ERROR);
+                    GlobalErrorHandler.error("Greška pri brisanju:");
                 }
             }
         });
@@ -536,9 +540,6 @@ public class ThesisFormController {
         }
     }
 
-    private void show(String msg, Alert.AlertType type) {
-        new Alert(type, msg).showAndWait();
-    }
 
     private void showErrorList(List<String> errors) {
         Alert alert = new Alert(Alert.AlertType.WARNING);

@@ -30,20 +30,26 @@ public class ThesisDAO {
                 ORDER BY T.Id DESC
                 """;
 
-        try (Connection conn = CloudDatabaseConnection.Konekcija();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                ThesisDTO thesisDTO = new ThesisDTO();
-                thesisDTO.setId(rs.getInt("Id"));
-                thesisDTO.setTitle(rs.getString("Title"));
-                thesisDTO.setStudentFullName(rs.getString("StudentFullName"));
-                thesisDTO.setMentorFullName(rs.getString("MentorFullName"));
-                thesisDTO.setCycle(rs.getInt("Cycle"));
-                thesisDTO.setStatus(rs.getString("Status"));
-                thesisDTO.setApplicationDate(rs.getDate("ApplicationDate").toLocalDate());
-                thesis.add(thesisDTO);
+        try (Connection conn = CloudDatabaseConnection.Konekcija()) {
+
+            clearExpiredLocks(conn);
+
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+
+                while (rs.next()) {
+                    ThesisDTO thesisDTO = new ThesisDTO();
+                    thesisDTO.setId(rs.getInt("Id"));
+                    thesisDTO.setTitle(rs.getString("Title"));
+                    thesisDTO.setStudentFullName(rs.getString("StudentFullName"));
+                    thesisDTO.setMentorFullName(rs.getString("MentorFullName"));
+                    thesisDTO.setCycle(rs.getInt("Cycle"));
+                    thesisDTO.setStatus(rs.getString("Status"));
+                    thesisDTO.setApplicationDate(rs.getDate("ApplicationDate").toLocalDate());
+                    thesis.add(thesisDTO);
+                }
             }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -415,6 +421,30 @@ public class ThesisDAO {
         }
     }
 
+    public boolean isLockedByUser(int thesisId, int userId) {
+        String sql = """
+        SELECT 1
+        FROM Thesis
+        WHERE Id = ?
+          AND LockedBy = ?
+          AND LockedAt IS NOT NULL
+    """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            clearExpiredLocks(conn);
+
+            ps.setInt(1, thesisId);
+            ps.setInt(2, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri provjeri lock-a.", e);
+        }
+    }
 
     private void clearExpiredLocks(Connection conn) throws SQLException {
 
