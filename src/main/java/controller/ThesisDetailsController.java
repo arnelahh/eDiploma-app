@@ -3,6 +3,7 @@ package controller;
 import dao.CommissionDAO;
 import dao.ThesisDAO;
 import dto.ThesisDetailsDTO;
+import dto.ThesisLockInfoDTO;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -11,9 +12,9 @@ import javafx.scene.text.Text;
 import model.Commission;
 import model.Thesis;
 import model.AppUser;
-import dao.AppUserDAO;
 import utils.*;
 
+import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
@@ -47,10 +48,13 @@ public class ThesisDetailsController {
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
+
     private int thesisId;
     private ThesisDetailsDTO currentDetails;
     private Commission currentCommission;
+
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy.");
+    private static final DateTimeFormatter LOCK_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm");
 
     public void initWithThesisId(int thesisId) {
         this.thesisId = thesisId;
@@ -222,22 +226,24 @@ public class ThesisDetailsController {
 
         boolean lockAcquired = thesisDAO.lockThesis(thesisId, userId);
         if (!lockAcquired) {
-            Integer lockedById = thesisDAO.getLockedBy(thesisId); // get who locked it
-            String lockedByName = lockedById != null ? new AppUserDAO().getUserNameById(lockedById)
+            ThesisLockInfoDTO info = thesisDAO.getLockInfo(thesisId);
+
+            String lockedByName = (info != null && info.getLockedByUsername() != null && !info.getLockedByUsername().isBlank())
+                    ? info.getLockedByUsername()
                     : "Nepoznat korisnik";
-            showLockedMessage(lockedByName);
+
+            Timestamp lockedAt = (info != null) ? info.getLockedAt() : null;
+
+            showLockedMessage(lockedByName, lockedAt);
             return;
         }
-
 
         Thesis thesis = thesisDAO.getThesisById(thesisId);
         if (thesis != null) {
             SceneManager.showWithData(
                     "/app/thesisForm.fxml",
                     "Uredi završni rad",
-                    (ThesisFormController controller) -> {
-                        controller.initEdit(thesis, thesisId);
-                    }
+                    (ThesisFormController controller) -> controller.initEdit(thesis, thesisId)
             );
         } else {
             thesisDAO.unlockThesis(thesisId, userId);
@@ -327,13 +333,20 @@ public class ThesisDetailsController {
         );
     }
 
-    private void showLockedMessage(String userName) {
+    private void showLockedMessage(String userName, Timestamp lockedAt) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Rad je zaključan");
         alert.setHeaderText("Uređivanje nije moguće");
+        String whenText = "";
+        if (lockedAt != null) {
+            var dt = lockedAt.toLocalDateTime();
+            whenText = "\nZaključano: " + dt.format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm"));
+        }
+
         alert.setContentText(
-                "Ovaj završni rad trenutno uređuje " + userName + ".\n" +
-                        "Pokušajte ponovo kasnije."
+                "Ovaj završni rad trenutno uređuje: " + userName +
+                        whenText +
+                        "\n\nPokušajte ponovo kasnije."
         );
         alert.showAndWait();
     }
