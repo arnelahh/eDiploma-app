@@ -388,6 +388,12 @@ public class ThesisFormController {
             } else {
                 updateThesisFromForm();
                 thesisDAO.updateThesis(thesis);
+
+                thesisDAO.unlockThesis(
+                        thesis.getId(),
+                        NavigationContext.getCurrentUser().getId()
+                );
+
                 show("Završni rad je uspješno ažuriran!", Alert.AlertType.INFORMATION);
                 MentorsController.requestRefresh();
 
@@ -516,6 +522,9 @@ public class ThesisFormController {
 
     @FXML
     private void back() {
+        if (mode == Mode.EDIT && thesis != null) {
+            thesisDAO.unlockThesis(thesis.getId(), NavigationContext.getCurrentUser().getId());
+        }
         if (returnToThesisId != null) {
             SceneManager.showWithData("/app/thesisDetails.fxml", "Detalji završnog rada",
                     (ThesisDetailsController controller) -> controller.initWithThesisId(returnToThesisId));

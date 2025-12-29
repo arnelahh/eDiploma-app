@@ -8,11 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import model.AppUser;
 import org.mindrot.jbcrypt.BCrypt;
-import utils.AsyncHelper;
-import utils.SceneManager;
-import utils.SessionManager;
-import utils.UserSession;
-import utils.GlobalErrorHandler;
+import utils.*;
 
 public class LoginController {
     @FXML private Pane rootPane;
@@ -56,10 +52,6 @@ public class LoginController {
         );
     }
 
-    /**
-     * Hendluje uspješnu autentifikaciju korisnika.
-     * Izdvojeno u posebnu metodu radi bolje čitljivosti.
-     */
     private void handleLoginSuccess(AppUser user, String password) {
         loader.setVisible(false);
 
@@ -76,6 +68,7 @@ public class LoginController {
 
         // Uspješna prijava
         UserSession.setUser(user);
+        NavigationContext.setCurrentUser(user);
         SceneManager.show("/app/dashboard.fxml", "eDiploma");
 
         // Pokretanje session managera

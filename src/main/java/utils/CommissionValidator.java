@@ -7,10 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Validator za provjeru komisije završnog rada.
- * Osigurava da isti član ne može biti na više uloga u komisiji.
- */
 public class CommissionValidator {
 
     /**

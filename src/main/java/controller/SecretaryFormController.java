@@ -2,7 +2,6 @@ package controller;
 
 import dao.SecretaryDAO;
 import dto.CreateSecretaryDTO;
-import dto.CreateUserIdsDTO;
 import dto.SecretaryDTO;
 import dto.UpdateSecretaryDTO;
 import javafx.fxml.FXML;

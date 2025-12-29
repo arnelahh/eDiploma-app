@@ -10,15 +10,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import model.Commission;
 import model.Thesis;
-import utils.DashboardView;
-import utils.NavigationContext;
-import utils.SceneManager;
-import utils.GlobalErrorHandler;
+import model.AppUser;
+import dao.AppUserDAO;
+import utils.*;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class ThesisDetailsController {
+
 
     @FXML private Text titleValue;
     @FXML private Text descriptionValue;
@@ -212,6 +212,24 @@ public class ThesisDetailsController {
 
     @FXML
     private void handleEdit() {
+        AppUser currentUser = UserSession.getUser();
+        if (currentUser == null) {
+            GlobalErrorHandler.error("Korisnik nije prijavljen");
+            return;
+        }
+
+        int userId = currentUser.getId();
+
+        boolean lockAcquired = thesisDAO.lockThesis(thesisId, userId);
+        if (!lockAcquired) {
+            Integer lockedById = thesisDAO.getLockedBy(thesisId); // get who locked it
+            String lockedByName = lockedById != null ? new AppUserDAO().getUserNameById(lockedById)
+                    : "Nepoznat korisnik";
+            showLockedMessage(lockedByName);
+            return;
+        }
+
+
         Thesis thesis = thesisDAO.getThesisById(thesisId);
         if (thesis != null) {
             SceneManager.showWithData(
@@ -222,6 +240,7 @@ public class ThesisDetailsController {
                     }
             );
         } else {
+            thesisDAO.unlockThesis(thesisId, userId);
             GlobalErrorHandler.error("Greška pri dohvatanju podataka za uređivanje.");
         }
     }
@@ -306,5 +325,16 @@ public class ThesisDetailsController {
                 "Zapisnik sa odbrane",
                 (DefenseReportController controller) -> controller.initWithThesisId(thesisId)
         );
+    }
+
+    private void showLockedMessage(String userName) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Rad je zaključan");
+        alert.setHeaderText("Uređivanje nije moguće");
+        alert.setContentText(
+                "Ovaj završni rad trenutno uređuje " + userName + ".\n" +
+                        "Pokušajte ponovo kasnije."
+        );
+        alert.showAndWait();
     }
 }
