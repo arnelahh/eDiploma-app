@@ -2,6 +2,7 @@ package dao;
 
 import dto.ThesisDTO;
 import dto.ThesisDetailsDTO;
+import dto.ThesisLockInfoDTO;
 import model.*;
 
 import java.sql.*;
@@ -382,25 +383,38 @@ public class ThesisDAO {
         }
     }
 
-    public Integer getLockedBy(int thesisId) {
-        String sql = "SELECT LockedBy FROM Thesis WHERE Id = ?";
+    public ThesisLockInfoDTO getLockInfo(int thesisId) {
+        String sql = """
+        SELECT t.LockedBy,
+               t.LockedAt,
+               u.Username
+        FROM Thesis t
+        LEFT JOIN AppUser u ON u.Id = t.LockedBy
+        WHERE t.Id = ?
+    """;
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, thesisId);
-            ResultSet rs = ps.executeQuery();
+            clearExpiredLocks(conn);
 
-            if (rs.next()) {
-                int v = rs.getInt("LockedBy");
-                return rs.wasNull() ? null : v;
+            ps.setInt(1, thesisId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+
+                Integer lockedById = (Integer) rs.getObject("LockedBy"); // null-safe
+                Timestamp lockedAt = rs.getTimestamp("LockedAt");
+                String username = rs.getString("Username");
+
+                return new ThesisLockInfoDTO(lockedById, username, lockedAt);
             }
-            return null;
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Greška pri dohvatanju lock info.", e);
         }
     }
+
 
     private void clearExpiredLocks(Connection conn) throws SQLException {
 

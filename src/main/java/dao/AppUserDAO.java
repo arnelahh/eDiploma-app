@@ -174,23 +174,4 @@ public class AppUserDAO {
             throw new RuntimeException("Failed to find AppUser ID for AcademicStaff", e);
         }
     }
-
-    public String getUserNameById(int userId) {
-        String sql = "SELECT FirstName, LastName FROM AppUser WHERE Id = ?";
-
-        try (Connection conn = CloudDatabaseConnection.Konekcija();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, userId);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getString("FirstName") + " " + rs.getString("LastName");
-            }
-            return "Nepoznat korisnik";
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Greška pri dohvatanju korisnika", e);
-        }
-    }
 }

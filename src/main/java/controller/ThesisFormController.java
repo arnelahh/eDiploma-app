@@ -228,6 +228,8 @@ public class ThesisFormController {
         if (formSubtitle != null) formSubtitle.setText("Uredite podatke o završnom radu");
         toggleDeleteButton(true);
         toggleEditOnlyFields(true);
+
+        javafx.application.Platform.runLater(this::attachUnlockOnWindowClose);
         
         // Try to fill fields immediately if data is already loaded
         if (loadedCount.get() >= TOTAL_LOADERS) {
@@ -545,4 +547,22 @@ public class ThesisFormController {
         alert.setContentText("• " + String.join("\n• ", errors));
         alert.showAndWait();
     }
+
+    private void attachUnlockOnWindowClose() {
+        try {
+            if (titleField == null || titleField.getScene() == null) return;
+
+            var stage = (javafx.stage.Stage) titleField.getScene().getWindow();
+            if (stage == null) return;
+
+            stage.setOnCloseRequest(ev -> {
+                try {
+                    if (mode == Mode.EDIT && thesis != null && NavigationContext.getCurrentUser() != null) {
+                        thesisDAO.unlockThesis(thesis.getId(), NavigationContext.getCurrentUser().getId());
+                    }
+                } catch (Exception ex) {}
+            });
+        } catch (Exception ignored) {}
+    }
+
 }
