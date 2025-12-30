@@ -156,6 +156,7 @@
             font-size: 13pt;
         }
 
+        /* UPDATED THESIS TITLE SECTION */
         .thesis-table {
             width: 100%;
             border-collapse: collapse;
@@ -165,24 +166,44 @@
         }
 
         .thesis-label {
-            width: 1px; /* Trik da se kolona skupi na širinu teksta */
-            white-space: nowrap; /* Tekst "Tema diplomskog rada:" neće prelaziti u novi red */
-            vertical-align: bottom; /* Poravnanje sa donjom ivicom linije */
+            white-space: nowrap;
+            vertical-align: bottom;
             padding-right: 10px;
-            padding-bottom: 3px; /* Odmak teksta od zamišljene linije */
+            padding-bottom: 3px;
             font-size: 12pt;
             border: none;
         }
 
-        .thesis-line {
-            border-bottom: 1px solid #000; /* Crna linija ispod */
-            text-align: center; /* Centriranje naslova na liniji */
+        .thesis-line-1 {
+            border-bottom: 1px solid #000;
+            text-align: center;
             vertical-align: bottom;
             font-weight: bold;
             font-size: 12pt;
             padding-bottom: 3px;
-            height: 25px; /* Minimalna visina reda */
-            font-family: 'Times New Roman', serif; /* Osigurava font */
+            padding-left: 15px;
+            padding-right: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .thesis-line-2 {
+            border-bottom: 1px solid #000;
+            text-align: center;
+            vertical-align: bottom;
+            font-weight: bold;
+            font-size: 12pt;
+            padding-top: 20px;
+            padding-bottom: 3px;
+            padding-left: 5px;
+            padding-right: 5px;
+            word-wrap: break-word;
+        }
+
+        .thesis-line-2-content {
+            display: block;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .commission-section { margin-top: 10px; margin-bottom: 10px; width: 100%; }
@@ -265,13 +286,13 @@
             height: 1px;
         }
         .date-line {
-            display: inline-block;      /* Omogućava definisanje širine */
-            border-bottom: 1px solid #000; /* Crna linija ispod */
-            min-width: 200px;           /* Ovdje definišete minimalnu dužinu linije */
-            text-align: center;         /* Centrira datum na liniji */
-            font-weight: bold;          /* Podebljan tekst kao na slici */
-            padding: 0 10px;            /* Malo prostora lijevo i desno ako je tekst duži */
-            line-height: 1.2;           /* Da linija ne bude prenisko */
+            display: inline-block;
+            border-bottom: 1px solid #000;
+            min-width: 200px;
+            text-align: center;
+            font-weight: bold;
+            padding: 0 10px;
+            line-height: 1.2;
         }
         .bottom-section { margin-top: 20px; }
         .member-sig-line { border-bottom: 1px solid #000; width: 250px; margin-bottom: 15px; height: 15px; }
@@ -334,20 +355,23 @@
         <span class="student-name">{{studentFullName}}</span>
     </div>
 
+    <!-- UPDATED THESIS TITLE TABLE -->
     <table class="thesis-table">
         <tr>
-            <td class="thesis-label">Tema diplomskog rada: </td>
-            <td class="thesis-line">{{thesisTitle}}</td>
+            <td class="thesis-label" style="width: 160px;">Tema diplomskog rada:</td>
+            <td class="thesis-line-1">{{thesisTitleLine1}}</td>
         </tr>
         <tr>
-            <td colspan="2" class="thesis-line"></td>
+            <td colspan="2" class="thesis-line-2">
+                <span class="thesis-line-2-content">{{thesisTitleLine2}}</span>
+            </td>
         </tr>
     </table>
 
     <div class="commission-section">
         <table class="mentor-table">
             <tr>
-                <td class="mentor-label">Mentor diplomskog rada:      </td>
+                <td class="mentor-label">Mentor diplomskog rada:</td>
                 <td>
                     <div class="line-wrapper" style="width: auto;">{{mentorFullName}}</div>
                 </td>
