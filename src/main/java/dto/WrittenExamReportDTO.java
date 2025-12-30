@@ -24,8 +24,12 @@ public class WrittenExamReportDTO {
     // Student
     private String studentFullName;
 
-    // Thesis title
+    // Thesis title (original full title)
     private String thesisTitle;
+
+    // Thesis title split into two lines for PDF - NOVO!
+    private String thesisTitleLine1;  // First ~40 chars with opening quote
+    private String thesisTitleLine2;  // Remaining text with closing quote
 
     // Mentor
     private String mentorFullName;
