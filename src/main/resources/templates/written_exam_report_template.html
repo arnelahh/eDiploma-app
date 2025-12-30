@@ -13,13 +13,13 @@
 
         @page {
             size: A4;
-            margin: 15mm 20mm 15mm 20mm;
+            margin: 14mm 20mm 14mm 20mm;
         }
 
         body {
             font-family: 'Times New Roman', serif;
             font-size: 12pt;
-            line-height: 1.15;
+            line-height: 1.13;
             color: #000;
             margin: 0;
             padding: 0;
@@ -58,32 +58,23 @@
         .date-row td { border: none; text-align: left; padding-left: 5px !important; font-size: 12pt; height: 25px; vertical-align: middle; }
 
         /* --- SADRŽAJ --- */
-        .main-title { text-align: center; margin-top: 30px; margin-bottom: 30px; }
-        .main-title h1 { font-size: 20pt; font-weight: bold; letter-spacing: 3px; margin: 0; line-height: 1.2; }
+        .main-title { text-align: center; margin-top: 27px; margin-bottom: 27px; }
+        .main-title h1 { font-size: 20pt; font-weight: bold; letter-spacing: 3px; margin: 0; line-height: 1.16; }
         .main-title p { font-size: 18pt; font-weight: bold; margin-top: 5px; margin-bottom: 0; }
 
         .content { text-align: justify; }
         .content p { margin-top: 10px; margin-bottom: 10px; }
         .first-sentence { text-align: center; margin-bottom: 10px; margin-top: 0; }
 
-        .student-block { text-align: center; margin: 15px 0; font-weight: bold; justify-content: center }
+        .student-block { text-align: center; margin: 13px 0; font-weight: bold; justify-content: center }
         .student-name { text-transform: uppercase; display: block; width: 80%; margin: auto; text-align: center; border-bottom: 1px solid #000; font-size: 13pt; }
 
-        /* THESIS TITLE - NOVA STRUKTURA */
+        /* THESIS TITLE - DVE JEDNAKE CRTE */
         .thesis-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
-            margin-bottom: 15px;
-            border: none;
-        }
-
-        .thesis-label {
-            white-space: nowrap;
-            vertical-align: bottom;
-            padding-right: 10px;
-            padding-bottom: 3px;
-            font-size: 12pt;
+            margin-bottom: 13px;
             border: none;
         }
 
@@ -94,7 +85,7 @@
             font-weight: bold;
             font-size: 12pt;
             padding-bottom: 3px;
-            padding-left: 15px;
+            padding-left: 5px;
             padding-right: 5px;
             white-space: nowrap;
             overflow: hidden;
@@ -106,11 +97,20 @@
             vertical-align: bottom;
             font-weight: bold;
             font-size: 12pt;
-            padding-top: 20px;
+            padding-top: 18px;
             padding-bottom: 3px;
             padding-left: 5px;
             padding-right: 5px;
             word-wrap: break-word;
+        }
+
+        /* Smanjeni font za dugačke naslove - OBE LINIJE */
+        .thesis-line-1-small {
+            font-size: 10pt;
+        }
+
+        .thesis-line-2-small {
+            font-size: 10pt;
         }
 
         .thesis-line-2-content {
@@ -124,21 +124,21 @@
         .mentor-table { width: 100%; border-collapse: collapse; border: none; }
         .mentor-table td { border: none; padding: 2px 0; vertical-align: bottom; }
         .mentor-label { white-space: nowrap; width: 1px; padding-right: 10px;}
-        .outer-commission-table { width: 100%; border-collapse: collapse; border: none; margin-top: 5px; }
-        .sastav-label-cell { width: 140px; vertical-align: top; padding-top: 5px; }
+        .outer-commission-table { width: 100%; border-collapse: collapse; border: none; margin-top: 4px; }
+        .sastav-label-cell { width: 140px; vertical-align: top; padding-top: 4px; }
         .commission-inner-table { width: 100%; border-collapse: collapse; border: none; }
-        .commission-inner-table td { border: none; padding-bottom: 3px; padding-top: 5px; vertical-align: top; font-size: 12pt; }
+        .commission-inner-table td { border: none; padding-bottom: 3px; padding-top: 4px; vertical-align: top; font-size: 12pt; }
         .role-col { width: 110px; font-weight: bold; white-space: nowrap; padding-bottom: 2px; }
-        .line-wrapper { display: block; width: 100%; min-height: 22px; border-bottom: 1px solid #000; padding-left: 10px; padding-bottom: 2px; }
-        .signatures-area { margin-top: 25px; width: 100%; }
+        .line-wrapper { display: block; width: 100%; min-height: 21px; border-bottom: 1px solid #000; padding-left: 10px; padding-bottom: 2px; }
+        .signatures-area { margin-top: 22px; width: 100%; }
         .sig-table { width: 100%; border-collapse: collapse; border: none; }
         .sig-table td { border: none; vertical-align: bottom; }
-        .sig-label-text { text-align: center; font-size: 12pt; margin-bottom: 35px; }
+        .sig-label-text { text-align: center; font-size: 12pt; margin-bottom: 33px; }
         .sig-line-bottom { border-bottom: 1px solid #000; width: 80%; margin: 0 auto; height: 1px; }
-        .bottom-section { margin-top: 20px; }
+        .bottom-section { margin-top: 18px; }
         .delivered-box { border: 1px solid #000; padding: 5px; width: 180px; font-size: 10pt; }
         .delivered-box p { margin: 2px 0; }
-        .member-sig-line { border-bottom: 1px solid #000; width: 250px; margin-bottom: 15px; height: 15px; }
+        .member-sig-line { border-bottom: 1px solid #000; width: 250px; margin-bottom: 14px; height: 14px; }
     </style>
 </head>
 <body>
@@ -196,14 +196,13 @@
         <span class="student-name">{{studentFullName}}</span>
     </div>
 
-    <!-- NOVA THESIS TITLE TABELA - ISTA KAO U DEFENSE REPORT -->
+    <!-- DVE JEDNAKE CRTE ZA NASLOV - BEZ LABELE -->
     <table class="thesis-table">
         <tr>
-            <td class="thesis-label" style="width: 160px;">Tema diplomskog rada:</td>
             <td class="thesis-line-1">{{thesisTitleLine1}}</td>
         </tr>
         <tr>
-            <td colspan="2" class="thesis-line-2">
+            <td class="thesis-line-2">
                 <span class="thesis-line-2-content">{{thesisTitleLine2}}</span>
             </td>
         </tr>
@@ -243,14 +242,14 @@
         </table>
     </div>
 
-    <p style="margin-top: 15px; margin-bottom: 15px; text-align: justify; line-height: 1.5;">
+    <p style="margin-top: 14px; margin-bottom: 14px; text-align: justify; line-height: 1.5;">
         Razrada teoretskog i praktičnog dijela diplomskog rada slijedila je prema utvrđenom zadatku diplomskog rada po rješenju Fakulteta br.
         <span style="display: inline-block; border-bottom: 1px solid #000; min-width: 250px; text-align: center; font-weight: bold; padding: 0 5px;">
             {{facultyDecisionNumber}}
         </span>
     </p>
 
-    <p>Komisija je konstatirala da je kandidat na vrijeme predao-la diplomski rad i da se Komisija u predviđenom roku sastala i rad pregledala.</p>
+    <p style="margin-top: 10px; margin-bottom: 10px;">Komisija je konstatirala da je kandidat na vrijeme predao-la diplomski rad i da se Komisija u predviđenom roku sastala i rad pregledala.</p>
 
     <div style="margin-top: 10px; margin-bottom: 10px;">
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px;">
@@ -268,7 +267,7 @@
 </div>
 
 <div class="signatures-area">
-    <table class="sig-table" style="margin-bottom: 20px;">
+    <table class="sig-table" style="margin-bottom: 18px;">
         <tr>
             <td width="50%" align="center">
                 <div class="sig-label-text">Sekretar Komisije</div>
@@ -316,8 +315,8 @@
             </td>
             <td width="60%" align="right" style="vertical-align: top; padding-top: 5px;">
                 <div style="text-align: center; display: inline-block; width: 250px;">
-                    <div style="margin-bottom: 30px; font-size: 11pt;">Članovi Komisije:</div>
-                    <div class="member-sig-line" style="border-bottom: 1px solid #000; margin-bottom: 25px;"></div>
+                    <div style="margin-bottom: 29px; font-size: 11pt;">Članovi Komisije:</div>
+                    <div class="member-sig-line" style="border-bottom: 1px solid #000; margin-bottom: 23px;"></div>
                     <div class="member-sig-line" style="border-bottom: 1px solid #000; margin-bottom: 5px;"></div>
                 </div>
             </td>

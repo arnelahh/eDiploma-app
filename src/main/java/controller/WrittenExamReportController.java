@@ -178,10 +178,10 @@ public class WrittenExamReportController {
 
     /**
      * Splits the thesis title into two parts for PDF display.
-     * First part: up to ~40 characters (breaks at last space)
+     * First part: up to ~50 characters (breaks at last space)
      * Second part: remaining text
      * Both parts are uppercase and wrapped in quotes.
-     * ISTA LOGIKA KAO U DefenseReportController
+     * ISTA LOGIKA KAO U DefenseReportController - TARGET 50
      */
     private String[] splitThesisTitle(String fullTitle) {
         if (fullTitle == null || fullTitle.isEmpty()) {
@@ -190,8 +190,8 @@ public class WrittenExamReportController {
 
         String upperTitle = fullTitle.toUpperCase();
 
-        // Target length for first line (around 40 chars)
-        int targetLength = 40;
+        // Target length for first line (around 50 chars)
+        int targetLength = 50;
 
         // If title is short enough, put it all on first line
         if (upperTitle.length() <= targetLength) {
@@ -202,7 +202,7 @@ public class WrittenExamReportController {
         int splitIndex = upperTitle.lastIndexOf(' ', targetLength);
 
         // If no space found, or space is too early, use target length
-        if (splitIndex < 20) {
+        if (splitIndex < 25) {
             splitIndex = targetLength;
         }
 
@@ -217,8 +217,11 @@ public class WrittenExamReportController {
                 thesisDetails.getApprovalDate() :
                 thesisDetails.getApplicationDate();
 
-        // Split thesis title into two parts - ISTA LOGIKA KAO U DefenseReport
+        // Split thesis title into two parts - TARGET 50
         String[] titleParts = splitThesisTitle(thesisDetails.getTitle());
+
+        // Check if second line is too long (more than ~70 chars) - needs smaller font on BOTH lines
+        boolean useSmallFont = titleParts[1].length() > 70;
 
         WrittenExamReportDTO dto = WrittenExamReportDTO.builder()
                 .studentFullName(thesisDetails.getStudent().getLastName() + " " +
@@ -238,9 +241,16 @@ public class WrittenExamReportController {
                 .build();
 
         String html = loadTemplate();
+
+        // Dodaj CSS klasu za smanjeni font na OBE linije ako je potrebno
+        String line1Class = useSmallFont ? "thesis-line-1 thesis-line-1-small" : "thesis-line-1";
+        String line2Class = useSmallFont ? "thesis-line-2 thesis-line-2-small" : "thesis-line-2";
+
         html = html.replace("{{studentFullName}}", dto.getStudentFullName())
                 .replace("{{thesisTitleLine1}}", dto.getThesisTitleLine1())
                 .replace("{{thesisTitleLine2}}", dto.getThesisTitleLine2())
+                .replace("class=\"thesis-line-1\"", "class=\"" + line1Class + "\"")
+                .replace("class=\"thesis-line-2\"", "class=\"" + line2Class + "\"")
                 .replace("{{mentorFullName}}", dto.getMentorFullName())
                 .replace("{{submissionDate}}", dto.getSubmissionDate() != null ?
                         dto.getSubmissionDate().format(DATE_FORMAT) : "—")
@@ -270,7 +280,6 @@ public class WrittenExamReportController {
             builder.run();
         }
     }
-
     private String loadTemplate() throws IOException {
         InputStream is = getClass().getResourceAsStream("/templates/written_exam_report_template.html");
         if (is == null) {
