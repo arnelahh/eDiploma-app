@@ -14,6 +14,11 @@
         @page {
             size: A4;
             margin: 15mm 20mm 15mm 20mm;
+            @bottom-left {
+                content: "Obrazac PTF-SS-023";
+                font-size: 8pt;
+                font-family: 'Times New Roman', serif;
+            }
         }
 
         body {
@@ -27,11 +32,12 @@
         }
 
         #watermark-container {
-            position: fixed;
-            top: 50%;
+            position: absolute;
+            top: 220px;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 650px;
             z-index: -999;
             pointer-events: none;
             display: block;
@@ -40,9 +46,18 @@
 
         #watermark-container img {
             width: 100%;
+            max-width: 650px;
             height: auto;
             display: block;
             margin: 0 auto;
+            opacity: 0.12;
+        }
+
+        @media print {
+            #watermark-container {
+                page-break-after: avoid;
+                page-break-inside: avoid;
+            }
         }
 
         table.header-table {
@@ -269,7 +284,7 @@
             padding-bottom: 2px;
         }
 
-        .signatures-area { margin-top: 25px; width: 100%; }
+        .signatures-area { margin-top: 40px; width: 100%; }
         .sig-table { width: 100%; border-collapse: collapse; border: none; }
         .sig-table td { border: none; vertical-align: bottom; }
 
@@ -294,7 +309,7 @@
             padding: 0 10px;
             line-height: 1.2;
         }
-        .bottom-section { margin-top: 20px; }
+        .bottom-section { margin-top: 35px; }
         .member-sig-line { border-bottom: 1px solid #000; width: 250px; margin-bottom: 15px; height: 15px; }
     </style>
 </head>
@@ -420,49 +435,73 @@
 
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
             <tr>
-                <td style="border-bottom: 1px solid #000; padding: 15px 0;"></td>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
             </tr>
             <tr>
-                <td style="border-bottom: 1px solid #000; padding: 15px 0;"></td>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
             </tr>
             <tr>
-                <td style="border-bottom: 1px solid #000; padding: 15px 0;"></td>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
             </tr>
             <tr>
-                <td style="border-bottom: 1px solid #000; padding: 15px 0;"></td>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
             </tr>
             <tr>
-                <td style="border-bottom: 1px solid #000; padding: 15px 0;"></td>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
             </tr>
             <tr>
-                <td style="border-bottom: 1px solid #000; padding: 15px 0;"></td>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
             </tr>
             <tr>
-                <td style="border-bottom: 1px solid #000; padding: 15px 0;"></td>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
             </tr>
             <tr>
-                <td style="border-bottom: 1px solid #000; padding: 15px 0;"></td>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
             </tr>
             <tr>
-                <td style="border-bottom: 1px solid #000; padding: 15px 0;"></td>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
             </tr>
             <tr>
-                <td style="border-bottom: 1px solid #000; padding: 15px 0;"></td>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 1px solid #000; padding: 18px 0;"></td>
             </tr>
         </table>
     </div>
 
     <div class="grade-section">
-        <p style="margin-bottom: 10px;">Po završetku usmenog dijela diplomskog ispita Komisija je ocijenila usmeni dio ispita i diplomski ispit ocjenom</p>
-
-        <table class="grade-table">
-            <tr>
-                <td style="width: 20%; white-space: nowrap; padding-right: 10px; vertical-align: bottom;"></td>
-                <td style="width: 80%;">
-                    <div class="grade-line">{{finalGrade}}</div>
-                </td>
-            </tr>
-        </table>
+        <p style="margin-bottom: 10px;">Po završetku usmenog dijela diplomskog ispita Komisija je ocijenila usmeni dio ispita i diplomski ispit ocjenom <span style="display: inline-block; border-bottom: 1px solid #000; min-width: 80px; text-align: center; font-weight: bold; padding: 0 10px 2px 10px;">{{finalGrade}}</span>.</p>
     </div>
 </div>
 
@@ -482,7 +521,7 @@
 
     <table class="sig-table bottom-section" style="width: 100%; border-collapse: collapse;">
         <tr>
-            <td width="40%" style="vertical-align: top;">
+            <td width="50%" style="vertical-align: top;">
                 <table style="border: 1px solid #000; border-collapse: collapse; width: 90%; margin-bottom: 10px;">
                     <tr>
                         <td style="background-color: #f0f0f0; border-bottom: 1px solid #000; padding: 5px; font-weight: bold;">
@@ -514,12 +553,10 @@
                 </table>
             </td>
 
-            <td width="60%" align="right" style="vertical-align: top; padding-top: 5px;">
-                <div style="text-align: center; display: inline-block; width: 250px;">
-                    <div style="margin-bottom: 30px; font-size: 11pt;">Članovi Komisije:</div>
-                    <div class="member-sig-line" style="border-bottom: 1px solid #000; margin-bottom: 25px;"></div>
-                    <div class="member-sig-line" style="border-bottom: 1px solid #000; margin-bottom: 5px;"></div>
-                </div>
+            <td width="50%" align="center" style="vertical-align: top; padding-top: 5px;">
+                <div class="sig-label-text">Članovi Komisije:</div>
+                <div class="sig-line-bottom" style="margin-bottom: 25px;"></div>
+                <div class="sig-line-bottom" style="margin-bottom: 5px;"></div>
             </td>
         </tr>
     </table>
