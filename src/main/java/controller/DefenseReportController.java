@@ -167,13 +167,53 @@ public class DefenseReportController {
         return tempFile;
     }
 
+    /**
+     * Splits the thesis title into two parts for PDF display.
+     * First part: up to ~40 characters (breaks at last space)
+     * Second part: remaining text
+     * Both parts are uppercase and wrapped in quotes.
+     */
+    private String[] splitThesisTitle(String fullTitle) {
+        if (fullTitle == null || fullTitle.isEmpty()) {
+            return new String[]{"\"\"", "\"\""};
+        }
+
+        String upperTitle = fullTitle.toUpperCase();
+
+        // Target length for first line (around 40 chars)
+        int targetLength = 40;
+
+        // If title is short enough, put it all on first line
+        if (upperTitle.length() <= targetLength) {
+            return new String[]{"\"" + upperTitle + "\"", ""};
+        }
+
+        // Find the last space before target length
+        int splitIndex = upperTitle.lastIndexOf(' ', targetLength);
+
+        // If no space found, or space is too early, use target length
+        if (splitIndex < 20) {
+            splitIndex = targetLength;
+        }
+
+        String firstPart = "\"" + upperTitle.substring(0, splitIndex).trim();
+        String secondPart = upperTitle.substring(splitIndex).trim() + "\"";
+
+        return new String[]{firstPart, secondPart};
+    }
+
     private void generatePDF(File outputFile) throws Exception {
         LocalDate defenseDate = thesisDetails.getDefenseDate();
+
+        // Split thesis title into two parts
+        String[] titleParts = splitThesisTitle(thesisDetails.getTitle());
 
         DefenseReportDTO dto = DefenseReportDTO.builder()
                 .studentFullName(thesisDetails.getStudent().getLastName() + " " +
                         thesisDetails.getStudent().getFirstName())
                 .thesisTitle(thesisDetails.getTitle())
+                .thesisTitleLine1(titleParts[0])  // First part with opening quote
+                .thesisTitleLine2(titleParts[1])  // Second part with closing quote
                 .mentorFullName(formatMemberName(thesisDetails.getMentor()))
                 .defenseDate(defenseDate)
                 .chairmanFullName(formatMemberName(commission.getMember1()))
@@ -186,7 +226,8 @@ public class DefenseReportController {
 
         String html = loadTemplate();
         html = html.replace("{{studentFullName}}", dto.getStudentFullName())
-                .replace("{{thesisTitle}}", dto.getThesisTitle())
+                .replace("{{thesisTitleLine1}}", dto.getThesisTitleLine1())
+                .replace("{{thesisTitleLine2}}", dto.getThesisTitleLine2())
                 .replace("{{mentorFullName}}", dto.getMentorFullName())
                 .replace("{{defenseDate}}", dto.getDefenseDate() != null ?
                         dto.getDefenseDate().format(DATE_FORMAT) : "—")
