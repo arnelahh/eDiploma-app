@@ -58,8 +58,8 @@ public class ThesisDAO {
 
     public void insertThesis(Thesis thesis) {
         String sql = """
-                INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId, Description, Literature)
-                VALUES(?,?,?,?,?,?,?,?,?)
+                INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId, Description, Structure, Literature)
+                VALUES(?,?,?,?,?,?,?,?,?, ?)
                 """;
         try (Connection connection = CloudDatabaseConnection.Konekcija();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -74,7 +74,8 @@ public class ThesisDAO {
             stmt.setInt(6, thesis.getSecretaryId());
             stmt.setInt(7, thesis.getSubjectId());
             stmt.setString(8, thesis.getDescription());
-            stmt.setString(9, thesis.getLiterature());
+            stmt.setString(9, thesis.getStructure());
+            stmt.setString(10, thesis.getLiterature());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
@@ -101,7 +102,8 @@ public class ThesisDAO {
             SecretaryId = ?,
             UpdatedAt = ?,
             Description = ?,
-            Literature = ?
+            Literature = ?,
+            Structure = ?
         WHERE Id = ?
         """;
 
@@ -130,7 +132,8 @@ public class ThesisDAO {
             ps.setTimestamp(12, Timestamp.valueOf(java.time.LocalDateTime.now()));
             ps.setString(13, thesis.getDescription());
             ps.setString(14, thesis.getLiterature());
-            ps.setInt(15, thesis.getId());
+            ps.setString(15, thesis.getStructure());
+            ps.setInt(16, thesis.getId());
             ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -173,7 +176,8 @@ public class ThesisDAO {
             T.DepartmentId,
             T.SecretaryId,
             T.Description,
-            T.Literature
+            T.Literature,
+            T.Structure
         FROM Thesis T 
         WHERE T.Id = ? AND T.IsActive = 1
         """;
@@ -215,6 +219,7 @@ public class ThesisDAO {
                 // Fields mapping for Description and Literature
                 thesis.setDescription(rs.getString("Description"));
                 thesis.setLiterature(rs.getString("Literature"));
+                thesis.setStructure(rs.getString("Structure"));
 
                 if (rs.getTimestamp("CreatedAt") != null) {
                     thesis.setCreatedAt(rs.getTimestamp("CreatedAt").toLocalDateTime());
@@ -237,7 +242,7 @@ public class ThesisDAO {
         String sql = """
         SELECT 
             T.Id, T.Title, T.ApplicationDate, T.ApprovalDate, T.DefenseDate, T.Grade,
-            T.Description, T.Literature,
+            T.Description, T.Literature, T.Structure,
             TS.Name AS StatusName,
             U.AcademicStaffId as SecretaryAcademicStaffId, 
             S.Id AS StudentId, S.FirstName AS StudentFirstName, S.LastName AS StudentLastName,
@@ -333,6 +338,7 @@ public class ThesisDAO {
                         // NEW FIELDS MAPPED HERE
                         .description(rs.getString("Description"))
                         .literature(rs.getString("Literature"))
+                        .structure(rs.getString("Structure"))
                         .status(rs.getString("StatusName"))
                         .student(student)
                         .mentor(mentor)

@@ -40,6 +40,7 @@ public class ThesisFormController {
     @FXML private TextField titleField;
     @FXML private DatePicker applicationDatePicker;
     @FXML private TextArea descriptionArea;
+    @FXML private TextArea structureArea;
     @FXML private TextArea literatureArea;
     
     // Edit-only fields
@@ -308,6 +309,9 @@ public class ThesisFormController {
         if (descriptionArea != null && thesis.getDescription() != null) {
             descriptionArea.setText(thesis.getDescription());
         }
+        if (structureArea != null && thesis.getStructure() != null) {
+            structureArea.setText(thesis.getStructure());
+        }
         if (literatureArea != null && thesis.getLiterature() != null) {
             literatureArea.setText(thesis.getLiterature());
         }
@@ -441,6 +445,7 @@ public class ThesisFormController {
                 .subject(subjectComboBox.getValue())
                 .secretary(secretaryComboBox.getValue())
                 .description(descriptionArea != null ? descriptionArea.getText() : null)
+                .structure(structureArea != null ? structureArea.getText() : null)
                 .literature(literatureArea != null ? literatureArea.getText() : null)
                 .build();
     }
@@ -498,6 +503,9 @@ public class ThesisFormController {
         }
         if (descriptionArea != null && descriptionArea.getText() != null) {
             t.setDescription(descriptionArea.getText().trim());
+        }
+        if (structureArea != null && structureArea.getText() != null) {
+            t.setStructure(structureArea.getText().trim());
         }
         if (literatureArea != null && literatureArea.getText() != null) {
             t.setLiterature(literatureArea.getText().trim());

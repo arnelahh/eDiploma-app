@@ -38,4 +38,5 @@ public class Thesis {
     private LocalDateTime updatedAt;
     private String description;
     private String literature;
+    private String structure;
 }
