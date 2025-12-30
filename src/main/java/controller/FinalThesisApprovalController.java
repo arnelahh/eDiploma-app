@@ -321,7 +321,7 @@ public class FinalThesisApprovalController {
     private void back() {
         SceneManager.showWithData("/app/thesisDetails.fxml", "Detalji završnog rada",
                 (Object controller) -> {
-                    // ((ThesisDetailsController) controller).initWithThesisId(thesisId);
+                    ((ThesisDetailsController) controller).initWithThesisId(thesisId);
                 }
         );
     }
