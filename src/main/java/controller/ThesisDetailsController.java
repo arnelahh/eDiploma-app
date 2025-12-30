@@ -332,6 +332,14 @@ public class ThesisDetailsController {
                 (DefenseReportController controller) -> controller.initWithThesisId(thesisId)
         );
     }
+    @FXML
+    private void handleOpenFinalThesisApproalReport(){
+        SceneManager.showWithData(
+                "/app/finalThesisApprovalReport.fxml",
+                "eDiploma",
+                (FinalThesisApprovalController controller) -> controller.initWithThesisId(thesisId)
+        );
+    }
 
     private void showLockedMessage(String userName, Timestamp lockedAt) {
         Alert alert = new Alert(Alert.AlertType.WARNING);

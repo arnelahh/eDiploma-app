@@ -121,7 +121,7 @@
                                         </VBox>
                                         <Button text="⬇" styleClass="document-icon-btn"/>
                                         <Button text="👁" styleClass="document-icon-btn"/>
-                                        <Button text="✏" styleClass="document-icon-btn"/>
+                                        <Button text="✏" styleClass="document-icon-btn" onAction="#handleOpenFinalThesisApproalReport"/>
                                     </HBox>
 
                                     <HBox styleClass="document-card, document-green" alignment="CENTER_LEFT" spacing="10">
@@ -130,7 +130,7 @@
                                         </VBox>
                                         <Button text="⬇" styleClass="document-icon-btn"/>
                                         <Button text="👁" styleClass="document-icon-btn"/>
-                                        <Button text="✏" styleClass="document-icon-btn"/>
+                                        <Button text="✏" styleClass="document-icon-btn" />
                                     </HBox>
 
                                     <HBox styleClass="document-card, document-green" alignment="CENTER_LEFT" spacing="10">

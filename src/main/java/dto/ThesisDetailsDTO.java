@@ -23,6 +23,7 @@ public class ThesisDetailsDTO {
     private String status;
     private String description;
     private String literature;
+    private String structure;
 
     // Student info
     private Student student;
