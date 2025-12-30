@@ -167,47 +167,65 @@ public class WrittenExamReportController {
             throw new FileNotFoundException("Font file not found in resources: " + fileName);
         }
 
-        // Create a temp file
         File tempFile = File.createTempFile("pdf_font_", ".ttf");
-        tempFile.deleteOnExit(); // Clean up on exit
+        tempFile.deleteOnExit();
 
-        // Copy resource to temp file
         try (FileOutputStream out = new FileOutputStream(tempFile)) {
             inputStream.transferTo(out);
         }
         return tempFile;
     }
 
-    // --- OVO KOPIRAJ U KONTROLER ---
+    /**
+     * Splits the thesis title into two parts for PDF display.
+     * First part: up to ~40 characters (breaks at last space)
+     * Second part: remaining text
+     * Both parts are uppercase and wrapped in quotes.
+     * ISTA LOGIKA KAO U DefenseReportController
+     */
+    private String[] splitThesisTitle(String fullTitle) {
+        if (fullTitle == null || fullTitle.isEmpty()) {
+            return new String[]{"\"\"", "\"\""};
+        }
+
+        String upperTitle = fullTitle.toUpperCase();
+
+        // Target length for first line (around 40 chars)
+        int targetLength = 40;
+
+        // If title is short enough, put it all on first line
+        if (upperTitle.length() <= targetLength) {
+            return new String[]{"\"" + upperTitle + "\"", ""};
+        }
+
+        // Find the last space before target length
+        int splitIndex = upperTitle.lastIndexOf(' ', targetLength);
+
+        // If no space found, or space is too early, use target length
+        if (splitIndex < 20) {
+            splitIndex = targetLength;
+        }
+
+        String firstPart = "\"" + upperTitle.substring(0, splitIndex).trim();
+        String secondPart = upperTitle.substring(splitIndex).trim() + "\"";
+
+        return new String[]{firstPart, secondPart};
+    }
 
     private void generatePDF(File outputFile) throws Exception {
         LocalDate dateToShow = thesisDetails.getApprovalDate() != null ?
                 thesisDetails.getApprovalDate() :
                 thesisDetails.getApplicationDate();
 
-        String fullTitle = thesisDetails.getTitle() != null ? thesisDetails.getTitle().toUpperCase() : "";
-        // 1. LOGIKA ZA PODJELU TEKSTA
-        String[] titleParts = splitTitle(fullTitle, 60);
-        String rawLine1 = titleParts[0]; // Sirovi tekst prve linije
-        String rawLine2 = titleParts[1]; // Sirovi tekst druge linije
-
-        String line1=rawLine1;
-        String line2=rawLine2;
-
-        if (rawLine2 == null || rawLine2.isBlank()) {
-            // KRATAK NASLOV – sve ide u prvu liniju sa oba navodnika
-            line1 = "\"" + rawLine1 + "\"";
-            line2 = "";
-        } else {
-            // DUG NASLOV – navodnici se dijele
-            line1 = "\"" + rawLine1;
-            line2 = rawLine2 + "\"";
-        }
-
+        // Split thesis title into two parts - ISTA LOGIKA KAO U DefenseReport
+        String[] titleParts = splitThesisTitle(thesisDetails.getTitle());
 
         WrittenExamReportDTO dto = WrittenExamReportDTO.builder()
-                .studentFullName(thesisDetails.getStudent().getLastName() + " " + thesisDetails.getStudent().getFirstName())
-                // Ovdje više ne šaljemo "thesisTitle" kao jedan komad, nego ćemo ga ručno ubaciti dolje
+                .studentFullName(thesisDetails.getStudent().getLastName() + " " +
+                        thesisDetails.getStudent().getFirstName())
+                .thesisTitle(thesisDetails.getTitle())
+                .thesisTitleLine1(titleParts[0])  // First part with opening quote
+                .thesisTitleLine2(titleParts[1])  // Second part with closing quote
                 .mentorFullName(formatMemberName(thesisDetails.getMentor()))
                 .submissionDate(dateToShow)
                 .chairmanFullName(formatMemberName(commission.getMember1()))
@@ -220,11 +238,9 @@ public class WrittenExamReportController {
                 .build();
 
         String html = loadTemplate();
-
-        // 2. ZAMJENA NOVIH PLACEHOLDERA
         html = html.replace("{{studentFullName}}", dto.getStudentFullName())
-                .replace("{{line1}}", line1) // <--- PRVI RED NASLOVA
-                .replace("{{line2}}", line2) // <--- DRUGI RED NASLOVA
+                .replace("{{thesisTitleLine1}}", dto.getThesisTitleLine1())
+                .replace("{{thesisTitleLine2}}", dto.getThesisTitleLine2())
                 .replace("{{mentorFullName}}", dto.getMentorFullName())
                 .replace("{{submissionDate}}", dto.getSubmissionDate() != null ?
                         dto.getSubmissionDate().format(DATE_FORMAT) : "—")
@@ -240,7 +256,6 @@ public class WrittenExamReportController {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
 
-            // Fontovi (ostaje isto kao prije)
             builder.useFont(getFontFileFromResources("LiberationSerif-Regular.ttf"), "Times New Roman");
             File fontBold = getFontFileFromResources("LiberationSerif-Bold.ttf");
             builder.useFont(fontBold, "Times New Roman", 700, BaseRendererBuilder.FontStyle.NORMAL, true);
@@ -254,29 +269,6 @@ public class WrittenExamReportController {
             builder.toStream(os);
             builder.run();
         }
-    }
-
-    /**
-     * Pomoćna metoda koja dijeli string na dva dijela na najbližem razmaku,
-     * pazeći da ne presiječe riječ na pola.
-     */
-    private String[] splitTitle(String text, int limit) {
-        if (text == null || text.length() <= limit) {
-            return new String[]{text != null ? text : "", ""};
-        }
-
-        // Nađi zadnji razmak prije limita (npr. prije 60-og karaktera)
-        int splitIndex = text.lastIndexOf(' ', limit);
-
-        // Ako nema razmaka (jedna ogromna riječ) ili je razmak predaleko, sijeci silom na limitu
-        if (splitIndex == -1) {
-            splitIndex = limit;
-        }
-
-        String part1 = text.substring(0, splitIndex).trim();
-        String part2 = text.substring(splitIndex).trim();
-
-        return new String[]{part1, part2};
     }
 
     private String loadTemplate() throws IOException {

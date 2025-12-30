@@ -6,7 +6,6 @@
     <style>
         @font-face {
             font-family: 'Toronto BH';
-            /* Osigurali smo da nema razmaka u imenu fajla */
             src: url('/fonts/TorontoBold.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
@@ -70,65 +69,56 @@
         .student-block { text-align: center; margin: 15px 0; font-weight: bold; justify-content: center }
         .student-name { text-transform: uppercase; display: block; width: 80%; margin: auto; text-align: center; border-bottom: 1px solid #000; font-size: 13pt; }
 
-        .thesis-wrapper {
-            width: 80%;
-            margin: 5px auto;
-            display: block;
-            text-align: center;
-            line-height: 30px;
-            min-height: 60px;
-            background-image: linear-gradient(to bottom, #ffffff 29px, #000000 29px, #000000 30px);
-            background-size: 100% 30px;
-            background-repeat: repeat-y;
-            background-position: top left;
-        }
-
-        .thesis-title {
-            font-family: 'Toronto BH', 'Times New Roman';
-            font-size: 12pt; /* Defaultna veličina */
-            font-weight: bold;
-            background-color: transparent;
-            border: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        /* --- KLASA ZA SMANJENI FONT (-2pt) --- */
-        /* Ovu klasu ćeš dodati kroz Javu ako je tekst predug */
-        .thesis-title.small-font {
-            font-size: 10pt !important;
-            /* Eventualno malo podešavanje letter-spacinga da stane više teksta */
-            letter-spacing: -0.5px;
-        }
-        /* Tabela koja drži linije */
-        .thesis-lines-table {
+        /* THESIS TITLE - NOVA STRUKTURA */
+        .thesis-table {
             width: 100%;
-            margin: 10px auto;
-            border-collapse: collapse; /* Bitno da se linije ne razdvajaju čudno */
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 15px;
             border: none;
         }
 
-        /* Izgled svake ćelije (linije) */
-        .thesis-line-cell {
-            /* Fiksna visina reda da izgleda kao sveska */
-            height: 30px;
+        .thesis-label {
+            white-space: nowrap;
+            vertical-align: bottom;
+            padding-right: 10px;
+            padding-bottom: 3px;
+            font-size: 12pt;
+            border: none;
+        }
 
-            /* Crna linija na dnu */
+        .thesis-line-1 {
             border-bottom: 1px solid #000;
-
-            /* Tekst */
             text-align: center;
-            vertical-align: bottom; /* Tekst "leži" na liniji */
-            padding-bottom: 2px;    /* Malo odvajanje od linije */
-
-            /* Fontovi */
-            font-family: 'Toronto BH', 'Times New Roman';
-            font-size: 12pt; /* Prilagodi veličinu po želji */
-
-            /* Sprečavanje prelamanja unutar jedne ćelije - mi smo to riješili u Javi */
+            vertical-align: bottom;
+            font-weight: bold;
+            font-size: 12pt;
+            padding-bottom: 3px;
+            padding-left: 15px;
+            padding-right: 5px;
             white-space: nowrap;
             overflow: hidden;
         }
+
+        .thesis-line-2 {
+            border-bottom: 1px solid #000;
+            text-align: center;
+            vertical-align: bottom;
+            font-weight: bold;
+            font-size: 12pt;
+            padding-top: 20px;
+            padding-bottom: 3px;
+            padding-left: 5px;
+            padding-right: 5px;
+            word-wrap: break-word;
+        }
+
+        .thesis-line-2-content {
+            display: block;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
         /* --- KOMISIJA I POTPISI --- */
         .commission-section { margin-top: 10px; margin-bottom: 10px; width: 100%; }
         .mentor-table { width: 100%; border-collapse: collapse; border: none; }
@@ -204,16 +194,20 @@
 
     <div class="student-block">
         <span class="student-name">{{studentFullName}}</span>
-
-        <table class="thesis-lines-table">
-            <tr>
-                <td class="thesis-line-cell">{{line1}}</td>
-            </tr>
-            <tr>
-                <td class="thesis-line-cell">{{line2}}</td>
-            </tr>
-        </table>
     </div>
+
+    <!-- NOVA THESIS TITLE TABELA - ISTA KAO U DEFENSE REPORT -->
+    <table class="thesis-table">
+        <tr>
+            <td class="thesis-label" style="width: 160px;">Tema diplomskog rada:</td>
+            <td class="thesis-line-1">{{thesisTitleLine1}}</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="thesis-line-2">
+                <span class="thesis-line-2-content">{{thesisTitleLine2}}</span>
+            </td>
+        </tr>
+    </table>
 
     <div class="commission-section">
         <table class="mentor-table">
