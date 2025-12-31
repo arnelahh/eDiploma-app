@@ -270,8 +270,8 @@ public class ThesisDetailsController {
             case "Zapisnik o pismenom dijelu diplomskog rada" -> handleOpenWrittenExamReport();
             case "Zapisnik sa odbrane" -> handleOpenDefenseReport();
 
-            case "Rješenje o formiranju Komisije",
-                 "Obavijest",
+            case "Rješenje o formiranju Komisije" ->handleOpenCommissionReport();
+            case    "Obavijest",
                  "Uvjerenje o završenom ciklusu" -> GlobalErrorHandler.info("Ovaj dokument još nije implementiran u editoru.");
 
             default -> GlobalErrorHandler.info("Nepoznat tip dokumenta: " + name);
@@ -483,5 +483,18 @@ public class ThesisDetailsController {
                         "\n\nPokušajte ponovo kasnije."
         );
         alert.showAndWait();
+    }
+    @FXML
+    private void handleOpenCommissionReport() {
+        if (currentCommission == null || currentCommission.getMember1() == null) {
+            GlobalErrorHandler.error("Komisija mora biti formirana prije kreiranja rješenja.");
+            return;
+        }
+
+        SceneManager.showWithData(
+                "/app/commissionReport.fxml",
+                "Rješenje o formiranju komisije",
+                (CommissionReportController controller) -> controller.initWithThesisId(thesisId)
+        );
     }
 }
