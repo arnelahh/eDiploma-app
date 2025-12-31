@@ -1,28 +1,34 @@
 package controller;
 
+import Factory.DocumentCardFactory;
 import dao.CommissionDAO;
+import dao.DocumentDAO;
+import dao.DocumentTypeDAO;
 import dao.ThesisDAO;
 import dto.ThesisDetailsDTO;
 import dto.ThesisLockInfoDTO;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import model.Commission;
-import model.Thesis;
-import model.AppUser;
+import javafx.stage.FileChooser;
+import model.*;
 import utils.*;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.Base64;
 
 public class ThesisDetailsController {
 
-
     @FXML private Text titleValue;
-    @FXML private Text descriptionValue;
     @FXML private Text subjectValue;
     @FXML private Text statusValue;
     @FXML private Text applicationDateValue;
@@ -46,15 +52,24 @@ public class ThesisDetailsController {
 
     @FXML private ProgressIndicator loader;
 
+    // DOCUMENTS UI CONTAINER
+    @FXML private VBox documentsContainer;
+
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
+
+    // DOCUMENTS
+    private final DocumentDAO documentDAO = new DocumentDAO();
+    private final DocumentTypeDAO documentTypeDAO = new DocumentTypeDAO();
+    private final DocumentCardFactory cardFactory = new DocumentCardFactory();
+
+    private Map<Integer, DocumentType> typeById = new HashMap<>();
 
     private int thesisId;
     private ThesisDetailsDTO currentDetails;
     private Commission currentCommission;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy.");
-    private static final DateTimeFormatter LOCK_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm");
 
     public void initWithThesisId(int thesisId) {
         this.thesisId = thesisId;
@@ -77,16 +92,17 @@ public class ThesisDetailsController {
             currentDetails = task.getValue();
             if (currentDetails != null) {
                 populateFields();
-                // Učitaj komisiju NAKON što su thesis details učitani
                 loadCommission();
+                loadDocumentsUIAsync();
             } else {
                 GlobalErrorHandler.error("Završni rad nije pronađen.");
             }
         });
 
-        task.setOnFailed(e -> {
-            GlobalErrorHandler.error("Greška pri učitavanju detalja završnog rada.", task.getException());
-        });
+        task.setOnFailed(e -> GlobalErrorHandler.error(
+                "Greška pri učitavanju detalja završnog rada.",
+                task.getException()
+        ));
 
         new Thread(task, "load-thesis-details").start();
     }
@@ -112,43 +128,95 @@ public class ThesisDetailsController {
         new Thread(task, "load-commission").start();
     }
 
+    private void loadDocumentsUIAsync() {
+        Task<Void> task = new Task<>() {
+            List<DocumentType> types;
+            List<Document> docs;
+
+            @Override
+            protected Void call() throws Exception {
+                types = documentTypeDAO.getAllOrdered();
+                docs = documentDAO.getByThesisId(thesisId);
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                buildDocumentsUI(types, docs);
+            }
+
+            @Override
+            protected void failed() {
+                GlobalErrorHandler.error("Greška pri učitavanju dokumenata.", getException());
+            }
+        };
+
+        new Thread(task, "load-documents").start();
+    }
+
+    private void buildDocumentsUI(List<DocumentType> types, List<Document> docs) {
+        if (documentsContainer == null) return;
+
+        // cache type map
+        typeById = (types == null ? List.<DocumentType>of() : types)
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(DocumentType::getId, Function.identity(), (a, b) -> a));
+
+        Map<Integer, Document> docByTypeId = (docs == null ? List.<Document>of() : docs)
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Document::getTypeId, Function.identity(), (a, b) -> a));
+
+        DocumentCardFactory.Actions actions = new DocumentCardFactory.Actions();
+        actions.onEdit = this::openEditorForType;
+        actions.onDownload = this::downloadDocument;
+        actions.onView = this::viewDocument;
+
+        documentsContainer.getChildren().clear();
+
+        boolean previousAllReady = true;
+
+        for (DocumentType type : (types == null ? List.<DocumentType>of() : types)) {
+            Document doc = docByTypeId.get(type.getId());
+
+            boolean blockedByPrevious = !previousAllReady;
+
+            HBox card = cardFactory.create(type, doc, blockedByPrevious, actions);
+            documentsContainer.getChildren().add(card);
+
+            if (doc == null || doc.getStatus() != DocumentStatus.READY) {
+                previousAllReady = false;
+            }
+        }
+    }
+
     private void populateFields() {
         titleValue.setText(currentDetails.getTitle() != null ? currentDetails.getTitle().toUpperCase() : "—");
-        //descriptionValue.setText(currentDetails.getDescription());
         subjectValue.setText(currentDetails.getSubject() != null ? currentDetails.getSubject().getName() : "—");
 
-        if (currentDetails.getStatus() != null) {
-            statusValue.setText(currentDetails.getStatus());
-        } else {
-            statusValue.setText("—");
-        }
+        statusValue.setText(currentDetails.getStatus() != null ? currentDetails.getStatus() : "—");
 
-        applicationDateValue.setText(currentDetails.getApplicationDate() != null ?
-                currentDetails.getApplicationDate().format(DATE_FORMATTER) : "--/--/----");
-        defenseDateValue.setText(currentDetails.getDefenseDate() != null ?
-                currentDetails.getDefenseDate().format(DATE_FORMATTER) : "--/--/----");
+        applicationDateValue.setText(currentDetails.getApplicationDate() != null
+                ? currentDetails.getApplicationDate().format(DATE_FORMATTER)
+                : "--/--/----");
 
-        if (currentDetails.getGrade() != null) {
-            gradeValue.setText(String.valueOf(currentDetails.getGrade()));
-        } else {
-            gradeValue.setText("—");
-        }
+        defenseDateValue.setText(currentDetails.getDefenseDate() != null
+                ? currentDetails.getDefenseDate().format(DATE_FORMATTER)
+                : "--/--/----");
+
+        gradeValue.setText(currentDetails.getGrade() != null ? String.valueOf(currentDetails.getGrade()) : "—");
 
         if (currentDetails.getStudent() != null) {
-            studentName.setText(currentDetails.getStudent().getFirstName() + " " +
-                    currentDetails.getStudent().getLastName());
+            studentName.setText(currentDetails.getStudent().getFirstName() + " " + currentDetails.getStudent().getLastName());
             studentIndex.setText(String.format("%03d", currentDetails.getStudent().getIndexNumber()));
-            studentEmail.setText(currentDetails.getStudent().getEmail() != null ?
-                    currentDetails.getStudent().getEmail() : "—");
+            studentEmail.setText(currentDetails.getStudent().getEmail() != null ? currentDetails.getStudent().getEmail() : "—");
         }
 
         if (currentDetails.getMentor() != null) {
-            mentorTitle.setText(currentDetails.getMentor().getTitle() != null ?
-                    currentDetails.getMentor().getTitle() : "");
-            mentorName.setText(currentDetails.getMentor().getFirstName() + " " +
-                    currentDetails.getMentor().getLastName());
-            mentorEmail.setText(currentDetails.getMentor().getEmail() != null ?
-                    currentDetails.getMentor().getEmail() : "—");
+            mentorTitle.setText(currentDetails.getMentor().getTitle() != null ? currentDetails.getMentor().getTitle() : "");
+            mentorName.setText(currentDetails.getMentor().getFirstName() + " " + currentDetails.getMentor().getLastName());
+            mentorEmail.setText(currentDetails.getMentor().getEmail() != null ? currentDetails.getMentor().getEmail() : "—");
         }
     }
 
@@ -159,23 +227,16 @@ public class ThesisDetailsController {
             commissionFormedBox.setVisible(true);
             commissionFormedBox.setManaged(true);
 
-            // Predsjednik (Member1)
             chairmanName.setText(formatMemberName(currentCommission.getMember1()));
-
-            // Član (Member2)
             memberName.setText(formatMemberName(currentCommission.getMember2()));
-
-            // Zamjenski član (Member3)
             substituteName.setText(formatMemberName(currentCommission.getMember3()));
 
-            // Mentor (iz Thesis, ne iz Commission!)
             if (currentDetails != null && currentDetails.getMentor() != null) {
                 mentorCommissionName.setText(formatMemberName(currentDetails.getMentor()));
             } else {
                 mentorCommissionName.setText("—");
             }
 
-            // PROMJENA: Sekretar (sada je AcademicStaff, ne AppUser!)
             if (currentDetails != null && currentDetails.getSecretary() != null) {
                 secretaryCommissionName.setText(formatMemberName(currentDetails.getSecretary()));
             } else {
@@ -189,10 +250,80 @@ public class ThesisDetailsController {
         }
     }
 
-    private String formatMemberName(model.AcademicStaff member) {
+    private String formatMemberName(AcademicStaff member) {
         if (member == null) return "—";
         String title = member.getTitle() != null ? member.getTitle() + " " : "";
         return title + member.getFirstName() + " " + member.getLastName();
+    }
+
+    // -------------------------
+    // DOCUMENT ACTIONS
+    // -------------------------
+
+    private void openEditorForType(DocumentType type) {
+        if (type == null) return;
+
+        String name = type.getName() != null ? type.getName() : "";
+
+        switch (name) {
+            case "Rješenje o izradi završnog rada" -> handleOpenFinalThesisApproalReport();
+            case "Zapisnik o pismenom dijelu diplomskog rada" -> handleOpenWrittenExamReport();
+            case "Zapisnik sa odbrane" -> handleOpenDefenseReport();
+
+            case "Rješenje o formiranju Komisije",
+                 "Obavijest",
+                 "Uvjerenje o završenom ciklusu" -> GlobalErrorHandler.info("Ovaj dokument još nije implementiran u editoru.");
+
+            default -> GlobalErrorHandler.info("Nepoznat tip dokumenta: " + name);
+        }
+    }
+
+    private void downloadDocument(Document doc) {
+        if (doc == null) return;
+
+        if (doc.getStatus() != DocumentStatus.READY) {
+            GlobalErrorHandler.error("Dokument nije READY. Prvo završite unos i sačuvajte.");
+            return;
+        }
+
+        try {
+            // pošto getByThesisId ne vraća content, uzmi ga ovdje
+            String base64 = documentDAO.getContentBase64(doc.getId());
+            if (base64 == null || base64.isBlank()) {
+                GlobalErrorHandler.error("Dokument nema sačuvan sadržaj (PDF).");
+                return;
+            }
+
+            byte[] pdfBytes = Base64.getDecoder().decode(base64);
+
+            FileChooser fc = new FileChooser();
+            fc.setTitle("Sačuvaj dokument");
+            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+
+            DocumentType type = typeById.get(doc.getTypeId());
+            String fileName = (type != null && type.getName() != null)
+                    ? type.getName().replaceAll("[^a-zA-Z0-9čćđšžČĆĐŠŽ _-]", "").replace(" ", "_") + ".pdf"
+                    : "Dokument.pdf";
+
+            fc.setInitialFileName(fileName);
+
+            File file = fc.showSaveDialog(documentsContainer.getScene().getWindow());
+            if (file == null) return;
+
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(pdfBytes);
+            }
+
+            GlobalErrorHandler.info("Dokument je sačuvan.");
+
+        } catch (Exception e) {
+            GlobalErrorHandler.error("Greška pri preuzimanju dokumenta.", e);
+        }
+    }
+
+    private void viewDocument(Document doc) {
+        if (doc == null) return;
+        GlobalErrorHandler.info("Preview nije implementiran. Koristi ⬇ kad je dokument SPREMAN.");
     }
 
     @FXML
@@ -262,9 +393,7 @@ public class ThesisDetailsController {
             SceneManager.showWithData(
                     "/app/commissionForm.fxml",
                     "Dodavanje komisije",
-                    (CommissionFormController controller) -> {
-                        controller.initWithThesis(thesisId, currentDetails);
-                    }
+                    (CommissionFormController controller) -> controller.initWithThesis(thesisId, currentDetails)
             );
         } catch (Exception e) {
             GlobalErrorHandler.error("Greška pri otvaranju forme komisije.", e);
@@ -282,9 +411,7 @@ public class ThesisDetailsController {
             SceneManager.showWithData(
                     "/app/commissionForm.fxml",
                     "Uredi komisiju",
-                    (CommissionFormController controller) -> {
-                        controller.initEditCommission(thesisId, currentDetails, currentCommission);
-                    }
+                    (CommissionFormController controller) -> controller.initEditCommission(thesisId, currentDetails, currentCommission)
             );
         } catch (Exception e) {
             GlobalErrorHandler.error("Greška pri otvaranju forme za uređivanje komisije.", e);
@@ -299,7 +426,6 @@ public class ThesisDetailsController {
 
     @FXML
     private void handleOpenWrittenExamReport() {
-        // Check if commission is formed
         if (currentCommission == null || currentCommission.getMember1() == null) {
             GlobalErrorHandler.error("Komisija mora biti formirana prije kreiranja zapisnika.");
             return;
@@ -314,14 +440,12 @@ public class ThesisDetailsController {
 
     @FXML
     private void handleOpenDefenseReport() {
-        // Check if commission is formed
         if (currentCommission == null || currentCommission.getMember1() == null) {
             GlobalErrorHandler.error("Komisija mora biti formirana prije kreiranja zapisnika.");
             return;
         }
 
-        // Check if defense date is set
-        if (currentDetails.getDefenseDate() == null) {
+        if (currentDetails != null && currentDetails.getDefenseDate() == null) {
             GlobalErrorHandler.error("Datum odbrane mora biti unesen prije kreiranja zapisnika.");
             return;
         }
@@ -332,8 +456,9 @@ public class ThesisDetailsController {
                 (DefenseReportController controller) -> controller.initWithThesisId(thesisId)
         );
     }
+
     @FXML
-    private void handleOpenFinalThesisApproalReport(){
+    private void handleOpenFinalThesisApproalReport() {
         SceneManager.showWithData(
                 "/app/finalThesisApprovalReport.fxml",
                 "eDiploma",
@@ -345,6 +470,7 @@ public class ThesisDetailsController {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Rad je zaključan");
         alert.setHeaderText("Uređivanje nije moguće");
+
         String whenText = "";
         if (lockedAt != null) {
             var dt = lockedAt.toLocalDateTime();

@@ -2,6 +2,8 @@ package controller;
 
 import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import dao.DocumentDAO;
+import dao.DocumentTypeDAO;
 import dao.ThesisDAO;
 import dto.FinalThesisApprovalDTO;
 import dto.ThesisDetailsDTO;
@@ -10,19 +12,18 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
-import model.AcademicStaff;
-import model.StudentStatus;
+import model.*;
 import utils.GlobalErrorHandler;
 import utils.SceneManager;
+import utils.UserSession;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 
 public class FinalThesisApprovalController {
 
-    // --- FXML Fields ---
     @FXML private Text studentNameText;
     @FXML private Text titleText;
     @FXML private Text mentorText;
@@ -33,15 +34,18 @@ public class FinalThesisApprovalController {
     @FXML private TextField decisionNumberField;
     @FXML private DatePicker decisionDatePicker;
     @FXML private TextField studentGenitiveField;
+    @FXML private TextField studentStatusField;
 
-    // --- Data & Services ---
     private final ThesisDAO thesisDAO = new ThesisDAO();
+
+    private final DocumentDAO documentDAO = new DocumentDAO();
+    private final DocumentTypeDAO documentTypeDAO = new DocumentTypeDAO();
+    private DocumentType thisDocType;
+
     private int thesisId;
     private ThesisDetailsDTO thesisDetails;
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy.");
-
-    // --- Initialization ---
 
     public void initWithThesisId(int thesisId) {
         this.thesisId = thesisId;
@@ -58,26 +62,43 @@ public class FinalThesisApprovalController {
                 return;
             }
 
+            thisDocType = documentTypeDAO.getByName("Rješenje o izradi završnog rada");
+            if (thisDocType == null) {
+                GlobalErrorHandler.error("DocumentType nije pronađen.");
+                back();
+                return;
+            }
+
             populateReadOnlyFields();
 
-            // Postavi današnji datum kao default
-            decisionDatePicker.setValue(LocalDate.now());
+            if (decisionDatePicker != null && decisionDatePicker.getValue() == null) {
+                decisionDatePicker.setValue(LocalDate.now());
+            }
 
-            // Pokušaj predložiti ime u genitivu (korisnik ovo može/treba ispraviti)
-            if (thesisDetails.getStudent() != null) {
-                // Heuristika: Prezime Ime
+            if (thesisDetails.getStudent() != null && (studentGenitiveField.getText() == null || studentGenitiveField.getText().isBlank())) {
                 String suggestion = thesisDetails.getStudent().getLastName() + " " + thesisDetails.getStudent().getFirstName();
                 studentGenitiveField.setText(suggestion);
             }
 
+            if (studentStatusField != null && (studentStatusField.getText() == null || studentStatusField.getText().isBlank())) {
+                studentStatusField.setText("apsolventa");
+            }
+
+            // učitaj postojeći doc (ako postoji) -> popuni broj
+            Document existing = documentDAO.getByThesisAndType(thesisId, thisDocType.getId());
+            if (existing != null) {
+                String extracted = extractUserDigits(existing.getDocumentNumber(), thisDocType.getNumberPrefix());
+                if (extracted != null && decisionNumberField != null) {
+                    decisionNumberField.setText(extracted);
+                }
+            }
+
         } catch (Exception e) {
             GlobalErrorHandler.error("Greška pri učitavanju podataka.", e);
-            e.printStackTrace();
         }
     }
 
     private void populateReadOnlyFields() {
-        // 1. Student Name Formatting: "Ime (ImeOca) Prezime"
         if (thesisDetails.getStudent() != null) {
             String firstName = thesisDetails.getStudent().getFirstName();
             String lastName = thesisDetails.getStudent().getLastName();
@@ -93,7 +114,6 @@ public class FinalThesisApprovalController {
             studentNameText.setText(sb.toString());
         }
 
-        // 2. Thesis Data
         titleText.setText(thesisDetails.getTitle() != null ? thesisDetails.getTitle().toUpperCase() : "");
         subjectText.setText(thesisDetails.getSubject() != null ? thesisDetails.getSubject().getName() : "—");
 
@@ -101,103 +121,145 @@ public class FinalThesisApprovalController {
             mentorText.setText(formatMemberName(thesisDetails.getMentor()));
         }
 
-        // 3. Previews
         descriptionPreview.setText(thesisDetails.getDescription());
         literaturePreview.setText(thesisDetails.getLiterature());
     }
 
-    // --- Actions ---
-
     @FXML
-    private void handleDownloadPDF() {
-        if (!validateInput()) return;
+    private void handleSave() {
+        if (!validateInputSmart()) return;
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Sačuvaj Rješenje");
+        try {
+            byte[] pdfBytes = generatePdfBytes();
+            String base64 = Base64.getEncoder().encodeToString(pdfBytes);
 
-        // Sigurno ime fajla
-        String safeStudentName = "Student";
-        if (thesisDetails.getStudent() != null) {
-            safeStudentName = thesisDetails.getStudent().getLastName();
-        }
-
-        fileChooser.setInitialFileName("Rjesenje_o_izradi_" + safeStudentName + ".pdf");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
-
-        File file = fileChooser.showSaveDialog(studentNameText.getScene().getWindow());
-
-        if (file != null) {
-            try {
-                generatePDF(file);
-                GlobalErrorHandler.info("Rješenje uspješno kreirano!");
-            } catch (Exception e) {
-                GlobalErrorHandler.error("Greška pri generisanju PDF-a.", e);
-                e.printStackTrace();
+            String docNumber = null;
+            if (thisDocType.isRequiresNumber()) {
+                docNumber = buildFullDocumentNumberOrNull(); // null => IN_PROGRESS
             }
+
+            DocumentStatus status;
+            if (!thisDocType.isRequiresNumber()) {
+                status = DocumentStatus.READY;
+            } else {
+                status = (docNumber != null && !docNumber.isBlank())
+                        ? DocumentStatus.READY
+                        : DocumentStatus.IN_PROGRESS;
+            }
+
+            Integer userId = null;
+            AppUser u = UserSession.getUser();
+            if (u != null) userId = u.getId();
+
+            documentDAO.upsert(
+                    thesisId,
+                    thisDocType.getId(),
+                    base64,
+                    userId,
+                    docNumber,
+                    status
+            );
+
+            GlobalErrorHandler.info("Dokument je uspješno sačuvan. ");
+            back();
+
+        } catch (Exception e) {
+            GlobalErrorHandler.error("Greška pri snimanju dokumenta.", e);
         }
     }
 
-    private boolean validateInput() {
-        if (decisionNumberField.getText() == null || decisionNumberField.getText().trim().isEmpty()) {
-            GlobalErrorHandler.error("Molimo unesite broj rješenja.");
-            return false;
-        }
-        if (decisionDatePicker.getValue() == null) {
+    private boolean validateInputSmart() {
+        if (decisionDatePicker == null || decisionDatePicker.getValue() == null) {
             GlobalErrorHandler.error("Molimo odaberite datum rješenja.");
             return false;
         }
-        if (studentGenitiveField.getText() == null || studentGenitiveField.getText().trim().isEmpty()) {
+        if (studentGenitiveField == null || studentGenitiveField.getText() == null || studentGenitiveField.getText().trim().isEmpty()) {
             GlobalErrorHandler.error("Molimo unesite ime studenta u genitivu.");
             return false;
         }
+
+        // broj nije obavezan => može IN_PROGRESS, ali ako je unesen mora biti cifre
+        String input = decisionNumberField != null ? decisionNumberField.getText().trim() : "";
+        if (!input.isBlank() && !input.matches("\\d{1,10}")) {
+            GlobalErrorHandler.error("Broj rješenja unesite kao cifre (npr. 2210).");
+            return false;
+        }
+
         return true;
     }
 
-    // --- PDF Generation Logic ---
+    private String buildFullDocumentNumberOrNull() {
+        String input = decisionNumberField != null ? decisionNumberField.getText().trim() : "";
+        if (input.isBlank()) return null;
 
-    private void generatePDF(File outputFile) throws Exception {
-        // 1. Priprema Statusa (Genitiv iz baze -> Nominativ konverzija)
-        String statusGenitive = "studenta"; // Default
+        String prefix = thisDocType != null ? thisDocType.getNumberPrefix() : null;
+        String yy = String.format("%02d", LocalDate.now().getYear() % 100);
+
+        if (prefix == null || prefix.isBlank()) {
+            return input;
+        }
+        if (input.contains("/")) {
+            return prefix + input;
+        }
+        return prefix + input + "/" + yy;
+    }
+
+    private String extractUserDigits(String full, String prefix) {
+        if (full == null || full.isBlank()) return null;
+
+        String s = full.trim();
+
+        if (prefix != null && !prefix.isBlank() && s.startsWith(prefix)) {
+            s = s.substring(prefix.length());
+        }
+
+        int slash = s.indexOf('/');
+        if (slash > 0) s = s.substring(0, slash);
+
+        return s.trim();
+    }
+
+    private byte[] generatePdfBytes() throws Exception {
+        String statusGenitive = "studenta";
         if (thesisDetails.getStudent() != null && thesisDetails.getStudent().getStatus() != null) {
-            // Pretpostavka: toString() vraća vrijednost iz baze (npr. "apsolventa")
-            statusGenitive = thesisDetails.getStudent().getStatus().getName()+"a";
+            statusGenitive = thesisDetails.getStudent().getStatus().getName() + "a";
         }
 
         String statusNominative = convertToNominative(statusGenitive);
-        int cycleInt = 1; // Default
-        if (thesisDetails.getStudent() != null) {
-            cycleInt = thesisDetails.getStudent().getCycle();
-        }
+        int cycleInt = (thesisDetails.getStudent() != null) ? thesisDetails.getStudent().getCycle() : 1;
         String cycleRoman = convertToRoman(cycleInt);
-        // 2. Priprema Teksta (Description & Literature)
+
         String formattedDesc = formatTextToHtml(thesisDetails.getDescription());
         String formattedLit = formatTextToHtml(thesisDetails.getLiterature());
         String firstName = thesisDetails.getStudent().getFirstName();
         String lastName = thesisDetails.getStudent().getLastName();
-        // 3. Build DTO
+
+        String decisionNumberForTemplate = "";
+        if (thisDocType != null && thisDocType.isRequiresNumber()) {
+            String full = buildFullDocumentNumberOrNull();
+            decisionNumberForTemplate = (full != null) ? full : "";
+        }
+
         FinalThesisApprovalDTO dto = FinalThesisApprovalDTO.builder()
-                .decisionNumber(decisionNumberField.getText().trim())
+                .decisionNumber(decisionNumberForTemplate)
                 .decisionDate(decisionDatePicker.getValue())
-                .studentFullName(studentNameText.getText()) // Već formatirano u populateReadOnlyFields
+                .studentFullName(studentNameText.getText())
                 .studentNameGenitive(studentGenitiveField.getText().trim())
                 .studentFirstName(firstName)
                 .studentLastName(lastName)
-                // Statusi
                 .studentStatusGenitive(statusGenitive)
                 .studentStatusNominative(statusNominative)
                 .studentCycle(cycleRoman)
-                // Ostali podaci
                 .departmentName(thesisDetails.getDepartment() != null ? thesisDetails.getDepartment().getName().toLowerCase() : "")
                 .thesisTitle(thesisDetails.getTitle() != null ? thesisDetails.getTitle().toUpperCase() : "")
                 .subjectName(thesisDetails.getSubject() != null ? thesisDetails.getSubject().getName() : "")
-                .mentorFullNameAndTitle(thesisDetails.getMentor().getTitle()+" "+thesisDetails.getMentor().getFirstName()+" "+thesisDetails.getMentor().getLastName())
+                .mentorFullNameAndTitle(thesisDetails.getMentor().getTitle() + " " + thesisDetails.getMentor().getFirstName() + " " + thesisDetails.getMentor().getLastName())
                 .description(formattedDesc)
                 .structure(thesisDetails.getStructure())
                 .literature(formattedLit)
                 .applicationDate(thesisDetails.getApplicationDate())
                 .build();
 
-        // 4. Load & Replace Template
         String html = loadTemplate();
 
         html = html.replace("{{decisionNumber}}", dto.getDecisionNumber())
@@ -208,7 +270,7 @@ public class FinalThesisApprovalController {
                 .replace("{{studentStatusNominative}}", dto.getStudentStatusNominative())
                 .replace("{{studentCycle}}", escapeXml(dto.getStudentCycle()))
                 .replace("{{departmentName}}", dto.getDepartmentName())
-                .replace("{{thesisTitle}}",escapeXml(dto.getThesisTitle()))
+                .replace("{{thesisTitle}}", escapeXml(dto.getThesisTitle()))
                 .replace("{{subjectName}}", dto.getSubjectName())
                 .replace("{{mentorFullName}}", dto.getMentorFullNameAndTitle())
                 .replace("{{description}}", dto.getDescription())
@@ -217,16 +279,12 @@ public class FinalThesisApprovalController {
                 .replace("{{studentFirstName}}", escapeXml(dto.getStudentFirstName()))
                 .replace("{{studentLastName}}", escapeXml(dto.getStudentLastName()))
                 .replace("{{applicationDate}}", dto.getApplicationDate().format(DATE_FORMAT))
-                // Dean hardkodiran ili dodati u DTO ako treba
                 .replace("{{deanName}}", "Prof. dr. sc. Samir Lemeš");
 
-        // 5. Render PDF
-        // Generisanje (isto kao u prethodnom primjeru)
-        try (OutputStream os = new FileOutputStream(outputFile)) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
 
-            // Učitaj fontove (putanja mora biti tačna)
             builder.useFont(getFontFileFromResources("LiberationSerif-Regular.ttf"), "Times New Roman");
             File fontBold = getFontFileFromResources("LiberationSerif-Bold.ttf");
             builder.useFont(fontBold, "Times New Roman", 700, BaseRendererBuilder.FontStyle.NORMAL, true);
@@ -237,54 +295,36 @@ public class FinalThesisApprovalController {
 
             String baseUrl = getClass().getResource("/templates/").toExternalForm();
             builder.withHtmlContent(html, baseUrl);
-            builder.toStream(os);
+            builder.toStream(baos);
             builder.run();
+
+            return baos.toByteArray();
         }
     }
+
     private File getFontFileFromResources(String fileName) throws IOException {
         InputStream inputStream = getClass().getResourceAsStream("/fonts/" + fileName);
-        if (inputStream == null) {
-            throw new FileNotFoundException("Font file not found in resources: " + fileName);
-        }
+        if (inputStream == null) throw new FileNotFoundException("Font file not found in resources: " + fileName);
 
-        // Create a temp file
         File tempFile = File.createTempFile("pdf_font_", ".ttf");
-        tempFile.deleteOnExit(); // Clean up on exit
+        tempFile.deleteOnExit();
 
-        // Copy resource to temp file
         try (FileOutputStream out = new FileOutputStream(tempFile)) {
             inputStream.transferTo(out);
         }
         return tempFile;
     }
-    // --- Helper Methods ---
 
-    /**
-     * Konvertuje status iz genitiva (kako je u bazi) u nominativ.
-     * Prilagođeno riječima iz baze podataka korisnika.
-     */
     private String convertToNominative(String genitiveStatus) {
         if (genitiveStatus == null) return "student";
-
         String s = genitiveStatus.toLowerCase().trim();
 
-        if (s.contains("apsolvent")) {
-            return "apsolvent";
-        }
-        else if (s.contains("imatrikulant")) {
-            return "imatrikulant";
-        }
-        else if (s.contains("redovn")) {
-            return "redovan student";
-        }
-        else if (s.contains("vanredn") || s.contains("vandredn")) { // typo safe
-            return "vanredan student";
-        }
-        else if (s.contains("daljinu") || s.contains("dl")) {
-            return "student na daljinu";
-        }
+        if (s.contains("apsolvent")) return "apsolvent";
+        if (s.contains("imatrikulant")) return "imatrikulant";
+        if (s.contains("redovn")) return "redovan student";
+        if (s.contains("vanredn") || s.contains("vandredn")) return "vanredan student";
+        if (s.contains("daljinu") || s.contains("dl")) return "student na daljinu";
 
-        // Fallback
         return "student";
     }
 
@@ -301,32 +341,22 @@ public class FinalThesisApprovalController {
 
     private String formatMemberName(AcademicStaff member) {
         if (member == null) return "—";
-        return member.getTitle()+ " " + member.getFirstName() + " " + member.getLastName();
+        return member.getTitle() + " " + member.getFirstName() + " " + member.getLastName();
     }
 
     private String loadTemplate() throws IOException {
         InputStream is = getClass().getResourceAsStream("/templates/final_thesis_approval_template.html");
         if (is == null) throw new FileNotFoundException("Template not found in /templates/");
-        return new String(is.readAllBytes(), "UTF-8");
-    }
-
-    // Pomoćna za učitavanje fonta da kod bude čišći
-    private InputStream getFontStream(String fontName) throws IOException {
-        InputStream is = getClass().getResourceAsStream("/fonts/" + fontName);
-        if (is == null) throw new FileNotFoundException("Font not found: " + fontName);
-        return is;
+        return new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
     @FXML
     private void back() {
         SceneManager.showWithData("/app/thesisDetails.fxml", "Detalji završnog rada",
-                (Object controller) -> {
-                    ((ThesisDetailsController) controller).initWithThesisId(thesisId);
-                }
+                (Object controller) -> ((ThesisDetailsController) controller).initWithThesisId(thesisId)
         );
     }
 
-    // Dodajte ovu pomoćnu metodu za naslove i imena
     private String escapeXml(String text) {
         if (text == null) return "";
         return text.replace("&", "&amp;")
@@ -335,12 +365,13 @@ public class FinalThesisApprovalController {
                 .replace("\"", "&quot;")
                 .replace("'", "&apos;");
     }
+
     private String convertToRoman(int cycle) {
-        switch (cycle) {
-            case 1: return "I";
-            case 2: return "II";
-            case 3: return "III";
-            default: return String.valueOf(cycle); // Fallback ako je nešto čudno
-        }
+        return switch (cycle) {
+            case 1 -> "I";
+            case 2 -> "II";
+            case 3 -> "III";
+            default -> String.valueOf(cycle);
+        };
     }
 }
