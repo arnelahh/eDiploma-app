@@ -18,19 +18,31 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane styleClass="root-container" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.FinalThesisApprovalController">
+<AnchorPane styleClass="root-container" stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.FinalThesisApprovalController">
 
-    <BorderPane prefHeight="800" prefWidth="1200" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+    <BorderPane prefHeight="800" prefWidth="1200"
+                AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
 
         <top>
             <HBox alignment="CENTER" spacing="20" styleClass="top-header">
                 <padding>
                     <Insets bottom="20" left="30" right="30" top="20" />
                 </padding>
-                <Button onAction="#back" style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;" text="←" />
+
+                <Button onAction="#back"
+                        style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;"
+                        text="←" />
+
                 <Region HBox.hgrow="ALWAYS" />
-                <Text styleClass="app-title" text="Generisanje Rješenja o izradi rada" />
+
+                <Text styleClass="app-title" text="Rješenje o izradi završnog rada" />
+
                 <Region HBox.hgrow="ALWAYS" />
+
                 <Region prefWidth="30" />
             </HBox>
         </top>
@@ -53,8 +65,12 @@
                             <ColumnConstraints percentWidth="50" />
                         </columnConstraints>
 
+                        <!-- LEFT: DATA FROM DB -->
                         <VBox spacing="15" styleClass="form-section" GridPane.columnIndex="0">
-                            <padding><Insets bottom="20" left="20" right="20" top="20" /></padding>
+                            <padding>
+                                <Insets bottom="20" left="20" right="20" top="20" />
+                            </padding>
+
                             <Text styleClass="section-title" text="Podaci o radu (Iz baze)" />
 
                             <GridPane hgap="15" vgap="10">
@@ -69,10 +85,12 @@
 
                                 <Label styleClass="field-label" text="Predmet:" GridPane.rowIndex="3" />
                                 <Text fx:id="subjectText" styleClass="field-value" text="..." GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
                                 <columnConstraints>
                                     <ColumnConstraints minWidth="100" />
                                     <ColumnConstraints hgrow="ALWAYS" />
                                 </columnConstraints>
+
                                 <rowConstraints>
                                     <RowConstraints />
                                     <RowConstraints />
@@ -94,13 +112,19 @@
                             </VBox>
                         </VBox>
 
+                        <!-- RIGHT: ADMIN DATA -->
                         <VBox spacing="15" styleClass="form-section" GridPane.columnIndex="1">
-                            <padding><Insets bottom="20" left="20" right="20" top="20" /></padding>
+                            <padding>
+                                <Insets bottom="20" left="20" right="20" top="20" />
+                            </padding>
+
                             <Text styleClass="section-title" text="Administrativni podaci" />
 
                             <VBox spacing="5">
-                                <Label styleClass="field-label" text="Broj rješenja *" />
-                                <TextField fx:id="decisionNumberField" promptText="npr. 11-403-102-2210/25" styleClass="form-field" />
+                                <Label styleClass="field-label" text="Broj rješenja (cifre)" />
+                                <TextField fx:id="decisionNumberField"
+                                           promptText="npr. 2210"
+                                           styleClass="form-field" />
                             </VBox>
 
                             <VBox spacing="5">
@@ -112,16 +136,21 @@
 
                             <VBox spacing="5">
                                 <Label styleClass="field-label" text="Ime studenta u GENITIVU *" />
-                                <Label style="-fx-font-size: 11px; -fx-text-fill: gray;" text="Za rečenicu: '...na zahtjev [Drijenčić Amre]...'" />
-                                <TextField fx:id="studentGenitiveField" promptText="npr. Drijenčić Amre" styleClass="form-field" />
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: gray;"
+                                       text="Za rečenicu: '...na zahtjev [Drijenčić Amre]...'" />
+                                <TextField fx:id="studentGenitiveField"
+                                           promptText="npr. Drijenčić Amre"
+                                           styleClass="form-field" />
                             </VBox>
 
                             <VBox spacing="5">
                                 <Label styleClass="field-label" text="Status studenta" />
-                                <TextField fx:id="studentStatusField" text="apsolventa" styleClass="form-field" />
+                                <TextField fx:id="studentStatusField"
+                                           promptText="npr. apsolventa"
+                                           styleClass="form-field" />
                             </VBox>
-
                         </VBox>
+
                         <rowConstraints>
                             <RowConstraints />
                         </rowConstraints>
@@ -129,13 +158,11 @@
 
                     <HBox alignment="CENTER_RIGHT" spacing="15">
                         <Button onAction="#back" styleClass="cancel-button" text="Nazad" />
-                        <Button onAction="#handleDownloadPDF" styleClass="save-button" text="💾 Kreiraj Rješenje (PDF)" />
+                        <Button onAction="#handleSave" styleClass="save-button" text="✅ Sačuvaj" />
                     </HBox>
 
                 </VBox>
             </ScrollPane>
         </center>
-
     </BorderPane>
-
 </AnchorPane>
