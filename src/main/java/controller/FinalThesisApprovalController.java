@@ -20,6 +20,7 @@ import utils.UserSession;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Base64;
 
 public class FinalThesisApprovalController {
@@ -222,6 +223,12 @@ public class FinalThesisApprovalController {
     private byte[] generatePdfBytes() throws Exception {
         String statusGenitive = "studenta";
         if (thesisDetails.getStudent() != null && thesisDetails.getStudent().getStatus() != null) {
+            if(Objects.equals(thesisDetails.getStudent().getStatus().getName(), "redovan")){
+                statusGenitive = "redovnog studenta";
+            }else {
+                statusGenitive = statusGenitive+ " "+ thesisDetails.getStudent().getStatus().getName()+"a";
+            }
+
             statusGenitive = thesisDetails.getStudent().getStatus().getName() + "a";
         }
 
@@ -319,6 +326,21 @@ public class FinalThesisApprovalController {
         if (genitiveStatus == null) return "student";
         String s = genitiveStatus.toLowerCase().trim();
 
+        if (s.contains("apsolvent")) {
+            return "student apsolvent";
+        }
+        else if (s.contains("imatrikulant")) {
+            return "student imatrikulant";
+        }
+        else if (s.contains("redovnog")) {
+            return "redovan student";
+        }
+        else if (s.contains("vanredn") || s.contains("vandredn")) { // typo safe
+            return "vanredan student";
+        }
+        else if (s.contains("daljinu") || s.contains("dl")) {
+            return "student na daljinu";
+        }
         if (s.contains("apsolvent")) return "apsolvent";
         if (s.contains("imatrikulant")) return "imatrikulant";
         if (s.contains("redovn")) return "redovan student";
