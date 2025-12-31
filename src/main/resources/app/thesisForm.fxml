@@ -63,21 +63,21 @@
 
                             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">
                                 <Label text="Cilj rada:" styleClass="field-label"/>
-                                <TextArea fx:id="descriptionArea" prefRowCount="4" wrapText="true"
+                                <TextArea fx:id="descriptionArea" prefHeight="100" wrapText="true"
                                           promptText="Unesite kratak opis..."
                                           styleClass="form-field"/>
                             </VBox>
 
                             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
                                 <Label text="Predložena struktura rada (poglavlja):" styleClass="field-label"/>
-                                <TextArea fx:id="structureArea" prefRowCount="4" wrapText="true"
+                                <TextArea fx:id="structureArea" prefHeight="200" wrapText="true"
                                           promptText="Unesite predloženu strukturu rada..."
                                           styleClass="form-field"/>
                             </VBox>
 
                             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
                                 <Label text="Literatura:" styleClass="field-label"/>
-                                <TextArea fx:id="literatureArea" prefRowCount="3" wrapText="true"
+                                <TextArea fx:id="literatureArea" prefHeight="200" wrapText="true"
                                           promptText="Unesite reference..."
                                           styleClass="form-field"/>
                             </VBox>

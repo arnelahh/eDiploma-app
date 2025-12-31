@@ -116,11 +116,6 @@
                                 <TextField fx:id="studentGenitiveField" promptText="npr. Drijenčić Amre" styleClass="form-field" />
                             </VBox>
 
-                            <VBox spacing="5">
-                                <Label styleClass="field-label" text="Status studenta" />
-                                <TextField fx:id="studentStatusField" text="apsolventa" styleClass="form-field" />
-                            </VBox>
-
                         </VBox>
                         <rowConstraints>
                             <RowConstraints />

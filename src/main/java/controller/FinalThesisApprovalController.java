@@ -19,6 +19,7 @@ import utils.SceneManager;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class FinalThesisApprovalController {
 
@@ -159,8 +160,12 @@ public class FinalThesisApprovalController {
         // 1. Priprema Statusa (Genitiv iz baze -> Nominativ konverzija)
         String statusGenitive = "studenta"; // Default
         if (thesisDetails.getStudent() != null && thesisDetails.getStudent().getStatus() != null) {
-            // Pretpostavka: toString() vraća vrijednost iz baze (npr. "apsolventa")
-            statusGenitive = thesisDetails.getStudent().getStatus().getName()+"a";
+            if(Objects.equals(thesisDetails.getStudent().getStatus().getName(), "redovan")){
+                statusGenitive = "redovnog studenta";
+            }else {
+                statusGenitive = statusGenitive+ " "+ thesisDetails.getStudent().getStatus().getName()+"a";
+            }
+
         }
 
         String statusNominative = convertToNominative(statusGenitive);
@@ -269,12 +274,12 @@ public class FinalThesisApprovalController {
         String s = genitiveStatus.toLowerCase().trim();
 
         if (s.contains("apsolvent")) {
-            return "apsolvent";
+            return "student apsolvent";
         }
         else if (s.contains("imatrikulant")) {
-            return "imatrikulant";
+            return "student imatrikulant";
         }
-        else if (s.contains("redovn")) {
+        else if (s.contains("redovnog")) {
             return "redovan student";
         }
         else if (s.contains("vanredn") || s.contains("vandredn")) { // typo safe

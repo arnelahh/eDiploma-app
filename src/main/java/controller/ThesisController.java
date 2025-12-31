@@ -143,7 +143,7 @@ public class ThesisController {
         // Umjesto direktno edit forme, prvo otvaramo details page
         SceneManager.showWithData(
                 "/app/thesisDetails.fxml",
-                "Detalji završnog rada",
+                "eDiploma",
                 (ThesisDetailsController controller) -> {
                     controller.initWithThesisId(thesisDTO.getId());
                 }
