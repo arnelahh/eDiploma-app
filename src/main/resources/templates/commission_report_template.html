@@ -74,10 +74,21 @@
             font-weight: bold;
         }
 
-        .cell-studentska {
+        .cell-rjesenje {
             text-align: center;
-            font-size: 12pt;
+            font-weight: bold;
+            font-size: 16pt;
+            letter-spacing: 1px;
             padding: 2px !important;
+            background-color: #d3d3d3;
+        }
+
+        .cell-studentska-sluzba {
+            font-weight: bold;
+            font-size: 14pt;
+            padding-left: 20px !important;
+            text-align: center;
+            height: 50px;
         }
 
         .cell-grid-container {
@@ -282,18 +293,34 @@
                 </tr>
             </table>
         </td>
-        <td class="cell-studentska">
-            Studentska služba
-        </td>
+        <td class="cell-rjesenje">RJEŠENJE</td>
     </tr>
     <tr>
-        <td colspan="2" style="padding: 5px 10px; height: 30px; vertical-align: middle;">
-            <div style="font-size: 12pt; font-weight: bold;">{{documentNumber}}</div>
-        </td>
-        <td class="cell-grid-container">
+        <td class="cell-studentska-sluzba">Studentska služba</td>
+        <td class="cell-grid-container" colspan="2">
             <table class="boxes-table">
+                <tr class="boxes-row">
+                    <td>{{char0}}</td>
+                    <td>{{char1}}</td>
+                    <td>{{char2}}</td>
+                    <td>{{char3}}</td>
+                    <td>{{char4}}</td>
+                    <td>{{char5}}</td>
+                    <td>{{char6}}</td>
+                    <td>{{char7}}</td>
+                    <td>{{char8}}</td>
+                    <td>{{char9}}</td>
+                    <td>{{char10}}</td>
+                    <td>{{char11}}</td>
+                    <td>{{char12}}</td>
+                    <td>{{char13}}</td>
+                    <td>{{char14}}</td>
+                    <td>{{char15}}</td>
+                    <td>{{char16}}</td>
+                    <td>{{char17}}</td>
+                </tr>
                 <tr class="date-row">
-                    <td colspan="14">Datum: {{decisionDate}}</td>
+                    <td colspan="18">Datum: {{decisionDate}}</td>
                 </tr>
             </table>
         </td>

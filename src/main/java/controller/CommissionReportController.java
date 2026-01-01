@@ -8,7 +8,6 @@ import dto.ThesisDetailsDTO;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 import model.Commission;
 import utils.GlobalErrorHandler;
 import utils.SceneManager;
@@ -200,20 +199,24 @@ public class CommissionReportController {
         String secretaryName = thesisDetails.getSecretary() != null
                 ? formatMemberName(thesisDetails.getSecretary()) : "—";
 
-        // Dean info
-        String deanName = "Prof.dr.sc. Samir Lemeš"; // Default
+        String deanName = "Prof.dr.sc. Samir Lemeš";
 
+        // Build document number: 11-403-103-1295/25
+        String userInput = documentNumberField.getText().trim();
+        String yy = String.format("%02d", LocalDate.now().getYear() % 100);
+        String fullDocNumber = DOC_NUMBER_PREFIX + userInput + "/" + yy;
 
-        String documentNumberForTemplate = buildFullDocumentNumber();
-        if (documentNumberForTemplate == null || documentNumberForTemplate.isBlank()) {
-            documentNumberForTemplate = DOC_NUMBER_PREFIX + "____/" +
-                    String.format("%02d", LocalDate.now().getYear() % 100);
+        // Split into 18 characters for boxes (11-403-103-1295/25 = 18 chars)
+        String[] chars = new String[18];
+        for (int i = 0; i < 18; i++) {
+            if (i < fullDocNumber.length()) {
+                chars[i] = String.valueOf(fullDocNumber.charAt(i));
+            } else {
+                chars[i] = "";
+            }
         }
 
         CommissionReportDTO dto = CommissionReportDTO.builder()
-                .documentNumberPrefix(DOC_NUMBER_PREFIX)
-                .userInputNumbers(documentNumberField.getText().trim())
-                .documentNumberSuffix("/" + String.format("%02d", LocalDate.now().getYear() % 100))
                 .decisionDate(LocalDate.now())
                 .studentFullName(studentNameText.getText())
                 .chairmanFullName(chairmanName)
@@ -225,14 +228,18 @@ public class CommissionReportController {
 
         String html = loadTemplate();
 
-        html = html.replace("{{documentNumber}}", documentNumberForTemplate)
-                .replace("{{decisionDate}}", dto.getDecisionDate().format(DATE_FORMAT))
+        html = html.replace("{{decisionDate}}", dto.getDecisionDate().format(DATE_FORMAT))
                 .replace("{{studentFullName}}", dto.getStudentFullName())
                 .replace("{{chairmanFullName}}", dto.getChairmanFullName())
                 .replace("{{member1FullName}}", dto.getMember1FullName())
                 .replace("{{mentorFullName}}", dto.getMentorFullName())
                 .replace("{{secretaryFullName}}", dto.getSecretaryFullName())
                 .replace("{{deanFullName}}", dto.getDeanFullName());
+
+        // Replace individual characters in boxes
+        for (int i = 0; i < 18; i++) {
+            html = html.replace("{{char" + i + "}}", chars[i]);
+        }
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
