@@ -12,7 +12,7 @@
         body {
             font-family: 'Times New Roman', serif;
             font-size: 12pt;
-            line-height: 1.15;
+            line-height: 1.3;
             color: #000;
             margin: 0;
             padding: 0;
@@ -134,8 +134,8 @@
         /* TITLE */
         .main-title {
             text-align: center;
-            margin-top: 20px;
-            margin-bottom: 20px;
+            margin-top: 25px;
+            margin-bottom: 25px;
         }
 
         .main-title h1 {
@@ -147,65 +147,72 @@
             line-height: 1.2;
         }
 
-        /* CONTENT */
-        .content {
+        /* CONTENT LIST STYLING */
+        .content-list {
+            list-style-type: disc; /* Crni kruzici */
+            padding-left: 25px;
+            margin: 0;
             text-align: justify;
         }
 
-        .content p {
-            margin-top: 8px;
-            margin-bottom: 8px;
+        .content-list li {
+            margin-bottom: 25px; /* Povecan spacing izmedju recenica */
+            padding-left: 5px;
         }
 
-        .student-name {
+        /* UVODNI TEKST */
+        .intro-text {
+            text-align: justify;
+            margin-bottom: 20px;
+            padding-left: 5px;
+        }
+
+        /* STIL ZA LINIJE */
+        .line-wrapper {
             text-align: center;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* Osnovna linija (koristi se za komisiju - lijevo poravnanje) */
+        .input-line {
+            display: inline-block;
+            border-bottom: 1px solid #000;
+            width: 480px;
+            text-align: left; /* Default je lijevo za komisiju */
+            padding-left: 10px;
+            padding-bottom: 2px;
+            box-sizing: border-box;
+        }
+
+        /* Poseban stil za Studenta (override da bude centrirano) */
+        .student-name {
             font-weight: bold;
             font-size: 13pt;
             text-transform: uppercase;
-            margin: 12px 0;
+
+            /* Forsiramo centriranje za studenta */
+            text-align: center !important;
+            padding-left: 0 !important;
         }
 
         /* COMMISSION TABLE */
-        .commission-table {
+        .commission-list-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            margin-bottom: 15px;
+            margin-top: 10px;
         }
 
-        .commission-table td {
-            padding: 5px 0;
-            vertical-align: top;
+        .commission-list-table td {
+            vertical-align: bottom;
+            padding-bottom: 10px;
             border: none;
-        }
-
-        .role-label {
-            width: 220px;
-            white-space: nowrap;
-            padding-right: 15px;
-        }
-
-        .member-name {
-            border-bottom: 1px solid #000;
-            padding-bottom: 2px;
-            min-height: 20px;
-        }
-
-        /* TASKS SECTION */
-        .task-section {
-            margin-top: 15px;
-            margin-bottom: 15px;
-        }
-
-        .task-paragraph {
-            margin: 8px 0;
-            text-align: justify;
-            line-height: 1.4;
+            text-align: center;
         }
 
         /* FOOTER */
         .footer-section {
-            margin-top: 30px;
+            margin-top: 40px;
             width: 100%;
         }
 
@@ -327,10 +334,8 @@
     </tr>
 </table>
 
-<div class="content">
-    <p style="text-align: left; margin-bottom: 10px;">
-        Na osnovu člana 206. Statuta Univerziteta u Zenici, a u skladu sa članovima 45 i 46. Pravilnika o organizovanju dodiplomskog, magistarskog i doktorskog studija na Univerzitetu u Zenici, dekan Fakulteta donosi
-    </p>
+<div class="intro-text">
+    Na osnovu člana 206. Statuta Univerziteta u Zenici, a u skladu sa članovima 45 i 46. Pravilnika o organizovanju dodiplomskog, magistarskog i doktorskog studija na Univerzitetu u Zenici, dekan Fakulteta donosi
 </div>
 
 <div class="main-title">
@@ -338,54 +343,63 @@
     <p style="font-size: 16pt; font-weight: bold; margin: 0;">o formiranju Komisije za Diplomski rad</p>
 </div>
 
-<div class="content">
-    <p>Formira se Komisija za polaganje diplomskog ispita studenta</p>
+<ul class="content-list">
 
-    <div class="student-name">{{studentFullName}}</div>
+    <li>
+        <span>Formira se Komisija za polaganje diplomskog ispita studenta</span>
+        <div class="line-wrapper">
+            <div class="input-line student-name">{{studentFullName}}</div>
+        </div>
+    </li>
 
-    <p>U Komisiju iz prethodne tačke imenuju se:</p>
+    <li>
+        <span>U Komisiju iz prethodne tačke imenuju se:</span>
 
-    <table class="commission-table">
-        <tr>
-            <td class="role-label">1. Predsjednik Komisije</td>
-            <td>
-                <div class="member-name">{{chairmanFullName}}</div>
-            </td>
-        </tr>
-        <tr>
-            <td class="role-label">2. Član Komisije</td>
-            <td>
-                <div class="member-name">{{member1FullName}}</div>
-            </td>
-        </tr>
-        <tr>
-            <td class="role-label">3. Član Komisije i Mentor</td>
-            <td>
-                <div class="member-name">{{mentorFullName}}</div>
-            </td>
-        </tr>
-        <tr>
-            <td class="role-label">4. Sekretar Komisije</td>
-            <td>
-                <div class="member-name">{{secretaryFullName}}</div>
-            </td>
-        </tr>
-    </table>
+        <table class="commission-list-table">
+            <tr>
+                <td>
+                    <div class="input-line">
+                        1. {{chairmanFullName}}, predsjednik Komisije
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-line">
+                        2. {{member1FullName}}, član Komisije
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-line">
+                        3. {{mentorFullName}}, član Komisije i Mentor
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-line">
+                        4. {{secretaryFullName}}, sekretar Komisije
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </li>
 
-    <div class="task-section">
-        <p class="task-paragraph">
-            Zadatak Komisije je da izvrši pregled diplomskog rada i donese odluku o tome da li je kandidat zadovoljio na pismenom dijelu ispita i da li mu se može dozvoliti polaganje usmenog dijela ispita.
-        </p>
+    <li>
+        Zadatak Komisije je da izvrši pregled diplomskog rada i donese odluku o tome da li je kandidat zadovoljio na pismenom dijelu ispita i da li mu se može dozvoliti polaganje usmenog dijela ispita.
+    </li>
 
-        <p class="task-paragraph">
-            Ukoliko Komisija utvrdi da se diplomski rad može ocijeniti sa "zadovoljio", odredit će dan i vrijeme polaganja usmenog dijela ispita i o tome će se obavijestiti kandidat i javnost.
-        </p>
+    <li>
+        Ukoliko Komisija utvrdi da se diplomski rad može ocijeniti sa “zadovoljio”, odredit će dan i vrijeme polaganja usmenog dijela ispita i o tome će se obavijestiti kandidat i javnost.
+    </li>
 
-        <p class="task-paragraph">
-            Ovo rješenje stupa na snagu danom donošenja.
-        </p>
-    </div>
-</div>
+    <li>
+        Ovo rješenje stupa na snagu danom donošenja.
+    </li>
+
+</ul>
 
 <div class="footer-section">
     <table class="footer-table">
