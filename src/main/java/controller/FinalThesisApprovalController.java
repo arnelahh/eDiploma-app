@@ -229,7 +229,6 @@ public class FinalThesisApprovalController {
                 statusGenitive = statusGenitive+ " "+ thesisDetails.getStudent().getStatus().getName()+"a";
             }
 
-            statusGenitive = thesisDetails.getStudent().getStatus().getName() + "a";
         }
 
         String statusNominative = convertToNominative(statusGenitive);

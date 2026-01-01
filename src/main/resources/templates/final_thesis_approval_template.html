@@ -23,9 +23,6 @@
             position: relative;
             /* 2. Osiguravamo da body ide do dna stranice čak i kad ima malo teksta */
             min-height: 100%;
-            /* 3. REZERVIŠEMO PROSTOR ZA FOOTER (da tekst ne ide preko njega) */
-            /* Visina footera je cca 150-180px, stavljamo 200px da budemo sigurni */
-            padding-bottom: 200px;
             box-sizing: border-box;
             margin: 0;
         }
@@ -95,25 +92,48 @@
 
         /* EXPLANATION */
         .explanation-title {
-            text-align: center; font-weight: bold; margin-top: 30px; margin-bottom: 15px; letter-spacing: 2px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
         }
-
-        /* FOOTER - POPRAVLJENO */
-        .footer-table {
-            /* Sada ga lijepimo na dno onog prostora kojeg smo rezervisali u body-ju */
-            position: absolute;
-            bottom: 0;
-            left: 0;
+        .signature-table {
             width: 100%;
             border-collapse: collapse;
-            /* Visina footera (mora stati unutar padding-bottom od body-ja) */
-            height: auto;
+            /* Ovo pravi razmak između teksta obrazloženja i potpisa */
+            margin-top: 60px;
+            page-break-inside: avoid;
         }
 
-        .delivery-list { vertical-align: bottom; font-size: 10pt; line-height: 1.4; }
-        .signature-block { vertical-align: bottom; text-align: center; width: 45%; }
-        .signature-line { border-top: 1px solid black; width: 90%; margin: 40px auto 5px auto; }
+        .sig-spacer-col {
+            width: 50%; /* Prazan prostor lijevo */
+        }
 
+        .sig-content-col {
+            width: 50%; /* Prostor za potpis desno */
+            text-align: center;
+            vertical-align: top;
+        }
+
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 240px; /* Fiksna širina linije */
+            margin: 40px auto 5px auto; /* Razmak za potpis */
+        }
+        .delivery-table {
+            width: 100%;
+            border-collapse: collapse;
+            /* Razmak između potpisa i liste dostaviti */
+            margin-top: 20px;
+            page-break-inside: avoid;
+        }
+
+        .delivery-col {
+            text-align: left;
+            font-size: 10pt;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -202,21 +222,28 @@
     </div>
 </div>
 
-<table class="footer-table">
+<table class="signature-table">
     <tr>
-        <td class="delivery-list">
-            <b>Dostaviti:</b><br/>
-            1 × Imenovanom/j<br/>
-            1 × Mentoru<br/>
-            1 × Dosije studenta<br/>
-            1 × a/a
-        </td>
-        <td class="signature-block">
+        <td class="sig-spacer-col"></td>
+
+        <td class="sig-content-col">
             Dekan<br/>
             Politehničkog fakulteta<br/>
             Univerziteta u Zenici
             <div class="signature-line"></div>
-            <b>Prof.dr.sc. Samir Lemeš</b>
+            Prof.dr.sc. Samir Lemeš
+        </td>
+    </tr>
+</table>
+
+<table class="delivery-table">
+    <tr>
+        <td class="delivery-col">
+            <u>Dostaviti:</u><br/>
+            1 × Imenovano-j/m<br/>
+            1 × Mentoru<br/>
+            1 × Dosije student-a/-ice<br/>
+            1 × a/a
         </td>
     </tr>
 </table>

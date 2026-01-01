@@ -143,12 +143,6 @@
                                            styleClass="form-field" />
                             </VBox>
 
-                            <VBox spacing="5">
-                                <Label styleClass="field-label" text="Status studenta" />
-                                <TextField fx:id="studentStatusField"
-                                           promptText="npr. apsolventa"
-                                           styleClass="form-field" />
-                            </VBox>
                         </VBox>
 
                         <rowConstraints>
