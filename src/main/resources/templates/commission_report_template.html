@@ -64,14 +64,14 @@
 
         .faculty-text {
             font-size: 14pt;
-            font-weight: bold;
+            font-weight: normal;
             text-transform: uppercase;
             margin-bottom: 5px;
         }
 
         .uni-text {
             font-size: 14pt;
-            font-weight: bold;
+            font-weight: normal;
         }
 
         .cell-rjesenje {
@@ -212,7 +212,7 @@
 
         /* FOOTER */
         .footer-section {
-            margin-top: 40px;
+            margin-top: 20px;
             width: 100%;
         }
 
@@ -222,12 +222,13 @@
         }
 
         .footer-table td {
-            vertical-align: bottom;
+            vertical-align: top;
             border: none;
         }
 
         .delivery-box {
-            width: 250px;
+            width: 160px;
+            vertical-align: top;
         }
 
         .delivery-table {
@@ -237,24 +238,34 @@
         }
 
         .delivery-table td {
-            padding: 5px;
+            padding: 3px 5px;
             border: none;
         }
 
         .delivery-header {
             background-color: #f0f0f0;
             border-bottom: 1px solid #000;
-            font-weight: bold;
-            padding: 5px !important;
+            font-weight: normal;
+            padding: 3px 5px !important;
         }
 
         .delivery-item {
-            font-size: 10pt;
+            font-size: 9pt;
+        }
+
+        .delivery-item table {
+            width: 100%;
+            border: none;
+        }
+
+        .delivery-item td {
+            border: none;
+            padding: 1px;
         }
 
         .signature-area {
             text-align: center;
-            padding-left: 50px;
+            padding-left: 130px;
         }
 
         .sig-label {
@@ -268,9 +279,15 @@
             margin: 0 auto;
         }
 
+        .dean-name {
+            margin-top: 10px;
+            font-weight: normal;
+        }
+
         .form-number {
             font-size: 8pt;
-            margin-top: 10px;
+            margin-top: 3px;
+            text-align: left;
         }
     </style>
 </head>
@@ -392,7 +409,7 @@
     </li>
 
     <li>
-        Ukoliko Komisija utvrdi da se diplomski rad može ocijeniti sa “zadovoljio”, odredit će dan i vrijeme polaganja usmenog dijela ispita i o tome će se obavijestiti kandidat i javnost.
+        Ukoliko Komisija utvrdi da se diplomski rad može ocijeniti sa "zadovoljio", odredit će dan i vrijeme polaganja usmenog dijela ispita i o tome će se obavijestiti kandidat i javnost.
     </li>
 
     <li>
@@ -411,25 +428,35 @@
                     </tr>
                     <tr>
                         <td class="delivery-item">
-                            <div>Dekan Fakulteta</div>
-                            <div style="padding-left: 150px; margin-top: 2px;">3</div>
+                            <table>
+                                <tr>
+                                    <td width="20" style="text-align: center;">3</td>
+                                    <td width="15" style="text-align: center;">x</td>
+                                    <td>Komisiji</td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                     <tr>
                         <td class="delivery-item">
-                            <div>Komisiji</div>
-                            <div style="padding-left: 150px; margin-top: 2px;">1</div>
+                            <table>
+                                <tr>
+                                    <td width="20" style="text-align: center;">1</td>
+                                    <td width="15" style="text-align: center;">x</td>
+                                    <td>Dosije studenta</td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                     <tr>
                         <td class="delivery-item">
-                            <div>Dosije studenta</div>
-                            <div style="padding-left: 150px; margin-top: 2px;">1</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="delivery-item">
-                            <div>a/a</div>
+                            <table>
+                                <tr>
+                                    <td width="20" style="text-align: center;">1</td>
+                                    <td width="15" style="text-align: center;">x</td>
+                                    <td>a/a</td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 </table>
@@ -441,7 +468,7 @@
                     Dekan Fakulteta
                 </div>
                 <div class="sig-line"></div>
-                <div style="margin-top: 10px; font-weight: bold;">
+                <div class="dean-name">
                     {{deanFullName}}
                 </div>
             </td>
