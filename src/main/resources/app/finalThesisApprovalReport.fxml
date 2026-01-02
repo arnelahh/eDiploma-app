@@ -71,7 +71,7 @@
                                 <Insets bottom="20" left="20" right="20" top="20" />
                             </padding>
 
-                            <Text styleClass="section-title" text="Podaci o radu (Iz baze)" />
+                            <Text styleClass="section-title" text="Podaci o radu" />
 
                             <GridPane hgap="15" vgap="10">
                                 <Label styleClass="field-label" text="Student:" GridPane.rowIndex="0" />
@@ -102,10 +102,13 @@
                             <Separator />
 
                             <VBox spacing="5">
-                                <Label styleClass="field-label" text="Opis i ciljevi (preview):" />
-                                <TextArea fx:id="descriptionPreview" editable="false" prefHeight="100" wrapText="true" />
+                                <Label styleClass="field-label" text="Ciljevi (preview):" />
+                                <TextArea fx:id="descriptionPreview" editable="false" prefHeight="50" wrapText="true" />
                             </VBox>
-
+                            <VBox spacing="5">
+                                <Label styleClass="field-label" text="Predložena struktura (preview):" />
+                                <TextArea fx:id="structurePreview" editable="false" prefHeight="100" wrapText="true" />
+                            </VBox>
                             <VBox spacing="5">
                                 <Label styleClass="field-label" text="Literatura (preview):" />
                                 <TextArea fx:id="literaturePreview" editable="false" prefHeight="100" wrapText="true" />
@@ -152,7 +155,7 @@
 
                     <HBox alignment="CENTER_RIGHT" spacing="15">
                         <Button onAction="#back" styleClass="cancel-button" text="Nazad" />
-                        <Button onAction="#handleSave" styleClass="save-button" text="✅ Sačuvaj" />
+                        <Button onAction="#handleSave" styleClass="save-button" text="Sačuvaj" />
                     </HBox>
 
                 </VBox>

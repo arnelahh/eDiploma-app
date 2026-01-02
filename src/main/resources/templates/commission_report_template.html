@@ -64,14 +64,14 @@
 
         .faculty-text {
             font-size: 14pt;
-            font-weight: normal;
+            font-weight: bold;
             text-transform: uppercase;
             margin-bottom: 5px;
         }
 
         .uni-text {
             font-size: 14pt;
-            font-weight: normal;
+            font-weight: bold;
         }
 
         .cell-rjesenje {
@@ -134,7 +134,7 @@
         /* TITLE */
         .main-title {
             text-align: center;
-            margin-top: 25px;
+            margin-top: 20px;
             margin-bottom: 25px;
         }
 
@@ -157,7 +157,7 @@
 
         .content-list li {
             margin-bottom: 25px; /* Povecan spacing izmedju recenica */
-            padding-left: 5px;
+            padding-left: 10px;
         }
 
         /* UVODNI TEKST */
@@ -210,9 +210,9 @@
             text-align: center;
         }
 
-        /* FOOTER */
+        /* --- UPDATED FOOTER STYLES (EDITED HERE) --- */
         .footer-section {
-            margin-top: 20px;
+            margin-top: 40px;
             width: 100%;
         }
 
@@ -226,50 +226,54 @@
             border: none;
         }
 
-        .delivery-box {
-            width: 160px;
-            vertical-align: top;
+        /* Left side (Delivery Table container) */
+        .footer-left {
+            width: 250px;
+            height: 180px;/* Fixed width to keep it compact */
+            padding-right: 20px;
         }
 
-        .delivery-table {
+        /* Right side (Signature container) */
+        .footer-right {
+            text-align: center;
+            padding-top: 10px;
+            padding-left: 40px;
+        }
+
+        /* The specific "Dostavljeno" table style */
+        .delivery-box-table {
+            width: 70%;
             border: 1px solid #000;
             border-collapse: collapse;
-            width: 100%;
-        }
-
-        .delivery-table td {
-            padding: 3px 5px;
-            border: none;
+            font-size: 10pt;
         }
 
         .delivery-header {
-            background-color: #f0f0f0;
-            border-bottom: 1px solid #000;
+            background-color: #f2f2f2; /* Gray background */
+            border-bottom: 1px solid #000 !important;
             font-weight: normal;
-            padding: 3px 5px !important;
+            padding: 4px 5px !important;
+            text-align: left;
         }
 
-        .delivery-item {
-            font-size: 9pt;
+        .delivery-row td {
+            padding: 2px 0;
         }
 
-        .delivery-item table {
-            width: 100%;
-            border: none;
+        /* Column helpers for alignment */
+        .col-num { width: 25px; text-align: center; }
+        .col-x { width: 25px; text-align: center; }
+        .col-dest { text-align: left;}
+
+        .form-number {
+            font-size: 8pt;
+            margin-top: 3px;
+            text-align: left;
         }
 
-        .delivery-item td {
-            border: none;
-            padding: 1px;
-        }
-
-        .signature-area {
-            text-align: center;
-            padding-left: 130px;
-        }
-
+        /* Signature styles */
         .sig-label {
-            margin-bottom: 35px;
+            margin-bottom: 40px; /* Space for signature */
             font-size: 12pt;
         }
 
@@ -282,12 +286,6 @@
         .dean-name {
             margin-top: 10px;
             font-weight: normal;
-        }
-
-        .form-number {
-            font-size: 8pt;
-            margin-top: 3px;
-            text-align: left;
         }
     </style>
 </head>
@@ -307,8 +305,8 @@
         <td class="cell-header-left" colspan="2">
             <table style="width: 100%; border: none;">
                 <tr>
-                    <td style="width: 20%; border: none; text-align: center;">
-                        <img src="pozadina.png" alt="Logo" width="70"/>
+                    <td style="width: 20%; border: none; text-align: center; padding-top: 5px;">
+                        <img src="unze_logo.jpg" alt="Logo" width="70"/>
                     </td>
                     <td style="width: 80%; border: none; text-align: center;">
                         <div class="faculty-text">POLITEHNIČKI FAKULTET</div>
@@ -319,7 +317,7 @@
         </td>
         <td class="cell-rjesenje">RJEŠENJE</td>
     </tr>
-    <tr>
+    <tr style="height: 40px;">
         <td class="cell-studentska-sluzba">Studentska služba</td>
         <td class="cell-grid-container" colspan="2">
             <table class="boxes-table">
@@ -356,8 +354,8 @@
 </div>
 
 <div class="main-title">
-    <h1>R J E Š E N J E</h1>
-    <p style="font-size: 16pt; font-weight: bold; margin: 0;">o formiranju Komisije za Diplomski rad</p>
+    <h1>RJEŠENJE</h1>
+    <p style="font-size: 12pt; font-weight: bold; margin: 0;">o formiranju Komisije za Diplomski rad</p>
 </div>
 
 <ul class="content-list">
@@ -421,49 +419,41 @@
 <div class="footer-section">
     <table class="footer-table">
         <tr>
-            <td class="delivery-box">
-                <table class="delivery-table">
+            <td class="footer-left">
+                <table class="delivery-box-table">
                     <tr>
-                        <td class="delivery-header">Dostavljeno:</td>
+                        <td class="delivery-header" colspan="3">Dostavljeno:</td>
                     </tr>
-                    <tr>
-                        <td class="delivery-item">
-                            <table>
-                                <tr>
-                                    <td width="20" style="text-align: center;">3</td>
-                                    <td width="15" style="text-align: center;">x</td>
-                                    <td>Komisiji</td>
-                                </tr>
-                            </table>
-                        </td>
+                    <tr class="delivery-row">
+                        <td class="col-num"></td>
+                        <td class="col-x"></td>
+                        <td class="col-dest"></td>
                     </tr>
-                    <tr>
-                        <td class="delivery-item">
-                            <table>
-                                <tr>
-                                    <td width="20" style="text-align: center;">1</td>
-                                    <td width="15" style="text-align: center;">x</td>
-                                    <td>Dosije studenta</td>
-                                </tr>
-                            </table>
-                        </td>
+                    <tr class="delivery-row" style="margin-top: 7px;">
+                        <td class="col-num">3</td>
+                        <td class="col-x">x</td>
+                        <td class="col-dest">Komisiji</td>
                     </tr>
-                    <tr>
-                        <td class="delivery-item">
-                            <table>
-                                <tr>
-                                    <td width="20" style="text-align: center;">1</td>
-                                    <td width="15" style="text-align: center;">x</td>
-                                    <td>a/a</td>
-                                </tr>
-                            </table>
-                        </td>
+                    <tr class="delivery-row">
+                        <td class="col-num">1</td>
+                        <td class="col-x">x</td>
+                        <td class="col-dest">Dosije studenta</td>
+                    </tr>
+                    <tr class="delivery-row" style="margin-bottom: 7px;">
+                        <td class="col-num">1</td>
+                        <td class="col-x">x</td>
+                        <td class="col-dest">a/a</td>
+                    </tr>
+                    <tr class="delivery-row">
+                        <td class="col-num"></td>
+                        <td class="col-x"></td>
+                        <td class="col-dest"></td>
                     </tr>
                 </table>
                 <div class="form-number">Obrazac MFZ-NN-005</div>
             </td>
 
-            <td class="signature-area">
+            <td class="footer-right">
                 <div class="sig-label">
                     Dekan Fakulteta
                 </div>

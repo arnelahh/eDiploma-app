@@ -40,9 +40,6 @@ public class DocumentCardFactory {
         Button btnDownload = new Button("⬇");
         btnDownload.getStyleClass().add("document-icon-btn");
 
-        Button btnView = new Button("👁");
-        btnView.getStyleClass().add("document-icon-btn");
-
         Button btnEdit = new Button("✏");
         btnEdit.getStyleClass().add("document-icon-btn");
 
@@ -62,13 +59,6 @@ public class DocumentCardFactory {
             }
         });
 
-        // VIEW: može samo ako postoji dokument (da vidi IN_PROGRESS), ali ne kad je blokirano
-        btnView.setDisable(notStarted || blockedByPrevious);
-        btnView.setOnAction(e -> {
-            if (!btnView.isDisable() && actions != null && actions.onView != null) {
-                actions.onView.accept(doc);
-            }
-        });
 
         btnDownload.setDisable(notStarted || !ready || blockedByPrevious);
         btnDownload.setOnAction(e -> {
@@ -77,7 +67,7 @@ public class DocumentCardFactory {
             }
         });
 
-        card.getChildren().addAll(left, btnDownload, btnView, btnEdit);
+        card.getChildren().addAll(left, btnDownload, btnEdit);
         return card;
     }
 }
