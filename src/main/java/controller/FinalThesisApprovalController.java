@@ -30,6 +30,7 @@ public class FinalThesisApprovalController {
     @FXML private Text mentorText;
     @FXML private Text subjectText;
     @FXML private TextArea descriptionPreview;
+    @FXML private TextArea structurePreview;
     @FXML private TextArea literaturePreview;
 
     @FXML private TextField decisionNumberField;
@@ -123,6 +124,7 @@ public class FinalThesisApprovalController {
         }
 
         descriptionPreview.setText(thesisDetails.getDescription());
+        structurePreview.setText(thesisDetails.getStructure());
         literaturePreview.setText(thesisDetails.getLiterature());
     }
 
@@ -229,7 +231,6 @@ public class FinalThesisApprovalController {
                 statusGenitive = statusGenitive+ " "+ thesisDetails.getStudent().getStatus().getName()+"a";
             }
 
-            statusGenitive = thesisDetails.getStudent().getStatus().getName() + "a";
         }
 
         String statusNominative = convertToNominative(statusGenitive);

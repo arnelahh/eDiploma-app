@@ -171,7 +171,6 @@ public class ThesisDetailsController {
         DocumentCardFactory.Actions actions = new DocumentCardFactory.Actions();
         actions.onEdit = this::openEditorForType;
         actions.onDownload = this::downloadDocument;
-        actions.onView = this::viewDocument;
 
         documentsContainer.getChildren().clear();
 
@@ -321,10 +320,6 @@ public class ThesisDetailsController {
         }
     }
 
-    private void viewDocument(Document doc) {
-        if (doc == null) return;
-        GlobalErrorHandler.info("Preview nije implementiran. Koristi ⬇ kad je dokument SPREMAN.");
-    }
 
     @FXML
     private void handleDelete() {
