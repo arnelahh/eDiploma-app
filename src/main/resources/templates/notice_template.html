@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Obavijest o terminu završnog rada</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm 20mm 15mm 20mm;
+        }
+
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.4;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* WATERMARK */
+        #watermark-container {
+            position: absolute;
+            top: 220px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 650px;
+            z-index: -999;
+            pointer-events: none;
+        }
+
+        #watermark-container img {
+            width: 100%;
+            height: auto;
+            opacity: 0.12;
+        }
+
+        /* HEADER TABLE */
+        table.header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #000;
+            table-layout: fixed;
+            margin-bottom: 20px;
+        }
+
+        table.header-table td {
+            border: 1px solid #000;
+            vertical-align: middle;
+            padding: 0;
+        }
+
+        .cell-header-left {
+            padding-left: 5px !important;
+        }
+
+        .faculty-text {
+            font-size: 14pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .uni-text {
+            font-size: 14pt;
+            font-weight: bold;
+        }
+
+        .cell-obavijest-header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16pt;
+            letter-spacing: 1px;
+            padding: 2px !important;
+            background-color: #d3d3d3;
+        }
+
+        /* CENTRIRAN SEKRETARIJAT */
+        .cell-studentska-sluzba {
+            font-weight: bold;
+            font-size: 13pt;
+            text-align: center; /* Centrirano horizontalno */
+            vertical-align: middle; /* Centrirano vertikalno */
+            height: 50px;
+            padding: 0 !important;
+        }
+
+        .cell-grid-container {
+            vertical-align: top;
+            height: 30px;
+        }
+
+        .boxes-table {
+            width: 100%;
+            height: 100%;
+            border-collapse: collapse;
+            border: none;
+            table-layout: fixed;
+        }
+
+        .boxes-table td {
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            border-top: none;
+            border-left: none;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 11pt;
+            height: 25px;
+        }
+
+        .boxes-table td:last-child {
+            border-right: none;
+        }
+
+        .date-row td {
+            border: none;
+            text-align: left;
+            padding-left: 5px !important;
+            font-size: 12pt;
+            height: 25px;
+            vertical-align: middle;
+        }
+
+        /* MAIN TITLE */
+        .main-title {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .main-title h1 {
+            font-size: 18pt;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        /* CONTENT SECTIONS */
+        .content-text {
+            text-align: justify;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .evaluation-text {
+            text-align: justify;
+            line-height: 1.5;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        .student-name-container {
+            margin: 5px 0 12px 0;
+            padding-left: 70px;
+        }
+
+        .student-name-text {
+            display: block;
+            font-weight: normal;
+            text-transform: uppercase;
+            border-bottom: 1px solid #000;
+            padding-bottom: 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .thesis-title-container {
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .thesis-line-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 4px;
+        }
+
+        .thesis-line-table td {
+            padding: 0;
+            vertical-align: bottom;
+        }
+
+        .label-cell {
+            width: 1%;
+            white-space: nowrap;
+            padding-right: 8px;
+            font-size: 12pt;
+        }
+
+        .content-cell {
+            border-bottom: 1px solid #000;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 13pt;
+        }
+
+        .thesis-line-full {
+            width: 100%;
+            border-bottom: 1px solid #000;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 13pt;
+            margin-bottom: 4px;
+            min-height: 1.2em;
+        }
+
+        .underlined-field {
+            display: inline-block;
+            border-bottom: 1px solid #000;
+            padding: 0 5px 2px 5px;
+            text-align: center;
+        }
+
+        .field-date { min-width: 120px; }
+        .field-time { min-width: 60px; }
+        .field-decision-number { min-width: 180px; }
+
+        .defense-info { text-align: justify; margin-top: 5px; margin-bottom: 20px; }
+        .public-notice { text-align: justify; margin-top: 20px; margin-bottom: 30px; }
+
+        .footer-section { margin-top: 50px; }
+        .footer-table { width: 100%; }
+        .footer-table td { vertical-align: top; }
+        .footer-left { width: 50%; padding-right: 20px; }
+        .footer-right { width: 50%; text-align: center; padding-left: 40px; }
+        .delivery-list { font-size: 10pt; line-height: 1.6; }
+        .sig-label { margin-bottom: 40px; font-size: 12pt; }
+        .sig-line { border-top: 1px solid #000; width: 250px; margin: 0 auto; }
+        .dean-name { margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="watermark-container">
+    <img src="pozadina_2.png" alt="Watermark"/>
+</div>
+
+<table class="header-table">
+    <colgroup>
+        <col style="width: 50%;" />
+        <col style="width: 20%;" />
+        <col style="width: 30%;" />
+    </colgroup>
+    <tr>
+        <td class="cell-header-left" colspan="2">
+            <table style="width: 100%; border: none; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 20%; border: none; text-align: center; padding-top: 5px;">
+                        <img src="unze_logo.jpg" alt="Logo" width="70"/>
+                    </td>
+                    <td style="width: 80%; border: none; text-align: center;">
+                        <div class="faculty-text">POLITEHNIČKI FAKULTET</div>
+                        <div class="uni-text">Univerzitet u Zenici</div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td class="cell-obavijest-header">OBAVIJEST</td>
+    </tr>
+    <tr>
+        <td class="cell-studentska-sluzba">Sekretarijat – Studentska služba</td>
+        <td class="cell-grid-container" colspan="2">
+            <table class="boxes-table">
+                <tr>
+                    <td>{{char0}}</td><td>{{char1}}</td><td>{{char2}}</td><td>{{char3}}</td>
+                    <td>{{char4}}</td><td>{{char5}}</td><td>{{char6}}</td><td>{{char7}}</td>
+                    <td>{{char8}}</td><td>{{char9}}</td><td>{{char10}}</td><td>{{char11}}</td>
+                    <td>{{char12}}</td><td>{{char13}}</td><td>{{char14}}</td><td>{{char15}}</td>
+                    <td>{{char16}}</td><td>{{char17}}</td>
+                </tr>
+                <tr class="date-row">
+                    <td colspan="18">Datum: {{documentDate}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<div class="main-title">
+    <h1>O B A V I J E S T</h1>
+</div>
+
+<div class="content-text">
+    Komisija za diplomski rad, imenovana Rješenjem br.
+    <span class="underlined-field field-decision-number"><b>{{commissionDecisionNumber}}</b></span>, na sjednici
+    održanoj dana
+    <span class="underlined-field field-date"><b>{{commissionMeetingDate}}</b></span>
+    razmotrila je pismeni završnog rad kandidata
+</div>
+
+<div class="student-name-container">
+    <span class="student-name-text">{{studentFullName}}</span>
+</div>
+
+<div class="thesis-title-container">
+    {{thesisTitle}}
+</div>
+
+<div class="evaluation-text">
+    Komisija je primljeni završni rad ocijenila sa <b>"zadovoljava"</b> i odredila je da se usmeni dio
+    ispita obavi dana
+    <span class="underlined-field field-date"><b>{{defenseDate}}</b></span>
+    godine sa početkom u
+    <span class="underlined-field field-time"><b>{{defenseTime}}</b></span>
+</div>
+
+<div class="defense-info">
+    {{defenseLocation}}.
+</div>
+
+<div class="public-notice">
+    Odbrana diplomskog rada je javna.
+</div>
+
+<div class="footer-section">
+    <table class="footer-table">
+        <tr>
+            <td class="footer-left">
+                <div class="delivery-list">
+                    <u>Dostavljeno:</u><br/>
+                    1 &#160;&#160;&#160;Oglasna ploča<br/>
+                    Dekan Fakulteta<sup>1</sup> &#160;&#160;&#160;a/a
+                </div>
+            </td>
+            <td class="footer-right">
+                <div class="sig-label">Dekan Fakulteta<sup>1</sup></div>
+                <div class="sig-line"></div>
+                <div class="dean-name">{{deanFullName}}</div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>

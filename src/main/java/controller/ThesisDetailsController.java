@@ -28,32 +28,53 @@ import java.util.Base64;
 
 public class ThesisDetailsController {
 
-    @FXML private Text titleValue;
-    @FXML private Text subjectValue;
-    @FXML private Text statusValue;
-    @FXML private Text applicationDateValue;
-    @FXML private Text defenseDateValue;
-    @FXML private Text gradeValue;
-    @FXML private Text studentName;
-    @FXML private Text studentIndex;
-    @FXML private Text studentEmail;
+    @FXML
+    private Text titleValue;
+    @FXML
+    private Text subjectValue;
+    @FXML
+    private Text statusValue;
+    @FXML
+    private Text applicationDateValue;
+    @FXML
+    private Text defenseDateValue;
+    @FXML
+    private Text gradeValue;
+    @FXML
+    private Text studentName;
+    @FXML
+    private Text studentIndex;
+    @FXML
+    private Text studentEmail;
 
-    @FXML private Text mentorTitle;
-    @FXML private Text mentorName;
-    @FXML private Text mentorEmail;
+    @FXML
+    private Text mentorTitle;
+    @FXML
+    private Text mentorName;
+    @FXML
+    private Text mentorEmail;
 
-    @FXML private VBox commissionNotFormedBox;
-    @FXML private VBox commissionFormedBox;
-    @FXML private Text chairmanName;
-    @FXML private Text memberName;
-    @FXML private Text mentorCommissionName;
-    @FXML private Text secretaryCommissionName;
-    @FXML private Text substituteName;
+    @FXML
+    private VBox commissionNotFormedBox;
+    @FXML
+    private VBox commissionFormedBox;
+    @FXML
+    private Text chairmanName;
+    @FXML
+    private Text memberName;
+    @FXML
+    private Text mentorCommissionName;
+    @FXML
+    private Text secretaryCommissionName;
+    @FXML
+    private Text substituteName;
 
-    @FXML private ProgressIndicator loader;
+    @FXML
+    private ProgressIndicator loader;
 
     // DOCUMENTS UI CONTAINER
-    @FXML private VBox documentsContainer;
+    @FXML
+    private VBox documentsContainer;
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
@@ -269,9 +290,10 @@ public class ThesisDetailsController {
             case "Zapisnik o pismenom dijelu diplomskog rada" -> handleOpenWrittenExamReport();
             case "Zapisnik sa odbrane" -> handleOpenDefenseReport();
 
-            case "Rješenje o formiranju Komisije" ->handleOpenCommissionReport();
-            case    "Obavijest",
-                 "Uvjerenje o završenom ciklusu" -> GlobalErrorHandler.info("Ovaj dokument još nije implementiran u editoru.");
+            case "Rješenje o formiranju Komisije" -> handleOpenCommissionReport();
+            case "Obavijest" -> handleOpenObavijest();
+            case "Uvjerenje o završenom ciklusu" ->
+            GlobalErrorHandler.info("Ovaj dokument još nije implementiran u editoru.");
 
             default -> GlobalErrorHandler.info("Nepoznat tip dokumenta: " + name);
         }
@@ -479,6 +501,7 @@ public class ThesisDetailsController {
         );
         alert.showAndWait();
     }
+
     @FXML
     private void handleOpenCommissionReport() {
         if (currentCommission == null || currentCommission.getMember1() == null) {
@@ -490,6 +513,39 @@ public class ThesisDetailsController {
                 "/app/commissionReport.fxml",
                 "Rješenje o formiranju komisije",
                 (CommissionReportController controller) -> controller.initWithThesisId(thesisId)
+        );
+    }
+
+    @FXML
+    private void handleOpenObavijest() {
+        if (currentCommission == null || currentCommission.getMember1() == null) {
+            GlobalErrorHandler.error("Komisija mora biti formirana prije kreiranja obavijesti.");
+            return;
+        }
+
+        // Check if required documents are READY
+        DocumentType commissionReportDocType = documentTypeDAO.getByName("Rješenje o formiranju Komisije");
+        if (commissionReportDocType != null) {
+            Document commissionReportDoc = documentDAO.getByThesisAndType(thesisId, commissionReportDocType.getId());
+            if (commissionReportDoc == null || commissionReportDoc.getStatus() != DocumentStatus.READY) {
+                GlobalErrorHandler.error("Dokument 'Rješenje o formiranju Komisije' mora biti završen prije kreiranja obavijesti.");
+                return;
+            }
+        }
+
+        DocumentType approvalDocType = documentTypeDAO.getByName("Rješenje o izradi završnog rada");
+        if (approvalDocType != null) {
+            Document approvalDoc = documentDAO.getByThesisAndType(thesisId, approvalDocType.getId());
+            if (approvalDoc == null || approvalDoc.getStatus() != DocumentStatus.READY) {
+                GlobalErrorHandler.error("Dokument 'Rješenje o izradi završnog rada' mora biti završen prije kreiranja obavijesti.");
+                return;
+            }
+        }
+
+        SceneManager.showWithData(
+                "/app/notice.fxml",
+                "Obavijest o terminu završnog rada",
+                (NoticeController controller) -> controller.initWithThesisId(thesisId)
         );
     }
 }

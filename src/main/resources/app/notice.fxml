@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane styleClass="root-container" stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.NoticeController">
+
+    <BorderPane prefHeight="800" prefWidth="1200"
+                AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0"
+                AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0">
+
+        <!-- TOP HEADER (same style as other screens) -->
+        <top>
+            <HBox alignment="CENTER" spacing="20" styleClass="top-header">
+                <padding>
+                    <Insets top="20" right="30" bottom="20" left="30"/>
+                </padding>
+
+                <Button text="←" onAction="#back"
+                        style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Text text="Rješenje o izradi završnog rada" styleClass="app-title"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Region prefWidth="30"/>
+            </HBox>
+        </top>
+
+        <!-- CENTER CONTENT -->
+        <center>
+            <ScrollPane fitToWidth="true" styleClass="cards-scroll-pane"
+                        hbarPolicy="NEVER">
+                <VBox spacing="25" styleClass="main-content">
+                    <padding>
+                        <Insets top="30" right="50" bottom="40" left="50"/>
+                    </padding>
+
+                    <!-- PAGE TITLE -->
+                    <VBox spacing="5">
+                        <Text text="Obavijest o terminu završnog rada" styleClass="page-title"/>
+                        <Text text="Provjerite podatke o studentu i unesite detalje o terminu odbrane."
+                              styleClass="page-subtitle"/>
+                    </VBox>
+
+                    <!-- CARD 1: STUDENT DATA -->
+                    <VBox spacing="15" styleClass="form-section">
+                        <padding>
+                            <Insets top="25" right="30" bottom="25" left="30"/>
+                        </padding>
+
+                        <Text text="Podaci o studentu" styleClass="section-title"/>
+
+                        <GridPane hgap="20" vgap="12">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="200"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                            </columnConstraints>
+
+                            <Label text="Student:" styleClass="field-label" GridPane.rowIndex="0"/>
+                            <Text fx:id="studentNameText" text="..." styleClass="field-value"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                            <Label text="Tema rada:" styleClass="field-label" GridPane.rowIndex="1"/>
+                            <Text fx:id="thesisTitleText" text="..." wrappingWidth="520"
+                                  styleClass="field-value"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                            <Label text="Broj rješenja komisije:" styleClass="field-label" GridPane.rowIndex="2"/>
+                            <Text fx:id="commissionDecisionNumberText" text="..."
+                                  styleClass="field-value"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                            <rowConstraints>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                            </rowConstraints>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- CARD 2: NOTICE DATA -->
+                    <VBox spacing="15" styleClass="form-section">
+                        <padding>
+                            <Insets top="25" right="30" bottom="25" left="30"/>
+                        </padding>
+
+                        <Text text="Podaci za obavijest" styleClass="section-title"/>
+
+                        <GridPane hgap="20" vgap="15">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="200"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                            </columnConstraints>
+
+                            <!-- Datum rješenja komisije -->
+                            <Label text="Datum rješenja komisije:" styleClass="field-label" GridPane.rowIndex="0"/>
+                            <DatePicker fx:id="commissionDecisionDatePicker"
+                                        promptText="Odaberite datum"
+                                        maxWidth="Infinity"
+                                        styleClass="form-field"
+                                        GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                            <!-- Datum sjednice komisije -->
+                            <Label text="Datum sjednice komisije:" styleClass="field-label" GridPane.rowIndex="1"/>
+                            <DatePicker fx:id="commissionMeetingDatePicker"
+                                        promptText="Odaberite datum"
+                                        maxWidth="Infinity"
+                                        styleClass="form-field"
+                                        GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                            <!-- Datum odbrane -->
+                            <Label text="Datum odbrane:" styleClass="field-label" GridPane.rowIndex="2"/>
+                            <DatePicker fx:id="defenseDatePicker"
+                                        promptText="Odaberite datum odbrane"
+                                        maxWidth="Infinity"
+                                        styleClass="form-field"
+                                        GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                            <!-- Vrijeme odbrane -->
+                            <Label text="Vrijeme odbrane:" styleClass="field-label" GridPane.rowIndex="3"/>
+                            <TextField fx:id="defenseTimeField"
+                                       promptText="npr. 09:00"
+                                       maxWidth="Infinity"
+                                       styleClass="form-field"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                            <Label text="Broj rješenja (4 cifre):" styleClass="field-label" GridPane.rowIndex="4"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                <TextField fx:id="documentNumberField"
+                                           promptText="2252"
+                                           prefWidth="110"
+                                           styleClass="form-field"/>
+                            </HBox>
+
+                            <rowConstraints>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                                <RowConstraints/>
+                            </rowConstraints>
+                        </GridPane>
+
+                        <Separator/>
+
+                        <Text text="* Datum odbrane će biti automatski ažuriran u završnom radu."
+                              styleClass="page-subtitle"/>
+                    </VBox>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="15">
+                        <Button text="Nazad" onAction="#back" styleClass="cancel-button"/>
+                        <Button text="Sačuvaj" onAction="#handleSave" styleClass="save-button"/>
+                    </HBox>
+                </VBox>
+            </ScrollPane>
+        </center>
+    </BorderPane>
+</AnchorPane>

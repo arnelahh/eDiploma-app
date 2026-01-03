@@ -137,14 +137,10 @@
                             <VBox spacing="5" HBox.hgrow="ALWAYS">
                                 <Label styleClass="field-label" text="Broj rješenja (4 cifre) *" />
                                 <HBox spacing="10" alignment="CENTER_LEFT">
-                                    <Label text="11-403-103-"
-                                           style="-fx-font-size: 14px; -fx-font-weight: bold;" />
                                     <TextField fx:id="documentNumberField"
                                                prefWidth="100"
                                                promptText="1295"
                                                styleClass="form-field" />
-                                    <Label text="/25"
-                                           style="-fx-font-size: 14px; -fx-font-weight: bold;" />
                                 </HBox>
                             </VBox>
                             <Region HBox.hgrow="ALWAYS" />

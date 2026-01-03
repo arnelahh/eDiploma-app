@@ -6,6 +6,7 @@ import dto.ThesisLockInfoDTO;
 import model.*;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -465,6 +466,29 @@ public class ThesisDAO {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, LOCK_TIMEOUT_MINUTES);
             ps.executeUpdate();
+        }
+    }
+
+    public void updateDefenseDate(int thesisId, LocalDate defenseDate) {
+        String sql = "UPDATE Thesis SET DefenseDate = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            if (defenseDate != null) {
+                ps.setDate(1, java.sql.Date.valueOf(defenseDate));
+            } else {
+                ps.setNull(1, java.sql.Types.DATE);
+            }
+            ps.setInt(2, thesisId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("Thesis sa ID " + thesisId + " nije pronađen.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri ažuriranju datuma odbrane.", e);
         }
     }
 }
