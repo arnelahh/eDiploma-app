@@ -7,8 +7,13 @@
         @page {
             size: A4;
             margin: 15mm 20mm 15mm 20mm;
-        }
 
+            @bottom-left {
+                content: "Obrazac PTF-SS-019";
+                font-size: 8pt;
+                font-family: 'Times New Roman', serif;
+            }
+        }
         body {
             font-family: 'Times New Roman', serif;
             font-size: 12pt;
@@ -75,12 +80,11 @@
             background-color: #d3d3d3;
         }
 
-        /* CENTRIRAN SEKRETARIJAT */
         .cell-studentska-sluzba {
             font-weight: bold;
             font-size: 13pt;
-            text-align: center; /* Centrirano horizontalno */
-            vertical-align: middle; /* Centrirano vertikalno */
+            text-align: center;
+            vertical-align: middle;
             height: 50px;
             padding: 0 !important;
         }
@@ -125,7 +129,7 @@
         /* MAIN TITLE */
         .main-title {
             text-align: center;
-            margin: 25px 0;
+            margin: 95px 0 60px 0;
         }
 
         .main-title h1 {
@@ -149,6 +153,19 @@
             margin-bottom: 15px;
         }
 
+        .underlined-field {
+            display: inline-block;
+            border-bottom: 1px solid #000;
+            padding: 0 5px 4px 5px;
+            text-align: center;
+            font-weight: normal;
+            line-height: 0.85;
+        }
+
+        .field-date { min-width: 120px; }
+        .field-time { min-width: 60px; }
+        .field-decision-number { min-width: 180px; }
+
         .student-name-container {
             margin: 5px 0 12px 0;
             padding-left: 70px;
@@ -156,7 +173,7 @@
 
         .student-name-text {
             display: block;
-            font-weight: normal;
+            font-weight: bold;
             text-transform: uppercase;
             border-bottom: 1px solid #000;
             padding-bottom: 0;
@@ -192,6 +209,7 @@
             text-align: center;
             text-transform: uppercase;
             font-size: 13pt;
+            font-weight: bold;
         }
 
         .thesis-line-full {
@@ -200,33 +218,79 @@
             text-align: center;
             text-transform: uppercase;
             font-size: 13pt;
+            font-weight: bold;
             margin-bottom: 4px;
             min-height: 1.2em;
         }
 
-        .underlined-field {
-            display: inline-block;
-            border-bottom: 1px solid #000;
-            padding: 0 5px 2px 5px;
-            text-align: center;
-        }
-
-        .field-date { min-width: 120px; }
-        .field-time { min-width: 60px; }
-        .field-decision-number { min-width: 180px; }
-
         .defense-info { text-align: justify; margin-top: 5px; margin-bottom: 20px; }
         .public-notice { text-align: justify; margin-top: 20px; margin-bottom: 30px; }
 
-        .footer-section { margin-top: 50px; }
-        .footer-table { width: 100%; }
-        .footer-table td { vertical-align: top; }
-        .footer-left { width: 50%; padding-right: 20px; }
-        .footer-right { width: 50%; text-align: center; padding-left: 40px; }
-        .delivery-list { font-size: 10pt; line-height: 1.6; }
-        .sig-label { margin-bottom: 40px; font-size: 12pt; }
-        .sig-line { border-top: 1px solid #000; width: 250px; margin: 0 auto; }
-        .dean-name { margin-top: 10px; }
+        .footer-section {
+            margin-top: 50px;
+            width: 100%;
+        }
+
+        .footer-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .footer-table td {
+            vertical-align: top;
+            border: none;
+        }
+
+        .footer-left {
+            width: 250px;
+            padding-right: 20px;
+        }
+
+        .footer-right {
+            text-align: center;
+            padding-top: 10px;
+            padding-left: 40px;
+        }
+
+        .delivery-box-table {
+            width: 190px; /* Prilagođena širina tabeli sa slike */
+            border: 1px solid #000;
+            border-collapse: collapse;
+            font-size: 10pt;
+        }
+
+        .delivery-header {
+            background-color: #f2f2f2;
+            border-bottom: 1px solid #000 !important;
+            font-weight: normal;
+            padding: 4px 5px !important;
+            text-align: left;
+        }
+
+        .delivery-row td {
+            padding: 1px 0;
+            height: 1.3em;
+        }
+
+        .col-num { width: 30px; text-align: center; }
+        .col-x { width: 30px; text-align: center; }
+        .col-dest { text-align: left; padding-left: 5px; }
+
+        .sig-label {
+            margin-bottom: 40px;
+            font-size: 12pt;
+        }
+
+        .sig-line {
+            border-bottom: 1px solid #000;
+            width: 250px;
+            margin: 0 auto;
+        }
+
+        .dean-name {
+            margin-top: 10px;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -282,9 +346,9 @@
 
 <div class="content-text">
     Komisija za diplomski rad, imenovana Rješenjem br.
-    <span class="underlined-field field-decision-number"><b>{{commissionDecisionNumber}}</b></span>, na sjednici
+    <span class="underlined-field field-decision-number">{{commissionDecisionNumber}}</span>, na sjednici
     održanoj dana
-    <span class="underlined-field field-date"><b>{{commissionMeetingDate}}</b></span>
+    <span class="underlined-field field-date">{{commissionMeetingDate}}</span>
     razmotrila je pismeni završnog rad kandidata
 </div>
 
@@ -297,11 +361,11 @@
 </div>
 
 <div class="evaluation-text">
-    Komisija je primljeni završni rad ocijenila sa <b>"zadovoljava"</b> i odredila je da se usmeni dio
+    Komisija je primljeni završni rad ocijenila sa "zadovoljava" i odredila je da se usmeni dio
     ispita obavi dana
-    <span class="underlined-field field-date"><b>{{defenseDate}}</b></span>
+    <span class="underlined-field field-date">{{defenseDate}}</span>
     godine sa početkom u
-    <span class="underlined-field field-time"><b>{{defenseTime}}</b></span>
+    <span class="underlined-field field-time">{{defenseTime}}</span>
 </div>
 
 <div class="defense-info">
@@ -316,14 +380,34 @@
     <table class="footer-table">
         <tr>
             <td class="footer-left">
-                <div class="delivery-list">
-                    <u>Dostavljeno:</u><br/>
-                    1 &#160;&#160;&#160;Oglasna ploča<br/>
-                    Dekan Fakulteta<sup>1</sup> &#160;&#160;&#160;a/a
-                </div>
+                <table class="delivery-box-table">
+                    <tr>
+                        <td class="delivery-header" colspan="3">Dostavljeno:</td>
+                    </tr>
+                    <tr class="delivery-row">
+                        <td class="col-num">1</td>
+                        <td class="col-x">x</td>
+                        <td class="col-dest">Oglasna ploča</td>
+                    </tr>
+                    <tr class="delivery-row">
+                        <td class="col-num">1</td>
+                        <td class="col-x">x</td>
+                        <td class="col-dest">a/a</td>
+                    </tr>
+                    <tr class="delivery-row">
+                        <td class="col-num"></td>
+                        <td class="col-x">x</td>
+                        <td class="col-dest"></td>
+                    </tr>
+                    <tr class="delivery-row">
+                        <td class="col-num"></td>
+                        <td class="col-x">x</td>
+                        <td class="col-dest"></td>
+                    </tr>
+                </table>
             </td>
             <td class="footer-right">
-                <div class="sig-label">Dekan Fakulteta<sup>1</sup></div>
+                <div class="sig-label">Dekan Fakulteta</div>
                 <div class="sig-line"></div>
                 <div class="dean-name">{{deanFullName}}</div>
             </td>

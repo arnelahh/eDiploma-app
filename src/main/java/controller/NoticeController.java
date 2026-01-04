@@ -392,7 +392,6 @@ public class NoticeController {
             currentLine.append(word);
         }
 
-        // Zadnja linija
         if (currentLine.length() > 0) {
             if (isFirstLine) {
                 html.append("<table class=\"thesis-line-table\"><tr>")
