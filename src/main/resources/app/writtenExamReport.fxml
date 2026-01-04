@@ -154,7 +154,7 @@
 
                     <HBox alignment="CENTER_RIGHT" spacing="15">
                         <Button onAction="#back" styleClass="cancel-button" text="Nazad" />
-                        <Button onAction="#handleDownloadPDF" styleClass="save-button" text="Sačuvaj" />
+                        <Button onAction="#handleSave" styleClass="save-button" text="Sačuvaj" />
                     </HBox>
 
                 </VBox>

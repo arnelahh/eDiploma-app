@@ -2,21 +2,25 @@ package controller;
 
 import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import dao.CommissionDAO;
-import dao.ThesisDAO;
+import dao.*;
 import dto.ThesisDetailsDTO;
 import dto.WrittenExamReportDTO;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 import model.Commission;
+import model.AppUser;
+import model.Document;
+import model.DocumentType;
+import model.DocumentStatus;
 import utils.GlobalErrorHandler;
 import utils.SceneManager;
+import utils.UserSession;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 
 public class WrittenExamReportController {
 
@@ -33,6 +37,9 @@ public class WrittenExamReportController {
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
+    private final DocumentDAO documentDAO = new DocumentDAO();
+    private final DocumentTypeDAO documentTypeDAO = new DocumentTypeDAO();
+    private DocumentType thisDocType;
 
     private int thesisId;
     private ThesisDetailsDTO thesisDetails;
@@ -52,6 +59,7 @@ public class WrittenExamReportController {
 
             if (thesisDetails == null) {
                 GlobalErrorHandler.error("Završni rad nije pronađen.");
+                back();
                 return;
             }
 
@@ -61,7 +69,20 @@ public class WrittenExamReportController {
                 return;
             }
 
+            thisDocType = documentTypeDAO.getByName("Zapisnik o pismenom dijelu diplomskog rada");
+            if (thisDocType == null) {
+                GlobalErrorHandler.error("DocumentType nije pronađen.");
+                back();
+                return;
+            }
+
             populateFields();
+
+            // Učitaj postojeći dokument ako postoji
+            Document existing = documentDAO.getByThesisAndType(thesisId, thisDocType.getId());
+            if (existing != null && existing.getDocumentNumber() != null) {
+                facultyDecisionField.setText(existing.getDocumentNumber());
+            }
 
         } catch (Exception e) {
             GlobalErrorHandler.error("Greška pri učitavanju podataka.", e);
@@ -69,16 +90,14 @@ public class WrittenExamReportController {
     }
 
     private void populateFields() {
-        // Student
         if (thesisDetails.getStudent() != null) {
-            studentNameText.setText(thesisDetails.getStudent().getLastName() + " " + thesisDetails.getStudent().getFirstName());
+            studentNameText.setText(thesisDetails.getStudent().getLastName() + " " +
+                    thesisDetails.getStudent().getFirstName());
         }
 
-        // Thesis title
         thesisTitleText.setText(thesisDetails.getTitle() != null ?
                 thesisDetails.getTitle().toUpperCase() : "");
 
-        // Mentor
         if (thesisDetails.getMentor() != null) {
             String mentorName = (thesisDetails.getMentor().getTitle() != null ?
                     thesisDetails.getMentor().getTitle() + " " : "") +
@@ -87,7 +106,6 @@ public class WrittenExamReportController {
             mentorNameText.setText(mentorName);
         }
 
-        // Submission date (use application date or approval date)
         LocalDate dateToShow = thesisDetails.getApprovalDate() != null ?
                 thesisDetails.getApprovalDate() :
                 thesisDetails.getApplicationDate();
@@ -98,7 +116,6 @@ public class WrittenExamReportController {
             submissionDateText.setText("—");
         }
 
-        // Commission
         if (commission.getMember1() != null) {
             chairmanText.setText(formatMemberName(commission.getMember1()));
         }
@@ -113,12 +130,10 @@ public class WrittenExamReportController {
             member2Text.setText("—");
         }
 
-        // Secretary
         if (thesisDetails.getSecretary() != null) {
             secretaryText.setText(formatMemberName(thesisDetails.getSecretary()));
         }
 
-        // Proposed grade
         if (thesisDetails.getGrade() != null && thesisDetails.getGrade() > 0) {
             proposedGradeText.setText(String.valueOf(thesisDetails.getGrade()));
         } else {
@@ -133,102 +148,57 @@ public class WrittenExamReportController {
     }
 
     @FXML
-    private void handleDownloadPDF() {
+    private void handleSave() {
         String facultyDecision = facultyDecisionField.getText();
         if (facultyDecision == null || facultyDecision.trim().isEmpty()) {
             GlobalErrorHandler.error("Molimo unesite broj rješenja Fakulteta.");
             return;
         }
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Sačuvaj PDF");
-        fileChooser.setInitialFileName("Zapisnik_Pismeni_" +
-                thesisDetails.getStudent().getLastName() + "_" +
-                thesisDetails.getStudent().getIndexNumber() + ".pdf");
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
-        );
+        try {
+            byte[] pdfBytes = generatePdfBytes();
+            String base64 = Base64.getEncoder().encodeToString(pdfBytes);
 
-        File file = fileChooser.showSaveDialog(facultyDecisionField.getScene().getWindow());
+            String docNumber = facultyDecision.trim();
+            DocumentStatus status = (!docNumber.isBlank())
+                    ? DocumentStatus.READY
+                    : DocumentStatus.IN_PROGRESS;
 
-        if (file != null) {
-            try {
-                generatePDF(file);
-                GlobalErrorHandler.info("PDF je uspješno sačuvan!");
-            } catch (Exception e) {
-                GlobalErrorHandler.error("Greška pri kreiranju PDF-a.", e);
-            }
+            Integer userId = null;
+            AppUser u = UserSession.getUser();
+            if (u != null) userId = u.getId();
+
+            documentDAO.upsert(
+                    thesisId,
+                    thisDocType.getId(),
+                    base64,
+                    userId,
+                    docNumber,
+                    status
+            );
+
+            GlobalErrorHandler.info("Dokument je uspješno sačuvan.");
+            back();
+
+        } catch (Exception e) {
+            GlobalErrorHandler.error("Greška pri snimanju dokumenta.", e);
         }
     }
 
-    private File getFontFileFromResources(String fileName) throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/fonts/" + fileName);
-        if (inputStream == null) {
-            throw new FileNotFoundException("Font file not found in resources: " + fileName);
-        }
-
-        File tempFile = File.createTempFile("pdf_font_", ".ttf");
-        tempFile.deleteOnExit();
-
-        try (FileOutputStream out = new FileOutputStream(tempFile)) {
-            inputStream.transferTo(out);
-        }
-        return tempFile;
-    }
-
-    /**
-     * Splits the thesis title into two parts for PDF display.
-     * First part: up to ~50 characters (breaks at last space)
-     * Second part: remaining text
-     * Both parts are uppercase and wrapped in quotes.
-     * ISTA LOGIKA KAO U DefenseReportController - TARGET 50
-     */
-    private String[] splitThesisTitle(String fullTitle) {
-        if (fullTitle == null || fullTitle.isEmpty()) {
-            return new String[]{"\"\"", "\"\""};
-        }
-
-        String upperTitle = fullTitle.toUpperCase();
-
-        // Target length for first line (around 50 chars)
-        int targetLength = 50;
-
-        // If title is short enough, put it all on first line
-        if (upperTitle.length() <= targetLength) {
-            return new String[]{"\"" + upperTitle + "\"", ""};
-        }
-
-        // Find the last space before target length
-        int splitIndex = upperTitle.lastIndexOf(' ', targetLength);
-
-        // If no space found, or space is too early, use target length
-        if (splitIndex < 25) {
-            splitIndex = targetLength;
-        }
-
-        String firstPart = "\"" + upperTitle.substring(0, splitIndex).trim();
-        String secondPart = upperTitle.substring(splitIndex).trim() + "\"";
-
-        return new String[]{firstPart, secondPart};
-    }
-
-    private void generatePDF(File outputFile) throws Exception {
+    private byte[] generatePdfBytes() throws Exception {
         LocalDate dateToShow = thesisDetails.getApprovalDate() != null ?
                 thesisDetails.getApprovalDate() :
                 thesisDetails.getApplicationDate();
 
-        // Split thesis title into two parts - TARGET 50
         String[] titleParts = splitThesisTitle(thesisDetails.getTitle());
-
-        // Check if second line is too long (more than ~70 chars) - needs smaller font on BOTH lines
         boolean useSmallFont = titleParts[1].length() > 70;
 
         WrittenExamReportDTO dto = WrittenExamReportDTO.builder()
                 .studentFullName(thesisDetails.getStudent().getLastName() + " " +
                         thesisDetails.getStudent().getFirstName())
                 .thesisTitle(thesisDetails.getTitle())
-                .thesisTitleLine1(titleParts[0])  // First part with opening quote
-                .thesisTitleLine2(titleParts[1])  // Second part with closing quote
+                .thesisTitleLine1(titleParts[0])
+                .thesisTitleLine2(titleParts[1])
                 .mentorFullName(formatMemberName(thesisDetails.getMentor()))
                 .submissionDate(dateToShow)
                 .chairmanFullName(formatMemberName(commission.getMember1()))
@@ -242,7 +212,6 @@ public class WrittenExamReportController {
 
         String html = loadTemplate();
 
-        // Dodaj CSS klasu za smanjeni font na OBE linije ako je potrebno
         String line1Class = useSmallFont ? "thesis-line-1 thesis-line-1-small" : "thesis-line-1";
         String line2Class = useSmallFont ? "thesis-line-2 thesis-line-2-small" : "thesis-line-2";
 
@@ -262,7 +231,7 @@ public class WrittenExamReportController {
                 .replace("{{proposedGrade}}", dto.getProposedGrade() != null ?
                         String.valueOf(dto.getProposedGrade()) : "—");
 
-        try (OutputStream os = new FileOutputStream(outputFile)) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
 
@@ -276,10 +245,52 @@ public class WrittenExamReportController {
 
             String baseUrl = getClass().getResource("/templates/").toExternalForm();
             builder.withHtmlContent(html, baseUrl);
-            builder.toStream(os);
+            builder.toStream(baos);
             builder.run();
+
+            return baos.toByteArray();
         }
     }
+
+    private File getFontFileFromResources(String fileName) throws IOException {
+        InputStream inputStream = getClass().getResourceAsStream("/fonts/" + fileName);
+        if (inputStream == null) {
+            throw new FileNotFoundException("Font file not found in resources: " + fileName);
+        }
+
+        File tempFile = File.createTempFile("pdf_font_", ".ttf");
+        tempFile.deleteOnExit();
+
+        try (FileOutputStream out = new FileOutputStream(tempFile)) {
+            inputStream.transferTo(out);
+        }
+        return tempFile;
+    }
+
+    private String[] splitThesisTitle(String fullTitle) {
+        if (fullTitle == null || fullTitle.isEmpty()) {
+            return new String[]{"\"\"", "\"\""};
+        }
+
+        String upperTitle = fullTitle.toUpperCase();
+        int targetLength = 50;
+
+        if (upperTitle.length() <= targetLength) {
+            return new String[]{"\"" + upperTitle + "\"", ""};
+        }
+
+        int splitIndex = upperTitle.lastIndexOf(' ', targetLength);
+
+        if (splitIndex < 25) {
+            splitIndex = targetLength;
+        }
+
+        String firstPart = "\"" + upperTitle.substring(0, splitIndex).trim();
+        String secondPart = upperTitle.substring(splitIndex).trim() + "\"";
+
+        return new String[]{firstPart, secondPart};
+    }
+
     private String loadTemplate() throws IOException {
         InputStream is = getClass().getResourceAsStream("/templates/written_exam_report_template.html");
         if (is == null) {
