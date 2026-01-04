@@ -2,20 +2,24 @@ package controller;
 
 import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import dao.CommissionDAO;
-import dao.ThesisDAO;
+import dao.*;
 import dto.DefenseReportDTO;
 import dto.ThesisDetailsDTO;
 import javafx.fxml.FXML;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 import model.Commission;
+import model.AppUser;
+import model.Document;
+import model.DocumentType;
+import model.DocumentStatus;
 import utils.GlobalErrorHandler;
 import utils.SceneManager;
+import utils.UserSession;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 
 public class DefenseReportController {
 
@@ -31,6 +35,9 @@ public class DefenseReportController {
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
+    private final DocumentDAO documentDAO = new DocumentDAO();
+    private final DocumentTypeDAO documentTypeDAO = new DocumentTypeDAO();
+    private DocumentType thisDocType;
 
     private int thesisId;
     private ThesisDetailsDTO thesisDetails;
@@ -50,11 +57,19 @@ public class DefenseReportController {
 
             if (thesisDetails == null) {
                 GlobalErrorHandler.error("Završni rad nije pronađen.");
+                back();
                 return;
             }
 
             if (commission == null || commission.getMember1() == null) {
                 GlobalErrorHandler.error("Komisija nije formirana za ovaj rad.");
+                back();
+                return;
+            }
+
+            thisDocType = documentTypeDAO.getByName("Zapisnik sa odbrane");
+            if (thisDocType == null) {
+                GlobalErrorHandler.error("DocumentType nije pronađen.");
                 back();
                 return;
             }
@@ -67,17 +82,14 @@ public class DefenseReportController {
     }
 
     private void populateFields() {
-        // Student
         if (thesisDetails.getStudent() != null) {
             studentNameText.setText(thesisDetails.getStudent().getLastName() + " " +
                     thesisDetails.getStudent().getFirstName());
         }
 
-        // Thesis title
         thesisTitleText.setText(thesisDetails.getTitle() != null ?
                 thesisDetails.getTitle().toUpperCase() : "");
 
-        // Mentor
         if (thesisDetails.getMentor() != null) {
             String mentorName = (thesisDetails.getMentor().getTitle() != null ?
                     thesisDetails.getMentor().getTitle() + " " : "") +
@@ -86,7 +98,6 @@ public class DefenseReportController {
             mentorNameText.setText(mentorName);
         }
 
-        // Defense date
         LocalDate defenseDate = thesisDetails.getDefenseDate();
         if (defenseDate != null) {
             defenseDateText.setText(defenseDate.format(DATE_FORMAT));
@@ -94,7 +105,6 @@ public class DefenseReportController {
             defenseDateText.setText("—");
         }
 
-        // Commission
         if (commission.getMember1() != null) {
             chairmanText.setText(formatMemberName(commission.getMember1()));
         }
@@ -109,12 +119,10 @@ public class DefenseReportController {
             member2Text.setText("—");
         }
 
-        // Secretary
         if (thesisDetails.getSecretary() != null) {
             secretaryText.setText(formatMemberName(thesisDetails.getSecretary()));
         }
 
-        // Final grade
         if (thesisDetails.getGrade() != null && thesisDetails.getGrade() > 0) {
             finalGradeText.setText(String.valueOf(thesisDetails.getGrade()));
         } else {
@@ -129,91 +137,46 @@ public class DefenseReportController {
     }
 
     @FXML
-    private void handleDownloadPDF() {
+    private void handleSave() {
+        try {
+            byte[] pdfBytes = generatePdfBytes();
+            String base64 = Base64.getEncoder().encodeToString(pdfBytes);
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Sačuvaj PDF");
-        fileChooser.setInitialFileName("Zapisnik_Odbrana_" +
-                thesisDetails.getStudent().getLastName() + "_" +
-                thesisDetails.getStudent().getIndexNumber() + ".pdf");
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
-        );
+            // Za Defense Report, dokument broj nije obavezan
+            DocumentStatus status = DocumentStatus.READY;
 
-        File file = fileChooser.showSaveDialog(finalGradeText.getScene().getWindow());
+            Integer userId = null;
+            AppUser u = UserSession.getUser();
+            if (u != null) userId = u.getId();
 
-        if (file != null) {
-            try {
-                generatePDF(file);
-                GlobalErrorHandler.info("PDF je uspješno sačuvan!");
-            } catch (Exception e) {
-                GlobalErrorHandler.error("Greška pri kreiranju PDF-a.", e);
-            }
+            documentDAO.upsert(
+                    thesisId,
+                    thisDocType.getId(),
+                    base64,
+                    userId,
+                    null, // Nema document number za defense report
+                    status
+            );
+
+            GlobalErrorHandler.info("Dokument je uspješno sačuvan.");
+            back();
+
+        } catch (Exception e) {
+            GlobalErrorHandler.error("Greška pri snimanju dokumenta.", e);
         }
     }
 
-    private File getFontFileFromResources(String fileName) throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream("/fonts/" + fileName);
-        if (inputStream == null) {
-            throw new FileNotFoundException("Font file not found in resources: " + fileName);
-        }
-
-        File tempFile = File.createTempFile("pdf_font_", ".ttf");
-        tempFile.deleteOnExit();
-
-        try (FileOutputStream out = new FileOutputStream(tempFile)) {
-            inputStream.transferTo(out);
-        }
-        return tempFile;
-    }
-
-    /**
-     * Splits the thesis title into two parts for PDF display.
-     * First part: up to ~40 characters (breaks at last space)
-     * Second part: remaining text
-     * Both parts are uppercase and wrapped in quotes.
-     */
-    private String[] splitThesisTitle(String fullTitle) {
-        if (fullTitle == null || fullTitle.isEmpty()) {
-            return new String[]{"\"\"", "\"\""};
-        }
-
-        String upperTitle = fullTitle.toUpperCase();
-
-        // Target length for first line (around 40 chars)
-        int targetLength = 40;
-
-        // If title is short enough, put it all on first line
-        if (upperTitle.length() <= targetLength) {
-            return new String[]{"\"" + upperTitle + "\"", ""};
-        }
-
-        // Find the last space before target length
-        int splitIndex = upperTitle.lastIndexOf(' ', targetLength);
-
-        // If no space found, or space is too early, use target length
-        if (splitIndex < 20) {
-            splitIndex = targetLength;
-        }
-
-        String firstPart = "\"" + upperTitle.substring(0, splitIndex).trim();
-        String secondPart = upperTitle.substring(splitIndex).trim() + "\"";
-
-        return new String[]{firstPart, secondPart};
-    }
-
-    private void generatePDF(File outputFile) throws Exception {
+    private byte[] generatePdfBytes() throws Exception {
         LocalDate defenseDate = thesisDetails.getDefenseDate();
 
-        // Split thesis title into two parts
         String[] titleParts = splitThesisTitle(thesisDetails.getTitle());
 
         DefenseReportDTO dto = DefenseReportDTO.builder()
                 .studentFullName(thesisDetails.getStudent().getLastName() + " " +
                         thesisDetails.getStudent().getFirstName())
                 .thesisTitle(thesisDetails.getTitle())
-                .thesisTitleLine1(titleParts[0])  // First part with opening quote
-                .thesisTitleLine2(titleParts[1])  // Second part with closing quote
+                .thesisTitleLine1(titleParts[0])
+                .thesisTitleLine2(titleParts[1])
                 .mentorFullName(formatMemberName(thesisDetails.getMentor()))
                 .defenseDate(defenseDate)
                 .chairmanFullName(formatMemberName(commission.getMember1()))
@@ -238,7 +201,7 @@ public class DefenseReportController {
                 .replace("{{finalGrade}}", dto.getFinalGrade() != null ?
                         String.valueOf(dto.getFinalGrade()) : "—");
 
-        try (OutputStream os = new FileOutputStream(outputFile)) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
 
@@ -252,9 +215,50 @@ public class DefenseReportController {
 
             String baseUrl = getClass().getResource("/templates/").toExternalForm();
             builder.withHtmlContent(html, baseUrl);
-            builder.toStream(os);
+            builder.toStream(baos);
             builder.run();
+
+            return baos.toByteArray();
         }
+    }
+
+    private File getFontFileFromResources(String fileName) throws IOException {
+        InputStream inputStream = getClass().getResourceAsStream("/fonts/" + fileName);
+        if (inputStream == null) {
+            throw new FileNotFoundException("Font file not found in resources: " + fileName);
+        }
+
+        File tempFile = File.createTempFile("pdf_font_", ".ttf");
+        tempFile.deleteOnExit();
+
+        try (FileOutputStream out = new FileOutputStream(tempFile)) {
+            inputStream.transferTo(out);
+        }
+        return tempFile;
+    }
+
+    private String[] splitThesisTitle(String fullTitle) {
+        if (fullTitle == null || fullTitle.isEmpty()) {
+            return new String[]{"\"\"", "\"\""};
+        }
+
+        String upperTitle = fullTitle.toUpperCase();
+        int targetLength = 40;
+
+        if (upperTitle.length() <= targetLength) {
+            return new String[]{"\"" + upperTitle + "\"", ""};
+        }
+
+        int splitIndex = upperTitle.lastIndexOf(' ', targetLength);
+
+        if (splitIndex < 20) {
+            splitIndex = targetLength;
+        }
+
+        String firstPart = "\"" + upperTitle.substring(0, splitIndex).trim();
+        String secondPart = upperTitle.substring(splitIndex).trim() + "\"";
+
+        return new String[]{firstPart, secondPart};
     }
 
     private String loadTemplate() throws IOException {
