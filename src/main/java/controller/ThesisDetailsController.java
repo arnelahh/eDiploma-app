@@ -292,8 +292,7 @@ public class ThesisDetailsController {
 
             case "Rješenje o formiranju Komisije" -> handleOpenCommissionReport();
             case "Obavijest" -> handleOpenObavijest();
-            case "Uvjerenje o završenom ciklusu" ->
-            GlobalErrorHandler.info("Ovaj dokument još nije implementiran u editoru.");
+            case "Uvjerenje o završenom ciklusu" -> handleOpenCycleCompletion();
 
             default -> GlobalErrorHandler.info("Nepoznat tip dokumenta: " + name);
         }
@@ -548,4 +547,13 @@ public class ThesisDetailsController {
                 (NoticeController controller) -> controller.initWithThesisId(thesisId)
         );
     }
+    @FXML
+    private void handleOpenCycleCompletion() {
+        SceneManager.showWithData(
+                "/app/cycleCompletion.fxml",
+                "Uvjerenje o završenom ciklusu",
+                (CycleCompletionController controller) -> controller.initWithThesisId(thesisId)
+        );
+    }
+
 }
