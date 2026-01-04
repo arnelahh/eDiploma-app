@@ -215,8 +215,10 @@
                                             <Text fx:id="substituteName" text="—" styleClass="info-card-value"/>
                                         </VBox>
 
-                                        <Button text="Uredi komisiju" onAction="#handleEditCommission"
-                                                styleClass="edit-commission-button"/>
+                                        <HBox alignment="CENTER">
+                                            <Button text="Uredi komisiju" onAction="#handleEditCommission"
+                                                    styleClass="edit-commission-button"/>
+                                        </HBox>
                                     </VBox>
                                 </VBox>
                             </VBox>
