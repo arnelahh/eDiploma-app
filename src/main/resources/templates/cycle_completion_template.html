@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Uvjerenje o završenom prvom ciklusu studija</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm 15mm 15mm 15mm;
+        }
+
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.3;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* WATERMARK */
+        #watermark-container {
+            position: absolute;
+            top: 250px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 650px;
+            z-index: -999;
+            opacity: 0.12;
+        }
+
+        #watermark-container img {
+            width: 100%;
+            height: auto;
+        }
+
+        /* --- HEADER TABELA --- */
+        table.header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #000;
+            margin-bottom: 25px;
+            table-layout: fixed;
+        }
+
+        table.header-table td {
+            border: 1px solid #000;
+            vertical-align: middle;
+            padding: 4px;
+        }
+
+        .row1-col1 {
+            width: 55%;
+            font-size: 10pt;
+            font-weight: bold;
+            line-height: 1.2;
+            padding-left: 8px !important;
+        }
+
+        .row1-col2 {
+            width: 20%;
+            text-align: center;
+            border-bottom: 1px solid #000;
+            padding: 5px !important;
+        }
+
+        .row1-col3 {
+            width: 25%;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14pt;
+            background-color: #e6e6e6;
+            font-family: 'Times New Roman', serif;
+        }
+
+        /* --- KOCKICE --- */
+        .boxes-cell {
+            padding: 0 !important;
+            vertical-align: top !important;
+            height: 55px;
+        }
+
+        .protocol-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+            margin: 0;
+        }
+
+        .protocol-table td {
+            border: none;
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            text-align: center;
+            font-size: 11pt;
+            height: 28px;
+            width: 5.55%;
+            vertical-align: middle;
+            padding: 0;
+        }
+
+        .protocol-table td:last-child {
+            border-right: none;
+        }
+
+        .date-line {
+            padding: 5px 0 0 8px;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+
+        .sekretarijat-cell {
+            text-align: center;
+            font-weight: bold;
+            font-size: 11pt;
+            background-color: #e6e6e6;
+            line-height: 1.2;
+        }
+
+        /* --- GLAVNI SADRŽAJ --- */
+        .intro-text {
+            text-align: justify;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            font-size: 11.5pt;
+        }
+
+        .main-title {
+            text-align: center;
+            margin: 25px 0 35px 0;
+        }
+
+        .main-title h1 {
+            font-size: 18pt;
+            font-weight: bold;
+            margin: 0;
+            line-height: 1.2;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- LINIJE ZA UPIS --- */
+        .form-row {
+            width: 100%;
+            margin-bottom: 5px;
+            text-align: justify;
+            text-align-last: center;
+            line-height: 1.5;
+            font-size: 12pt;
+        }
+
+        .input-line {
+            display: inline-block;
+            border-bottom: 1px solid #000;
+            text-align: center;
+            padding: 0 5px;
+            font-weight: normal;
+            vertical-align: bottom;
+            margin: 0 2px;
+            white-space: nowrap;
+        }
+
+        /* Sirine linija - DODATNO SMANJENE NA ZADNJOJ LINIJI */
+        .w-name { min-width: 320px; }
+        .w-date-short { min-width: 90px; }
+        .w-place { min-width: 160px; }
+        .w-municipality { min-width: 150px; }
+        .w-country { min-width: 150px; }
+        .w-cycle { min-width: 70px; }
+        .w-duration { min-width: 60px; }
+        .w-ects { min-width: 60px; }
+        /* Jos smanjeno da stane sve u red */
+        .w-program { min-width: 180px; }
+        .w-date-med { min-width: 90px; }
+
+        /* --- AKADEMSKA TITULA --- */
+        .title-box {
+            text-align: center;
+            margin: 25px 0 0 0;
+        }
+
+        .title-text {
+            font-weight: bold;
+            font-size: 14pt;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .title-underline {
+            border-bottom: 1px solid #000;
+            width: 100%;
+            height: 1px;
+            margin-bottom: 20px;
+        }
+
+        .closing {
+            text-align: center;
+            margin: 0 0 20px 0;
+            border-bottom: 1px solid #000;
+            padding-bottom: 2px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        /* --- FOOTER - POZICIJA NA DNU --- */
+        .footer-wrapper {
+            margin-top: 130px;
+            width: 100%;
+            display: table;
+        }
+
+        .footer-left {
+            display: table-cell;
+            width: 35%;
+            vertical-align: top;
+        }
+
+        .footer-right {
+            display: table-cell;
+            width: 65%;
+            vertical-align: bottom;
+            text-align: right;
+            padding-right: 20px;
+        }
+
+        /* --- DOSTAVLJENO KUTIJA --- */
+        .delivery-box {
+            border: 1px solid #000;
+            padding: 0;
+            width: 180px;
+        }
+
+        .delivery-header {
+            background-color: #e6e6e6;
+            font-size: 10pt;
+            font-weight: bold;
+            padding: 5px;
+            border-bottom: 1px solid #000;
+        }
+
+        .delivery-content {
+            padding: 5px;
+        }
+
+        .delivery-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10pt;
+            line-height: 1.5;
+        }
+
+        .delivery-table td {
+            padding: 0;
+            vertical-align: top;
+        }
+
+        .col-num { width: 15px; }
+        .col-x { width: 20px; text-align: center; }
+        .col-text { text-align: left; }
+
+        .form-code {
+            font-size: 8pt;
+            margin-top: 15px;
+        }
+
+        /* POTPIS */
+        .signature-block {
+            display: inline-block;
+            text-align: center;
+            width: 250px;
+        }
+
+        .sig-title {
+            margin-bottom: 40px;
+            font-size: 12pt;
+        }
+
+        .sig-line {
+            border-bottom: 1px solid #000;
+            margin-bottom: 5px;
+        }
+
+        .dean-name {
+            font-size: 11pt;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="watermark-container">
+    <img src="pozadina_2.png" alt="Watermark"/>
+</div>
+
+<table class="header-table">
+    <tr>
+        <td class="row1-col1">
+            BOSNA I HERCEGOVINA<br/>
+            FEDERACIJA BOSNE I HERCEGOVINE<br/>
+            ZENIČKO-DOBOJSKI KANTON<br/>
+            UNIVERZITET U ZENICI<br/>
+            POLITEHNIČKI FAKULTET
+        </td>
+        <td class="row1-col2" rowspan="2">
+            <img src="unze_logo.jpg" alt="Logo" width="90" height="90"/>
+        </td>
+        <td class="row1-col3">
+            UVJERENJE
+        </td>
+    </tr>
+    <tr>
+        <td class="boxes-cell">
+            <table class="protocol-table">
+                <tr>
+                    <td>{{char0}}</td>
+                    <td>{{char1}}</td>
+                    <td>{{char2}}</td>
+                    <td>{{char3}}</td>
+                    <td>{{char4}}</td>
+                    <td>{{char5}}</td>
+                    <td>{{char6}}</td>
+                    <td>{{char7}}</td>
+                    <td>{{char8}}</td>
+                    <td>{{char9}}</td>
+                    <td>{{char10}}</td>
+                    <td>{{char11}}</td>
+                    <td>{{char12}}</td>
+                    <td>{{char13}}</td>
+                    <td>{{char14}}</td>
+                    <td>{{char15}}</td>
+                    <td>{{char16}}</td>
+                    <td>{{char17}}</td>
+                </tr>
+            </table>
+            <div class="date-line">Zenica, {{issueDate}}</div>
+        </td>
+        <td class="sekretarijat-cell">
+            Sekretarijat<br/>
+            Studentska služba
+        </td>
+    </tr>
+</table>
+
+<div class="intro-text">
+    Na osnovu člana 169. Zakona u upravnom postupku („Službene novine Federacije Bosne i Hercegovine“, broj 2/98 i 48/99), a u vezi s članovima 41. i 42. Zakona o visokom obrazovanju („Službene novine Zeničko-dobojskog kantona“, broj 12/22), na zahtjev <strong>{{studentGenitiveForm}}</strong>, izdaje se
+</div>
+
+<div class="main-title">
+    <h1>UVJERENJE O ZAVRŠENOM<br/>PRVOM CIKLUSU STUDIJA</h1>
+</div>
+
+<div class="form-row" style="text-align: center;">
+    <span class="input-line w-name">{{studentFullName}} ({{fatherName}})</span>, rođen-a <span class="input-line w-date-short">{{birthDate}}</span>. godine u mjestu
+</div>
+
+<div class="form-row" style="text-align: center;">
+    <span class="input-line w-place">{{birthPlace}}</span>, općina <span class="input-line w-municipality">{{municipality}}</span>, država <span class="input-line w-country">{{country}}</span>
+</div>
+
+<div class="form-row" style="text-align: center;">
+    završio/la je <span class="input-line w-cycle">{{cycle}}</span> ciklus studija u trajanju od <span class="input-line w-duration">{{cycleDuration}}</span> godine i ostvario/la ukupno
+</div>
+
+<div class="form-row" style="text-align: center;">
+    <span class="input-line w-ects">{{ects}}</span> ECTS bodova na Politehničkom fakultetu Univerziteta u Zenici, studijski program
+</div>
+
+<div class="form-row" style="text-align: center;">
+    <span class="input-line w-program">{{studyProgram}}</span>, dana <span class="input-line w-date-med">{{issueDate}}</span>. godine i stekao/la pravo na akademsku titulu
+</div>
+
+<div class="title-box">
+    <div class="title-text">
+        {{academicTitle}}
+    </div>
+    <div class="title-underline"></div>
+</div>
+
+<div class="closing">
+    Uvjerenje se izdaje na zahtjev imenovanog/imenovane i važi do izdavanja diplome.
+</div>
+
+<div class="footer-wrapper">
+    <div class="footer-left">
+        <div class="delivery-box">
+            <div class="delivery-header">Dostavljeno:</div>
+            <div class="delivery-content">
+                <table class="delivery-table">
+                    <tr>
+                        <td class="col-num">1</td>
+                        <td class="col-x">x</td>
+                        <td class="col-text">Imenovani/a</td>
+                    </tr>
+                    <tr>
+                        <td class="col-num">1</td>
+                        <td class="col-x">x</td>
+                        <td class="col-text">Dosije</td>
+                    </tr>
+                    <tr>
+                        <td class="col-num">1</td>
+                        <td class="col-x">x</td>
+                        <td class="col-text">a/a</td>
+                    </tr>
+                    <tr>
+                        <td class="col-num"></td>
+                        <td class="col-x">x</td>
+                        <td class="col-text"></td>
+                    </tr>
+                    <tr>
+                        <td class="col-num"></td>
+                        <td class="col-x">x</td>
+                        <td class="col-text"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="form-code">Obrazac PTF-SS-007</div>
+    </div>
+
+    <div class="footer-right">
+        <div class="signature-block">
+            <div class="sig-title">
+                Dekan Fakulteta
+            </div>
+            <div style="height: 35px;"></div>
+            <div class="sig-line"></div>
+            <div class="dean-name">Prof. dr. Samir Lemeš</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
