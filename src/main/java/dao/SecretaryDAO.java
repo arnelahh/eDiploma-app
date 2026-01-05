@@ -291,8 +291,17 @@ public class SecretaryDAO {
 
     public void deleteSecretary(int appUserId, int academicStaffId) throws SQLException {
 
-        String deleteUserSql = "DELETE FROM AppUser WHERE Id = ?";
-        String deleteStaffSql = "DELETE FROM AcademicStaff WHERE Id = ?";
+        String deleteUserSql = """
+         update AppUser
+         set IsActive=0
+         where  Id = ?;
+         """;
+
+        String deleteStaffSql = """
+        update AcademicStaff
+        set IsActive=0
+        where Id= ?;
+        """;
 
         try (Connection conn = CloudDatabaseConnection.Konekcija()) {
             conn.setAutoCommit(false);

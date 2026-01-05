@@ -436,7 +436,23 @@ public class ThesisDetailsController {
 
     @FXML
     private void back() {
+        // Dohvati trenutnog korisnika
+        AppUser currentUser = UserSession.getUser();
+        
         NavigationContext.setTargetView(DashboardView.THESIS);
+        
+        // Provjeri tip korisnika i vrati ga na odgovarajući dashboard
+        if (currentUser != null && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            
+            if ("SECRETARY".equalsIgnoreCase(roleName)) {
+                // Sekretar se vraća na secretary dashboard
+                SceneManager.show("/app/secretary-dashboard.fxml", "eDiploma - Sekretar");
+                return;
+            }
+        }
+        
+        // Svi ostali korisnici se vraćaju na glavni dashboard
         SceneManager.show("/app/dashboard.fxml", "eDiploma");
     }
 
