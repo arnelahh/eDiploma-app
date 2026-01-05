@@ -389,8 +389,7 @@ public class ThesisFormController {
             if (mode == Mode.CREATE) {
                 thesisDAO.insertThesis(buildThesisFromForm());
                 GlobalErrorHandler.info("Završni rad je uspješno dodat!");
-                NavigationContext.setTargetView(DashboardView.THESIS);
-                SceneManager.show("/app/dashboard.fxml", "eDiploma");
+                returnToDashboard();
             } else {
                 int userId = NavigationContext.getCurrentUser().getId();
 
@@ -525,8 +524,7 @@ public class ThesisFormController {
                     thesisDAO.deleteThesis(thesis.getId());
                     GlobalErrorHandler.info("Završni rad je uspješno obrisan!");
                     MentorsController.requestRefresh();
-                    NavigationContext.setTargetView(DashboardView.THESIS);
-                    SceneManager.show("/app/dashboard.fxml", "eDiploma");
+                    returnToDashboard();
                 } catch (Exception e) {
                     GlobalErrorHandler.error("Greška pri brisanju:");
                 }
@@ -543,16 +541,35 @@ public class ThesisFormController {
             SceneManager.showWithData("/app/thesisDetails.fxml", "Detalji završnog rada",
                     (ThesisDetailsController controller) -> controller.initWithThesisId(returnToThesisId));
         } else {
-            NavigationContext.setTargetView(DashboardView.THESIS);
-            SceneManager.show("/app/dashboard.fxml", "eDiploma");
+            returnToDashboard();
         }
+    }
+
+    /**
+     * Pomocna metoda koja vraća korisnika na odgovarajući dashboard na osnovu uloge
+     */
+    private void returnToDashboard() {
+        AppUser currentUser = UserSession.getUser();
+        
+        NavigationContext.setTargetView(DashboardView.THESIS);
+        
+        if (currentUser != null && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            
+            if ("SECRETARY".equalsIgnoreCase(roleName)) {
+                SceneManager.show("/app/secretary-dashboard.fxml", "eDiploma - Sekretar");
+                return;
+            }
+        }
+        
+        SceneManager.show("/app/dashboard.fxml", "eDiploma");
     }
 
 
     private void showErrorList(List<String> errors) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Neispravan unos");
-        alert.setHeaderText("Molimo ispravite sljedeće greške:");
+        alert.setHeaderText("Molimo ispravite sledeće greške:");
         alert.setContentText("• " + String.join("\n• ", errors));
         alert.showAndWait();
     }

@@ -57,6 +57,56 @@ public class ThesisDAO {
         return thesis;
     }
 
+    /**
+     * Dohvata sve radove dodijeljene određenom sekretaru
+     * @param secretaryUserId ID korisnika (AppUser.Id) sekretara
+     * @return Lista ThesisDTO objekata koje pripadaju sekretaru
+     */
+    public List<ThesisDTO> getThesisBySecretaryId(int secretaryUserId) {
+        List<ThesisDTO> thesis = new ArrayList<>();
+        String sql = """
+                SELECT T.Id,
+                    T.Title,
+                    CONCAT(S.FirstName,' ',S.LastName) AS StudentFullName,
+                    CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName,
+                    S.Cycle,
+                    TS.Name AS Status,
+                    T.ApplicationDate
+                FROM Thesis T
+                JOIN Student S ON S.Id = T.StudentId
+                JOIN AcademicStaff A ON A.Id = T.MentorId
+                JOIN ThesisStatus TS ON TS.Id = T.StatusId
+                WHERE T.IsActive = 1 AND T.SecretaryId = ?
+                ORDER BY T.Id DESC
+                """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija()) {
+
+            clearExpiredLocks(conn);
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, secretaryUserId);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    ThesisDTO thesisDTO = new ThesisDTO();
+                    thesisDTO.setId(rs.getInt("Id"));
+                    thesisDTO.setTitle(rs.getString("Title"));
+                    thesisDTO.setStudentFullName(rs.getString("StudentFullName"));
+                    thesisDTO.setMentorFullName(rs.getString("MentorFullName"));
+                    thesisDTO.setCycle(rs.getInt("Cycle"));
+                    thesisDTO.setStatus(rs.getString("Status"));
+                    thesisDTO.setApplicationDate(rs.getDate("ApplicationDate").toLocalDate());
+                    thesis.add(thesisDTO);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri dohvatanju radova sekretara: " + e.getMessage(), e);
+        }
+        return thesis;
+    }
+
     public void insertThesis(Thesis thesis) {
         String sql = """
                 INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId, Description, Structure, Literature)

@@ -10,8 +10,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import model.AppUser;
 import utils.GlobalErrorHandler;
 import utils.SceneManager;
+import utils.UserSession;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +47,21 @@ public class ThesisController {
 
     private void setupAddButton() {
         if (btnAddNew != null) {
+            // Provjeri tip korisnika
+            AppUser currentUser = UserSession.getUser();
+            
+            // Ako je sekretar, sakrij dugme "Dodaj novi rad"
+            if (currentUser != null && currentUser.getRole() != null) {
+                String roleName = currentUser.getRole().getName();
+                
+                if ("SECRETARY".equalsIgnoreCase(roleName)) {
+                    btnAddNew.setVisible(false);
+                    btnAddNew.setManaged(false);
+                    return;
+                }
+            }
+            
+            // Za ostale korisnike, dugme je vidljivo
             btnAddNew.setOnAction(e -> openAddThesisPage());
         }
     }
@@ -106,6 +123,20 @@ public class ThesisController {
         Task<List<ThesisDTO>> task = new Task<List<ThesisDTO>>() {
             @Override
             protected List<ThesisDTO> call() throws Exception {
+                // Dohvatanje trenutno ulogovanog korisnika
+                AppUser currentUser = UserSession.getUser();
+                
+                // Provjera role korisnika
+                if (currentUser != null && currentUser.getRole() != null) {
+                    String roleName = currentUser.getRole().getName();
+                    
+                    // Ako je sekretar, dohvati samo njegove radove
+                    if ("SECRETARY".equalsIgnoreCase(roleName)) {
+                        return dao.getThesisBySecretaryId(currentUser.getId());
+                    }
+                }
+                
+                // Za sve ostale korisnike (ADMINISTRATOR itd.), dohvati sve radove
                 return dao.getAllThesis();
             }
         };

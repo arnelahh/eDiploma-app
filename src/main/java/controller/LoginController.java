@@ -69,7 +69,16 @@ public class LoginController {
         // Uspješna prijava
         UserSession.setUser(user);
         NavigationContext.setCurrentUser(user);
-        SceneManager.show("/app/dashboard.fxml", "eDiploma");
+        
+        // Rutiranje na osnovu role korisnika
+        String roleName = user.getRole().getName();
+        if ("SECRETARY".equalsIgnoreCase(roleName)) {
+            // Sekretar ide na secretary-dashboard
+            SceneManager.show("/app/secretary-dashboard.fxml", "eDiploma - Sekretar");
+        } else {
+            // Ostali korisnici (ADMINISTRATOR itd.) idu na glavni dashboard
+            SceneManager.show("/app/dashboard.fxml", "eDiploma");
+        }
 
         // Pokretanje session managera
         SessionManager.startSession(() -> {
