@@ -199,11 +199,6 @@ public class CycleCompletionController {
             return false;
         }
 
-        String academicTitle = academicTitleField != null ? academicTitleField.getText().trim() : "";
-        if (academicTitle.isBlank()) {
-            GlobalErrorHandler.error("Akademska titula je obavezna.");
-            return false;
-        }
 
         return true;
     }
@@ -239,7 +234,7 @@ public class CycleCompletionController {
         Student student = thesisDetails.getStudent();
 
         String studentGenitiveForm = studentGenitiveField.getText().trim();
-        String academicTitle = academicTitleField.getText().trim().toUpperCase();
+        String academicTitle = getAcademicTitleByDepartment(thesisDetails.getDepartment().getName());
 
         // Build document number
         String userInput = documentNumberField.getText().trim();
