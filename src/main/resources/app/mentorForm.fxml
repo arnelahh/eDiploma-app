@@ -101,6 +101,12 @@
                                     styleClass="delete-button"/>
                         </HBox>
 
+                        <!-- Set Dean button (visible only in edit mode when mentor is not dean) -->
+                        <Button fx:id="setDeanButton"
+                                text="Postavi dekana"
+                                onAction="#handleSetDean"
+                                style="-fx-background-color: #0984e3; -fx-text-fill: white; -fx-font-size: 13; -fx-padding: 10 20; -fx-background-radius: 6; -fx-cursor: hand;"/>
+
                         <Region HBox.hgrow="ALWAYS"/>
 
                         <!-- Cancel and Save buttons (right side) -->

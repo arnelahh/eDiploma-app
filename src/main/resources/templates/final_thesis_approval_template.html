@@ -143,7 +143,7 @@
         <td class="header-left">
             <div class="uni-info">UNIVERZITET U ZENICI</div>
             <div class="uni-info">POLITEHNIČKI FAKULTET</div>
-            <div>Dekan Prof.dr.sc. Samir Lemeš</div>
+            <div>Dekan {{deanName}}</div>
             <div style="margin-top: 15px;">Broj: {{decisionNumber}}</div>
             <div>Zenica, {{decisionDate}} godine</div>
         </td>
@@ -166,20 +166,20 @@
     <tr>
         <td class="num-col">1.</td>
         <td class="text-col">
-            {{studentFullName}}, {{studentStatusNominative}} na odsjeku {{departmentName}}, Politehničkog fakulteta Univerziteta u Zenici, određuje se zadatak za izradu diplomskog/završnog rada na {{studentCycle}} ciklusu studija Politehničkog fakulteta Univerziteta u Zenici, sa slijedećom temom:
+            {{studentFullName}}, {{studentStatusNominative}} na odsjeku {{departmentName}}, Politehničkog fakulteta Univerziteta u Zenici, određuje se zadatak za izradu diplomskog/završnog rada na {{studentCycle}} ciklusu studija Politehničkog fakulteta Univerziteta u Zenici, sa slijećom temom:
         </td>
     </tr>
 </table>
 
 <div class="thesis-title-box">
-    “{{thesisTitle}}”
+    "{{thesisTitle}}"
 </div>
 
 <table class="list-table">
     <tr>
         <td class="num-col">2.</td>
         <td class="text-col">
-            Tema diplomskog/završnog rada je u okviru nastavnog plana i programa predmeta <i>“{{subjectName}}”</i>, u okviru Katedre za {{departmentName}} Univerziteta u Zenici.
+            Tema diplomskog/završnog rada je u okviru nastavnog plana i programa predmeta <i>"{{subjectName}}"</i>, u okviru Katedre za {{departmentName}} Univerziteta u Zenici.
         </td>
     </tr>
     <tr>
@@ -206,7 +206,7 @@
     <tr>
         <td class="num-col">5.</td>
         <td class="text-col">
-            Prilikom izrade rada kandidat/kinja se upućuje na sljedeću literaturu:
+            Prilikom izrade rada kandidat/kinja se upućuje na slijedeću literaturu:
             <br/><br/>
             <div class="dynamic-text">{{literature}}</div>
         </td>
@@ -216,7 +216,7 @@
 <div>
     <div class="explanation-title">O b r a z l o ž e n j e</div>
     <div class="justify content-paragraph">
-        <b>{{studentLastName}} {{studentFirstName}}</b> je stekao/la uslov za polaganje diplomskog/završnog rada budući da je položio/la sve ispite i ispunio/la sve obaveze.
+        <b>{{studentLastName}} {{studentFirstName}}</b> je stekao/la uslov za polaganje diplomskog/završnog rada budići da je položio/la sve ispite i ispunio/la sve obaveze.
         <br/><br/>
         Dana {{applicationDate}} godine, podnio/la je Zahtjev za ozvaničenje diplomskog/završnog rada na {{studentCycle}} ciklusu studija Politehničkog fakulteta Univerziteta u Zenici, što je riješeno kao u izreci.
     </div>
@@ -231,7 +231,7 @@
             Politehničkog fakulteta<br/>
             Univerziteta u Zenici
             <div class="signature-line"></div>
-            Prof.dr.sc. Samir Lemeš
+            {{deanName}}
         </td>
     </tr>
 </table>

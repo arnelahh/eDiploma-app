@@ -10,6 +10,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import model.*;
+import utils.DeanService;
 import utils.GlobalErrorHandler;
 import utils.SceneManager;
 import utils.UserSession;
@@ -255,7 +256,8 @@ public class NoticeController {
     }
 
     private byte[] generatePdfBytes() throws Exception {
-        String deanName = "Prof.dr.sc. Samir Lemeš";
+        // Get dean name dynamically from database
+        String deanName = DeanService.getCurrentDeanFullName();
         String location = "u prostorijama Mašinskog fakulteta Univerziteta u Zenici";
 
         String userInput = documentNumberField.getText().trim();

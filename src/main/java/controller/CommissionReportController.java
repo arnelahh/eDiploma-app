@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import model.Commission;
+import utils.DeanService;
 import utils.GlobalErrorHandler;
 import utils.SceneManager;
 import utils.UserSession;
@@ -199,7 +200,8 @@ public class CommissionReportController {
         String secretaryName = thesisDetails.getSecretary() != null
                 ? formatMemberName(thesisDetails.getSecretary()) : "—";
 
-        String deanName = "Prof.dr.sc. Samir Lemeš";
+        // Get dean name dynamically from database
+        String deanName = DeanService.getCurrentDeanFullName();
 
         // Build document number: 11-403-103-1295/25
         String userInput = documentNumberField.getText().trim();

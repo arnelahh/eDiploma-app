@@ -26,6 +26,7 @@ public class MentorFormController {
     @FXML private TextField emailField;
     @FXML private Button deleteButton;
     @FXML private HBox deleteButtonContainer;
+    @FXML private Button setDeanButton;
     @FXML private Label formTitle;
     @FXML private Label formSubtitle;
     @FXML private Button saveButton;
@@ -38,6 +39,7 @@ public class MentorFormController {
         if (formSubtitle != null) formSubtitle.setText("Unesite podatke o novom mentoru");
 
         toggleDeleteButton(false);
+        toggleDeanButton(false);
     }
 
     public void initEdit(AcademicStaff mentor) {
@@ -48,6 +50,7 @@ public class MentorFormController {
         if (formSubtitle != null) formSubtitle.setText("Uredite podatke o mentoru");
 
         toggleDeleteButton(true);
+        toggleDeanButton(true);
         fillFields();
     }
 
@@ -62,12 +65,27 @@ public class MentorFormController {
         }
     }
 
+    private void toggleDeanButton(boolean visible) {
+        if (setDeanButton != null) {
+            // Dugme je vidljivo samo ako profesor NIJE već dekan
+            boolean show = visible && (mentor != null && !mentor.isIsDean());
+            setDeanButton.setVisible(show);
+            setDeanButton.setManaged(show);
+        }
+    }
+
     private void fillFields() {
         if (mentor != null) {
             firstNameField.setText(mentor.getFirstName());
             lastNameField.setText(mentor.getLastName());
             titleField.setText(mentor.getTitle());
             emailField.setText(mentor.getEmail());
+
+            // Prikaži status dekana
+            if (mentor.isIsDean()) {
+                formSubtitle.setText("Uredite podatke o dekanu ⭐");
+                formSubtitle.setStyle("-fx-font-size: 14; -fx-text-fill: #0984e3; -fx-font-weight: bold;");
+            }
         }
     }
 
@@ -161,6 +179,52 @@ public class MentorFormController {
     }
 
     @FXML
+    private void handleSetDean() {
+        // Provjeri da li već postoji dekan
+        AcademicStaff currentDean = mentorDAO.getCurrentDean();
+
+        if (currentDean != null) {
+            // Postoji dekan, traži potvrdu
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Postavite novog dekana");
+            confirm.setHeaderText("Trenutni dekan je " + currentDean.getTitle() + " " +
+                    currentDean.getFirstName() + " " + currentDean.getLastName());
+            confirm.setContentText("Da li želite postaviti " + mentor.getTitle() + " " +
+                    mentor.getFirstName() + " " + mentor.getLastName() +
+                    " za novog dekana?\n\nOva akcija će ukloniti status dekana prethodnom profesoru.");
+
+            confirm.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    performSetDean();
+                }
+            });
+        } else {
+            // Nema dekana, direktno postavi
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Postavite dekana");
+            confirm.setHeaderText("Trenutno nema postavljenog dekana");
+            confirm.setContentText("Da li želite postaviti " + mentor.getTitle() + " " +
+                    mentor.getFirstName() + " " + mentor.getLastName() + " za dekana?");
+
+            confirm.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    performSetDean();
+                }
+            });
+        }
+    }
+
+    private void performSetDean() {
+        try {
+            mentorDAO.setDean(mentor.getId());
+            GlobalErrorHandler.info("Dekan je uspješno postavljen!");
+            back();
+        } catch (Exception e) {
+            GlobalErrorHandler.error("Greška prilikom postavljanja dekana.", e);
+        }
+    }
+
+    @FXML
     private void back() {
         NavigationContext.setTargetView(DashboardView.MENTORS);
         SceneManager.show("/app/dashboard.fxml", "Dashboard");
@@ -170,7 +234,7 @@ public class MentorFormController {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Neispravan unos");
-            alert.setHeaderText("Molimo ispravite sljedeće greške:");
+            alert.setHeaderText("Molimo ispravite slijedeće greške:");
             alert.setContentText("• " + String.join("\n• ", errors));
             alert.showAndWait();
         });
