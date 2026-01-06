@@ -13,6 +13,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import model.*;
+import utils.DeanService;
 import utils.GlobalErrorHandler;
 import utils.SceneManager;
 import utils.UserSession;
@@ -270,6 +271,9 @@ public class FinalThesisApprovalController {
 
         String html = loadTemplate();
 
+        // Get dean name dynamically from database
+        String deanName = DeanService.getCurrentDeanFullName();
+
         html = html.replace("{{decisionNumber}}", dto.getDecisionNumber())
                 .replace("{{decisionDate}}", dto.getDecisionDate().format(DATE_FORMAT))
                 .replace("{{studentNameGenitive}}", dto.getStudentNameGenitive())
@@ -287,7 +291,7 @@ public class FinalThesisApprovalController {
                 .replace("{{studentFirstName}}", escapeXml(dto.getStudentFirstName()))
                 .replace("{{studentLastName}}", escapeXml(dto.getStudentLastName()))
                 .replace("{{applicationDate}}", dto.getApplicationDate().format(DATE_FORMAT))
-                .replace("{{deanName}}", "Prof. dr. sc. Samir Lemeš");
+                .replace("{{deanName}}", deanName);
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();

@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import model.*;
+import utils.DeanService;
 import utils.GlobalErrorHandler;
 import utils.SceneManager;
 import utils.UserSession;
@@ -255,6 +256,9 @@ public class CycleCompletionController {
         String cycleText = cycleRoman + " (prvi)"; // TODO: ovo treba biti dinamičko
         String cycleDurationText = student.getCycleDuration() + " (tri)"; // TODO: ovo treba biti dinamičko
 
+        // Get dean name dynamically from database
+        String deanName = DeanService.getCurrentDeanFullName();
+
         CycleCompletionDTO dto = CycleCompletionDTO.builder()
                 .studentFullName(student.getFirstName() + " (" +student.getFatherName() +") " + student.getLastName())
                 .studentGenitiveForm(studentGenitiveForm)
@@ -268,7 +272,7 @@ public class CycleCompletionController {
                 .ects(String.valueOf(student.getECTS()))
                 .academicTitle(academicTitle)
                 .issueDate(LocalDate.now())
-                .deanFullName("Prof. dr. sc. Samir Lemeš")
+                .deanFullName(deanName)
                 .build();
 
         String html = loadTemplate();

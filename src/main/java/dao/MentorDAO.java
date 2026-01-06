@@ -167,4 +167,74 @@ public class MentorDAO {
         return false;
     }
 
+    /**
+     * Vraća trenutnog dekana ako postoji
+     */
+    public AcademicStaff getCurrentDean() {
+        String sql = "SELECT * FROM AcademicStaff WHERE IsDean = 1 AND IsActive = 1";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                AcademicStaff dean = new AcademicStaff();
+                dean.setId(rs.getInt("Id"));
+                dean.setTitle(rs.getString("Title"));
+                dean.setFirstName(rs.getString("FirstName"));
+                dean.setLastName(rs.getString("LastName"));
+                dean.setEmail(rs.getString("Email"));
+                dean.setIsDean(true);
+                dean.setIsActive(rs.getBoolean("IsActive"));
+
+                if (rs.getTimestamp("CreatedAt") != null) {
+                    dean.setCreatedAt(rs.getTimestamp("CreatedAt").toLocalDateTime());
+                }
+                if (rs.getTimestamp("UpdatedAt") != null) {
+                    dean.setUpdatedAt(rs.getTimestamp("UpdatedAt").toLocalDateTime());
+                }
+                return dean;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    /**
+     * Postavlja novog dekana i uklanja status prethodnom
+     */
+    public void setDean(int newDeanId) {
+        String removeDeanSql = "UPDATE AcademicStaff SET IsDean = 0, UpdatedAt = ? WHERE IsDean = 1";
+        String setDeanSql = "UPDATE AcademicStaff SET IsDean = 1, UpdatedAt = ? WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija()) {
+            conn.setAutoCommit(false);
+
+            try {
+                // Prvo ukloni status dekana sa svih profesora
+                try (PreparedStatement ps = conn.prepareStatement(removeDeanSql)) {
+                    ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+                    ps.executeUpdate();
+                }
+
+                // Postavi novog dekana
+                try (PreparedStatement ps = conn.prepareStatement(setDeanSql)) {
+                    ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+                    ps.setInt(2, newDeanId);
+                    ps.executeUpdate();
+                }
+
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
