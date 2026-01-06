@@ -31,7 +31,6 @@ public class DefenseReportController {
     @FXML private Text member1Text;
     @FXML private Text member2Text;
     @FXML private Text secretaryText;
-    @FXML private Text finalGradeText;
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
@@ -96,6 +95,7 @@ public class DefenseReportController {
                     thesisDetails.getMentor().getFirstName() + " " +
                     thesisDetails.getMentor().getLastName();
             mentorNameText.setText(mentorName);
+            member2Text.setText(mentorName);
         }
 
         LocalDate defenseDate = thesisDetails.getDefenseDate();
@@ -113,21 +113,10 @@ public class DefenseReportController {
             member1Text.setText(formatMemberName(commission.getMember2()));
         }
 
-        if (commission.getMember3() != null) {
-            member2Text.setText(formatMemberName(commission.getMember3()));
-        } else {
-            member2Text.setText("—");
-        }
-
         if (thesisDetails.getSecretary() != null) {
             secretaryText.setText(formatMemberName(thesisDetails.getSecretary()));
         }
 
-        if (thesisDetails.getGrade() != null && thesisDetails.getGrade() > 0) {
-            finalGradeText.setText(String.valueOf(thesisDetails.getGrade()));
-        } else {
-            finalGradeText.setText("—");
-        }
     }
 
     private String formatMemberName(model.AcademicStaff member) {
@@ -181,10 +170,8 @@ public class DefenseReportController {
                 .defenseDate(defenseDate)
                 .chairmanFullName(formatMemberName(commission.getMember1()))
                 .member1FullName(formatMemberName(commission.getMember2()))
-                .member2FullName(commission.getMember3() != null ?
-                        formatMemberName(commission.getMember3()) : "—")
+                .member2FullName(formatMemberName(thesisDetails.getMentor()))
                 .secretaryFullName(formatMemberName(thesisDetails.getSecretary()))
-                .finalGrade(thesisDetails.getGrade())
                 .build();
 
         String html = loadTemplate();
@@ -197,9 +184,7 @@ public class DefenseReportController {
                 .replace("{{chairmanFullName}}", dto.getChairmanFullName())
                 .replace("{{member1FullName}}", dto.getMember1FullName())
                 .replace("{{member2FullName}}", dto.getMember2FullName())
-                .replace("{{secretaryFullName}}", dto.getSecretaryFullName())
-                .replace("{{finalGrade}}", dto.getFinalGrade() != null ?
-                        String.valueOf(dto.getFinalGrade()) : "—");
+                .replace("{{secretaryFullName}}", dto.getSecretaryFullName());
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();

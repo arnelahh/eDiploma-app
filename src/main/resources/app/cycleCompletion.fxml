@@ -171,15 +171,6 @@
                                            styleClass="form-field" />
                             </VBox>
 
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
-                                <Label styleClass="field-label" text="Akademska titula *" />
-                                <Label style="-fx-font-size: 11px; -fx-text-fill: gray;"
-                                       text="Unesite titulu koju student stiče (npr. SOFTVER INŽENJER)" />
-                                <TextField fx:id="academicTitleField"
-                                           promptText="npr. SOFTVER INŽENJER"
-                                           styleClass="form-field" />
-                            </VBox>
-
                             <columnConstraints>
                                 <ColumnConstraints percentWidth="50.0" />
                                 <ColumnConstraints percentWidth="50.0" />

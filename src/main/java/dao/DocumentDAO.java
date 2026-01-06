@@ -167,4 +167,55 @@ public class DocumentDAO {
             throw new RuntimeException("Greška pri snimanju dokumenta (upsert).", e);
         }
     }
+
+    public void upsert(int thesisId, int typeId, String contentBase64, Integer uploadedByUserId, DocumentStatus status) {
+
+        String checkSql = "SELECT Id FROM Document WHERE ThesisId = ? AND TypeId = ? AND IsActive = 1 LIMIT 1";
+        String insertSql = """
+            INSERT INTO Document(ThesisId, TypeId, ContentBase64, UploadedByUserId, Status, CreatedAt, UpdatedAt, IsActive)
+            VALUES(?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1)
+        """;
+        String updateSql = """
+            UPDATE Document
+            SET ContentBase64 = ?,
+                UploadedByUserId = ?,
+                Status = ?,
+                UpdatedAt = CURRENT_TIMESTAMP
+            WHERE Id = ?
+        """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija()) {
+
+            Integer existingId = null;
+            try (PreparedStatement ps = conn.prepareStatement(checkSql)) {
+                ps.setInt(1, thesisId);
+                ps.setInt(2, typeId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) existingId = rs.getInt("Id");
+                }
+            }
+
+            if (existingId == null) {
+                try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+                    ps.setInt(1, thesisId);
+                    ps.setInt(2, typeId);
+                    ps.setString(3, contentBase64);
+                    if (uploadedByUserId != null) ps.setInt(4, uploadedByUserId); else ps.setNull(4, Types.INTEGER);
+                    ps.setString(5, status != null ? status.name() : null);
+                    ps.executeUpdate();
+                }
+            } else {
+                try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+                    ps.setString(1, contentBase64);
+                    if (uploadedByUserId != null) ps.setInt(2, uploadedByUserId); else ps.setNull(2, Types.INTEGER);
+                    ps.setString(3, status != null ? status.name() : null);
+                    ps.setInt(4, existingId);
+                    ps.executeUpdate();
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri snimanju dokumenta (upsert).", e);
+        }
+    }
 }

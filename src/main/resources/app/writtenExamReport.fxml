@@ -67,7 +67,7 @@
                             </VBox>
 
                             <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label styleClass="field-label" text="Datum diplomskog" />
+                                <Label styleClass="field-label" text="Datum odbrane završnog rada" />
                                 <Text fx:id="submissionDateText" styleClass="field-value" text="DD.MM.GGGG." />
                             </VBox>
 
@@ -81,10 +81,6 @@
                                 <Text fx:id="mentorNameText" styleClass="field-value" text="Titula Ime Prezime" />
                             </VBox>
 
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                <Label styleClass="field-label" text="Predložena ocjena" />
-                                <Text fx:id="proposedGradeText" style="-fx-font-weight: bold; -fx-fill: #2e7d32;" styleClass="field-value" text="10 (deset)" />
-                            </VBox>
                             <columnConstraints>
                                 <ColumnConstraints percentWidth="60.0" />
                                 <ColumnConstraints percentWidth="40.0" />
@@ -131,25 +127,6 @@
                                 </rowConstraints>
                             </GridPane>
                         </VBox>
-                    </VBox>
-
-                    <VBox spacing="20" styleClass="form-section">
-                        <padding>
-                            <Insets bottom="25" left="30" right="30" top="25" />
-                        </padding>
-
-                        <VBox spacing="3">
-                            <Text styleClass="section-title" text="Administrativni podaci" />
-                            <Text styleClass="page-subtitle" text="Unesite podatke potrebne za validnost zapisnika" />
-                        </VBox>
-
-                        <HBox alignment="CENTER_LEFT" spacing="20">
-                            <VBox spacing="5" HBox.hgrow="ALWAYS">
-                                <Label styleClass="field-label" text="Broj rješenja Fakulteta *" />
-                                <TextField fx:id="facultyDecisionField" prefWidth="350" promptText="npr. 01-123/25" styleClass="form-field" />
-                            </VBox>
-                            <Region HBox.hgrow="ALWAYS" />
-                        </HBox>
                     </VBox>
 
                     <HBox alignment="CENTER_RIGHT" spacing="15">
