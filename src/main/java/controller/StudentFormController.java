@@ -47,9 +47,8 @@ public class StudentFormController {
     public void initialize() {
         studyProgramComboBox.getItems().addAll(
                 "Softversko inženjerstvo",
-                "Informacioni sistemi",
-                "Računarske nauke",
-                "Elektrotehnika"
+                "Proizvodni biznis",
+                "Građevinarstvo"
         );
 
         cycleComboBox.getItems().addAll(

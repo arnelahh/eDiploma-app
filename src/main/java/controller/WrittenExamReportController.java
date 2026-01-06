@@ -32,7 +32,6 @@ public class WrittenExamReportController {
     @FXML private Text member1Text;
     @FXML private Text member2Text;
     @FXML private Text secretaryText;
-    @FXML private Text proposedGradeText;
     @FXML private TextField facultyDecisionField;
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
@@ -80,9 +79,7 @@ public class WrittenExamReportController {
 
             // Učitaj postojeći dokument ako postoji
             Document existing = documentDAO.getByThesisAndType(thesisId, thisDocType.getId());
-            if (existing != null && existing.getDocumentNumber() != null) {
-                facultyDecisionField.setText(existing.getDocumentNumber());
-            }
+
 
         } catch (Exception e) {
             GlobalErrorHandler.error("Greška pri učitavanju podataka.", e);
@@ -104,6 +101,7 @@ public class WrittenExamReportController {
                     thesisDetails.getMentor().getFirstName() + " " +
                     thesisDetails.getMentor().getLastName();
             mentorNameText.setText(mentorName);
+            member2Text.setText(mentorName);
         }
 
         LocalDate dateToShow = thesisDetails.getApprovalDate() != null ?
@@ -124,21 +122,10 @@ public class WrittenExamReportController {
             member1Text.setText(formatMemberName(commission.getMember2()));
         }
 
-        if (commission.getMember3() != null) {
-            member2Text.setText(formatMemberName(commission.getMember3()));
-        } else {
-            member2Text.setText("—");
-        }
-
         if (thesisDetails.getSecretary() != null) {
             secretaryText.setText(formatMemberName(thesisDetails.getSecretary()));
         }
 
-        if (thesisDetails.getGrade() != null && thesisDetails.getGrade() > 0) {
-            proposedGradeText.setText(String.valueOf(thesisDetails.getGrade()));
-        } else {
-            proposedGradeText.setText("—");
-        }
     }
 
     private String formatMemberName(model.AcademicStaff member) {
@@ -149,20 +136,12 @@ public class WrittenExamReportController {
 
     @FXML
     private void handleSave() {
-        String facultyDecision = facultyDecisionField.getText();
-        if (facultyDecision == null || facultyDecision.trim().isEmpty()) {
-            GlobalErrorHandler.error("Molimo unesite broj rješenja Fakulteta.");
-            return;
-        }
 
         try {
             byte[] pdfBytes = generatePdfBytes();
             String base64 = Base64.getEncoder().encodeToString(pdfBytes);
 
-            String docNumber = facultyDecision.trim();
-            DocumentStatus status = (!docNumber.isBlank())
-                    ? DocumentStatus.READY
-                    : DocumentStatus.IN_PROGRESS;
+            DocumentStatus status = DocumentStatus.READY;
 
             Integer userId = null;
             AppUser u = UserSession.getUser();
@@ -173,7 +152,6 @@ public class WrittenExamReportController {
                     thisDocType.getId(),
                     base64,
                     userId,
-                    docNumber,
                     status
             );
 
@@ -206,8 +184,6 @@ public class WrittenExamReportController {
                 .member2FullName(commission.getMember3() != null ?
                         formatMemberName(commission.getMember3()) : "—")
                 .secretaryFullName(formatMemberName(thesisDetails.getSecretary()))
-                .facultyDecisionNumber(facultyDecisionField.getText().trim())
-                .proposedGrade(thesisDetails.getGrade())
                 .build();
 
         String html = loadTemplate();
@@ -226,10 +202,7 @@ public class WrittenExamReportController {
                 .replace("{{chairmanFullName}}", dto.getChairmanFullName())
                 .replace("{{member1FullName}}", dto.getMember1FullName())
                 .replace("{{member2FullName}}", dto.getMember2FullName())
-                .replace("{{secretaryFullName}}", dto.getSecretaryFullName())
-                .replace("{{facultyDecisionNumber}}", dto.getFacultyDecisionNumber())
-                .replace("{{proposedGrade}}", dto.getProposedGrade() != null ?
-                        String.valueOf(dto.getProposedGrade()) : "—");
+                .replace("{{secretaryFullName}}", dto.getSecretaryFullName());
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();

@@ -22,7 +22,6 @@ public class CycleCompletionController {
 
     @FXML private Text firstNameText;
     @FXML private Text lastNameText;
-    @FXML private Text fatherNameText;
     @FXML private Text birthDateText;
     @FXML private Text birthPlaceText;
     @FXML private Text municipalityText;
@@ -94,9 +93,6 @@ public class CycleCompletionController {
             // Prezime
             lastNameText.setText(student.getLastName());
 
-            // Ime oca
-            fatherNameText.setText(student.getFatherName() != null ? student.getFatherName() : "—");
-
             // Datum rođenja
             birthDateText.setText(student.getBirthDate() != null ?
                     student.getBirthDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy.")) : "—");
@@ -128,6 +124,21 @@ public class CycleCompletionController {
                     (studentGenitiveField.getText() == null || studentGenitiveField.getText().isBlank())) {
                 String genitiveProposal = student.getLastName() + " " + student.getFirstName() + "a";
                 studentGenitiveField.setText(genitiveProposal);
+            }
+            // Automatsko postavljanje akademske titule na osnovu odsjeka
+            if (academicTitleField != null) {
+                // Provjeravamo da li je polje prazno prije nego ga automatski popunimo
+                // (kako ne bismo pregazili nešto ako korisnik kasnije uđe u edit mode,
+                // mada kod prvog učitavanja će biti prazno)
+                if (academicTitleField.getText() == null || academicTitleField.getText().isBlank()) {
+
+                    // Pretpostavka: Naziv odsjeka se nalazi u getStudyProgram()
+                    // Ako imaš posebno polje student.getDepartment(), koristi njega umjesto getStudyProgram()
+                    String department = thesisDetails.getDepartment().getName();
+
+                    String title = getAcademicTitleByDepartment(department);
+                    academicTitleField.setText(title);
+                }
             }
         }
     }
@@ -250,9 +261,8 @@ public class CycleCompletionController {
         String cycleDurationText = student.getCycleDuration() + " (tri)"; // TODO: ovo treba biti dinamičko
 
         CycleCompletionDTO dto = CycleCompletionDTO.builder()
-                .studentFullName(student.getFirstName() + " " + student.getLastName())
+                .studentFullName(student.getFirstName() + " (" +student.getFatherName() +") " + student.getLastName())
                 .studentGenitiveForm(studentGenitiveForm)
-                .fatherName(student.getFatherName())
                 .birthDate(student.getBirthDate())
                 .birthPlace(student.getBirthPlace())
                 .municipality(student.getMunicipality())
@@ -271,7 +281,6 @@ public class CycleCompletionController {
         html = html.replace("{{issueDate}}", dto.getIssueDate().format(DATE_FORMAT))
                 .replace("{{studentFullName}}", dto.getStudentFullName())
                 .replace("{{studentGenitiveForm}}", dto.getStudentGenitiveForm())
-                .replace("{{fatherName}}", dto.getFatherName() != null ? dto.getFatherName() : "")
                 .replace("{{birthDate}}", formatBirthDate(dto.getBirthDate()))
                 .replace("{{birthPlace}}", dto.getBirthPlace())
                 .replace("{{municipality}}", dto.getMunicipality())
@@ -365,5 +374,18 @@ public class CycleCompletionController {
                 "Detalji završnog rada",
                 (ThesisDetailsController controller) -> controller.initWithThesisId(thesisId)
         );
+    }
+
+    private String getAcademicTitleByDepartment(String departmentName){
+        if(departmentName == null || departmentName.isBlank()) return "";
+        String normalized = departmentName.trim().toLowerCase();
+        if(normalized.contains("softversko")){
+            return "SOFTVER INŽENJER";
+        }else if(normalized.contains("građevinarstvo")){
+            return "DIPLOMIRANI INŽENJER GRAĐEVINARSTVA";
+        }else if(normalized.contains("proizvodni")){
+            return "PROIZVODNI INŽENJER";
+        }
+        return "";
     }
 }
