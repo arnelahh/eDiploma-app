@@ -40,6 +40,12 @@
           <artifactId>jbcrypt</artifactId>
           <version>0.4</version>
       </dependency>
+      <!-- JavaMail for email functionality -->
+      <dependency>
+          <groupId>com.sun.mail</groupId>
+          <artifactId>javax.mail</artifactId>
+          <version>1.6.2</version>
+      </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
