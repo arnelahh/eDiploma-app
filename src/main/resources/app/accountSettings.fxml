@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane fx:id="rootPane" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AccountSettingsController">
+
+    <BorderPane fx:id="mainBorderPane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+
+        <top>
+            <HBox alignment="CENTER" prefHeight="60" spacing="20" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                <padding>
+                    <Insets bottom="20" left="20" top="20" />
+                </padding>
+                <Label style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #4f5dff" text="eDiploma" />
+            </HBox>
+        </top>
+
+        <center>
+            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                <VBox spacing="25" style="-fx-padding: 40;">
+
+                    <!-- Header -->
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <Label style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #333;" text="Postavke naloga" />
+                    </HBox>
+
+                    <Separator />
+
+                    <!-- User Info Section -->
+                    <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                        <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #333;" text="Osnovne informacije" />
+
+                        <GridPane hgap="15" vgap="15">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="150" prefWidth="150" />
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="300" />
+                            </columnConstraints>
+
+                            <!-- First Name -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #666;" text="Ime:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <TextField fx:id="firstNameField" editable="false" style="-fx-background-color: #f5f5f5;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                            <!-- Last Name -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #666;" text="Prezime:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <TextField fx:id="lastNameField" editable="false" style="-fx-background-color: #f5f5f5;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                            <!-- Username -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #666;" text="Korisničko ime:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <TextField fx:id="usernameField" editable="false" style="-fx-background-color: #f5f5f5;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                            <!-- Email -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #666;" text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                            <TextField fx:id="emailField" editable="false" style="-fx-background-color: #f5f5f5;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                            <!-- Role -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #666;" text="Rola:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                            <TextField fx:id="roleField" editable="false" style="-fx-background-color: #f5f5f5;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        </GridPane>
+                    </VBox>
+
+                    <!-- Change Password Section -->
+                    <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                        <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #333;" text="Promjena lozinke" />
+
+                        <GridPane hgap="15" vgap="15">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="150" prefWidth="150" />
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="300" />
+                            </columnConstraints>
+
+                            <!-- Current Password -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #666;" text="Trenutna lozinka:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <PasswordField fx:id="currentPasswordField" promptText="Unesite trenutnu lozinku" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                            <!-- New Password -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #666;" text="Nova lozinka:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <PasswordField fx:id="newPasswordField" promptText="Unesite novu lozinku (min 8 karaktera)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                            <!-- Confirm Password -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #666;" text="Potvrda lozinke:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <PasswordField fx:id="confirmPasswordField" promptText="Potvrdite novu lozinku" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        </GridPane>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Button onAction="#handleChangePassword" style="-fx-background-color: #4f5dff; -fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10 20; -fx-background-radius: 5;" text="Promijeni lozinku" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- App Password Section -->
+                    <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                        <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #333;" text="Email Integracija" />
+
+                        <!-- Status Indicator -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label fx:id="appPasswordStatusLabel" style="-fx-font-size: 14; -fx-text-fill: #ff6b35;" text="⚠️  App Password nije konfigurisan" />
+                        </HBox>
+
+                        <GridPane hgap="15" vgap="15">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="150" prefWidth="150" />
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="300" />
+                            </columnConstraints>
+
+                            <!-- App Password Field with Show/Hide -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #666;" text="App Password:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <PasswordField fx:id="appPasswordField" promptText="Unesite Google App Password (16 karaktera)" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="toggleAppPasswordButton" onAction="#handleToggleAppPassword" style="-fx-background-color: #e0e0e0; -fx-text-fill: #333; -fx-padding: 8 12;" text="👁️" />
+                            </HBox>
+                        </GridPane>
+
+                        <!-- Help Text -->
+                        <VBox spacing="8" style="-fx-background-color: #f0f7ff; -fx-padding: 15; -fx-background-radius: 5;">
+                            <Label style="-fx-font-size: 13; -fx-text-fill: #1976d2; -fx-font-weight: bold;" text="ℹ️  Kako kreirati Google App Password?" />
+                            <Label style="-fx-font-size: 12; -fx-text-fill: #555; -fx-wrap-text: true;" text="1. Idite na Google Account → Security → 2-Step Verification" wrapText="true" />
+                            <Label style="-fx-font-size: 12; -fx-text-fill: #555; -fx-wrap-text: true;" text="2. Skrolajte do 'App passwords' i kliknite" wrapText="true" />
+                            <Label style="-fx-font-size: 12; -fx-text-fill: #555; -fx-wrap-text: true;" text="3. Kreirajte novi app password za 'Mail' aplikaciju" wrapText="true" />
+                            <Label style="-fx-font-size: 12; -fx-text-fill: #555; -fx-wrap-text: true;" text="4. Kopirajte 16-karakterni kod i zalijepite ovdje" wrapText="true" />
+                            <Hyperlink onAction="#handleOpenGoogleHelp" style="-fx-font-size: 12; -fx-text-fill: #1976d2;" text="→ Otvori detaljno uputstvo" />
+                        </VBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Button onAction="#handleTestConnection" style="-fx-background-color: #00897b; -fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10 20; -fx-background-radius: 5;" text="Test konekcije" />
+                            <Button onAction="#handleSaveAppPassword" style="-fx-background-color: #4f5dff; -fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10 20; -fx-background-radius: 5;" text="Sačuvaj App Password" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- Action Buttons -->
+                    <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 20 0 0 0;">
+                        <Button onAction="#handleBack" style="-fx-background-color: #e0e0e0; -fx-text-fill: #333; -fx-font-size: 14; -fx-padding: 12 30; -fx-background-radius: 5;" text="Nazad" />
+                    </HBox>
+
+                </VBox>
+            </ScrollPane>
+        </center>
+
+    </BorderPane>
+
+</AnchorPane>
