@@ -46,7 +46,7 @@
                     </VBox.margin>
                 </Label>
 
-                <!-- NEW: Secretaries -->
+                <!-- Secretaries -->
                 <Label fx:id="sekretariLabel" onMouseClicked="#handleSekretariClick" style="-fx-cursor: hand;                               -fx-padding: 12 20 12 20;                               -fx-font-size: 14;                               -fx-font-weight: 500;                               -fx-text-fill: #424242;                               -fx-background-radius: 8;                               -fx-background-color: transparent;" text="Sekretari">
                     <VBox.margin>
                         <Insets left="12.0" right="12.0" />
@@ -60,6 +60,13 @@
                         <Insets bottom="16.0" />
                     </VBox.margin>
                 </Separator>
+
+                <!-- NEW: Account Settings -->
+                <Label fx:id="accountSettingsLabel" onMouseClicked="#handleAccountSettings" style="-fx-cursor: hand;                               -fx-padding: 12 20 12 20;                               -fx-font-size: 14;                               -fx-font-weight: 500;                               -fx-text-fill: #424242;                               -fx-background-radius: 8;                               -fx-background-color: transparent;" text="⚙️ Postavke naloga">
+                    <VBox.margin>
+                        <Insets left="12.0" right="12.0" />
+                    </VBox.margin>
+                </Label>
 
                 <Label fx:id="lblOdjava" onMouseClicked="#handleLogout" style="-fx-cursor: hand;                               -fx-font-size: 14;                               -fx-font-weight: 600;                               -fx-text-fill: #d32f2f;                               -fx-padding: 12 20 12 20;                               -fx-background-radius: 8;                               -fx-background-color: transparent;" text="Odjava">
                     <VBox.margin>

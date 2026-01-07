@@ -1,115 +1,47 @@
 package controller;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import utils.DashboardView;
-import utils.NavigationContext;
 import utils.SceneManager;
 import utils.UserSession;
 
-import java.util.Optional;
-
 public class DashboardController {
-    @FXML
-    private BorderPane mainBorderPane;
+
+    @FXML private Label radoviLabel;
+    @FXML private Label studentiLabel;
+    @FXML private Label mentoriLabel;
+    @FXML private Label sekretariLabel;
+    @FXML private Label accountSettingsLabel;
+    @FXML private Label lblOdjava;
 
     @FXML
-    public void initialize(){
-        DashboardView view = NavigationContext.consumeTargetView();
-
-        switch (view) {
-            case STUDENTS -> handleStudentiClick();
-            case THESIS -> handleRadoviClick();
-            case MENTORS -> handleMentoriClick();
-            case SECRETARIES -> handleSekretariClick();
-        }
-    }
-
-    @FXML
-    private void handleLogout() {
-        // Create the confirmation dialog
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Odjava");
-        alert.setHeaderText("Da li ste sigurni da se želite odjaviti?");
-        alert.setContentText(null); // Removes the detailed content text to keep it clean
-
-        // Create custom buttons
-        ButtonType buttonTypeNo = new ButtonType("Ne");
-        ButtonType buttonTypeYes = new ButtonType("Da");
-
-        // Set buttons (Order matters: No first means it appears on the left)
-        alert.getButtonTypes().setAll(buttonTypeNo, buttonTypeYes);
-
-        // Show and wait for response
-        Optional<ButtonType> result = alert.showAndWait();
-
-        if (result.isPresent() && result.get() == buttonTypeYes) {
-            try {
-                UserSession.clear();
-                SceneManager.show("/app/login.fxml", "eDiploma");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    private void handleRadoviClick() {
+        SceneManager.show("/app/thesis.fxml", "Završni radovi");
     }
 
     @FXML
     private void handleStudentiClick() {
-        try {
-            Parent studentsView = FXMLLoader.load(
-                    getClass().getResource("/app/students.fxml")
-            );
-            mainBorderPane.setCenter(studentsView);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    @FXML
-    private void handleRadoviClick(){
-        try{
-            Parent worksView = FXMLLoader.load(
-                    getClass().getResource("/app/thesis.fxml")
-            );
-
-            mainBorderPane.setCenter(worksView);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SceneManager.show("/app/students.fxml", "Studenti");
     }
 
     @FXML
     private void handleMentoriClick() {
-        try {
-            Parent mentorsView = FXMLLoader.load(
-                    getClass().getResource("/app/mentors.fxml")
-            );
-
-            mainBorderPane.setCenter(mentorsView);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SceneManager.show("/app/mentors.fxml", "Mentori");
     }
+
     @FXML
     private void handleSekretariClick() {
-        try {
-            Parent secretariesView = FXMLLoader.load(
-                    getClass().getResource("/app/secretaries.fxml")
-            );
-            mainBorderPane.setCenter(secretariesView);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SceneManager.show("/app/secretaries.fxml", "Sekretari");
     }
 
+    @FXML
+    private void handleAccountSettings() {
+        SceneManager.show("/app/accountSettings.fxml", "Postavke naloga");
+    }
+
+    @FXML
+    private void handleLogout() {
+        UserSession.clearSession();
+        SceneManager.show("/app/login.fxml", "Prijava");
+    }
 }
