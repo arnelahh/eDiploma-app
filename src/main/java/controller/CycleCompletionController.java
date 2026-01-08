@@ -253,8 +253,11 @@ public class CycleCompletionController {
         }
 
         String cycleRoman = convertToRoman(student.getCycle());
-        String cycleText = cycleRoman + " (prvi)"; // TODO: ovo treba biti dinamičko
-        String cycleDurationText = student.getCycleDuration() + " (tri)"; // TODO: ovo treba biti dinamičko
+        String cycleTextWord = convertCycleToText(student.getCycle());
+        String cycleText = cycleRoman + " (" + cycleTextWord + ")";
+
+        String cycleDurationWord = convertDurationToText(student.getCycleDuration());
+        String cycleDurationText = student.getCycleDuration() + " (" + cycleDurationWord + ")";
 
         // Get dean name dynamically from database
         String deanName = DeanService.getCurrentDeanFullName();
@@ -328,6 +331,18 @@ public class CycleCompletionController {
             case 2 -> "drugi";
             case 3 -> "treći";
             default -> String.valueOf(cycle);
+        };
+    }
+
+    private String convertDurationToText(int duration) {
+        return switch (duration) {
+            case 1 -> "jedne";
+            case 2 -> "dvije";
+            case 3 -> "tri";
+            case 4 -> "četiri";
+            case 5 -> "pet";
+            case 6 -> "šest";
+            default -> String.valueOf(duration);
         };
     }
 
