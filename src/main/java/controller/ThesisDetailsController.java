@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import model.*;
+import service.DocumentEmailNotificationService;
 import utils.*;
 
 import java.io.File;
@@ -83,6 +84,9 @@ public class ThesisDetailsController {
     private final DocumentDAO documentDAO = new DocumentDAO();
     private final DocumentTypeDAO documentTypeDAO = new DocumentTypeDAO();
     private final DocumentCardFactory cardFactory = new DocumentCardFactory();
+    
+    // EMAIL SERVICE
+    private final DocumentEmailNotificationService emailNotificationService = new DocumentEmailNotificationService();
 
     private Map<Integer, DocumentType> typeById = new HashMap<>();
 
@@ -192,6 +196,7 @@ public class ThesisDetailsController {
         DocumentCardFactory.Actions actions = new DocumentCardFactory.Actions();
         actions.onEdit = this::openEditorForType;
         actions.onDownload = this::downloadDocument;
+        actions.onSendEmail = this::handleSendEmailDocument; // NOVO: Send Email akcija
 
         documentsContainer.getChildren().clear();
 
@@ -338,6 +343,46 @@ public class ThesisDetailsController {
 
         } catch (Exception e) {
             GlobalErrorHandler.error("Greška pri preuzimanju dokumenta.", e);
+        }
+    }
+
+    /**
+     * NOVO: Handler za slanje emaila sa dokumentom
+     */
+    private void handleSendEmailDocument(Document document) {
+        if (document == null) {
+            GlobalErrorHandler.error("Dokument nije pronađen.");
+            return;
+        }
+
+        // Prikaži confirmation dialog
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Pošalji Email");
+        confirmation.setHeaderText("Da li ste sigurni da želite poslati email?");
+        
+        String documentTypeName = "N/A";
+        if (document.getDocumentType() != null) {
+            documentTypeName = document.getDocumentType().getName();
+        } else if (typeById.containsKey(document.getTypeId())) {
+            documentTypeName = typeById.get(document.getTypeId()).getName();
+        }
+        
+        confirmation.setContentText(
+            "Email će biti poslan studentu, mentoru i sekretaru.\n\n" +
+            "Tip dokumenta: " + documentTypeName + "\n" +
+            "Status: " + document.getStatus()
+        );
+
+        Optional<ButtonType> result = confirmation.showAndWait();
+        
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // Postavi DocumentType ako nije već postavljen
+            if (document.getDocumentType() == null && typeById.containsKey(document.getTypeId())) {
+                document.setDocumentType(typeById.get(document.getTypeId()));
+            }
+            
+            // Pošalji email
+            emailNotificationService.sendDocumentEmail(document);
         }
     }
 

@@ -20,6 +20,7 @@ public class DocumentCardFactory {
         public Consumer<Document> onDownload;
         public Consumer<Document> onView;
         public Consumer<DocumentType> onEdit;
+        public Consumer<Document> onSendEmail; // NOVO: akcija za slanje emaila
     }
 
     public HBox create(DocumentType type, Document doc, boolean blockedByPrevious, Actions actions) {
@@ -43,6 +44,10 @@ public class DocumentCardFactory {
         Button btnEdit = new Button("✏");
         btnEdit.getStyleClass().add("document-icon-btn");
 
+        // NOVO: Dugme za slanje emaila
+        Button btnSendEmail = new Button("📧"); // Email emoji
+        btnSendEmail.getStyleClass().add("document-icon-btn");
+
         boolean notStarted = (doc == null);
         boolean ready = (!notStarted && doc.getStatus() == DocumentStatus.READY);
         boolean inProgress = (!notStarted && doc.getStatus() == DocumentStatus.IN_PROGRESS);
@@ -51,7 +56,7 @@ public class DocumentCardFactory {
         else if (inProgress) card.getStyleClass().add("document-yellow");
         // else default (bijelo)
 
-        // EDIT: blokiran po redoslijedu
+        // EDIT: blokiran po redosljedu
         btnEdit.setDisable(blockedByPrevious);
         btnEdit.setOnAction(e -> {
             if (!blockedByPrevious && actions != null && actions.onEdit != null) {
@@ -59,7 +64,7 @@ public class DocumentCardFactory {
             }
         });
 
-
+        // DOWNLOAD: omogućen samo za READY dokumente
         btnDownload.setDisable(notStarted || !ready || blockedByPrevious);
         btnDownload.setOnAction(e -> {
             if (!btnDownload.isDisable() && actions != null && actions.onDownload != null) {
@@ -67,7 +72,16 @@ public class DocumentCardFactory {
             }
         });
 
-        card.getChildren().addAll(left, btnDownload, btnEdit);
+        // SEND EMAIL: omogućen samo za READY dokumente
+        btnSendEmail.setDisable(notStarted || !ready || blockedByPrevious);
+        btnSendEmail.setOnAction(e -> {
+            if (!btnSendEmail.isDisable() && actions != null && actions.onSendEmail != null) {
+                actions.onSendEmail.accept(doc);
+            }
+        });
+
+        // Dodaj dugmad - redoslijed: Send Email, Download, Edit
+        card.getChildren().addAll(left, btnSendEmail, btnDownload, btnEdit);
         return card;
     }
 }

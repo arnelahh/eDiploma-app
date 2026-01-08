@@ -1,0 +1,101 @@
+package service;
+
+import dao.DocumentDAO;
+import dao.ThesisDAO;
+import dto.ThesisDetailsDTO;
+import model.Document;
+import model.DocumentStatus;
+import utils.GlobalErrorHandler;
+
+/**
+ * Service za ručno slanje email notifikacija putem dugmeta
+ */
+public class DocumentEmailNotificationService {
+
+    private final EmailService emailService = new EmailService();
+    private final DocumentDAO documentDAO = new DocumentDAO();
+    private final ThesisDAO thesisDAO = new ThesisDAO();
+
+    /**
+     * Šalje email za dokument - poziva se iz kontrolera kada korisnik klikne na dugme
+     * 
+     * @param document Document objekat (može biti proslijeđen direktno iz kartice)
+     * @return true ako je uspješno poslano
+     */
+    public boolean sendDocumentEmail(Document document) {
+        try {
+            // Validacija
+            if (document == null) {
+                GlobalErrorHandler.error("Dokument nije pronađen.");
+                return false;
+            }
+
+            // Provjeri status - mora biti READY
+            if (document.getStatus() != DocumentStatus.READY) {
+                GlobalErrorHandler.warning("Dokument još nije spreman za slanje. Status mora biti READY.");
+                return false;
+            }
+
+            // VAŽNO: Eksplicitno povuci PDF content iz baze
+            String base64Content = documentDAO.getContentBase64(document.getId());
+            if (base64Content == null || base64Content.isEmpty()) {
+                GlobalErrorHandler.error("Dokument nema sačuvan PDF sadržaj.");
+                return false;
+            }
+            
+            // Postavi content na document objekat
+            document.setContentBase64(base64Content);
+
+            // Povuci thesis informacije sa svim detaljima (koristi postojeću metodu)
+            ThesisDetailsDTO thesisDetails = thesisDAO.getThesisDetails(document.getThesisId());
+            
+            if (thesisDetails == null) {
+                GlobalErrorHandler.error("Podaci o radu nisu pronađeni.");
+                return false;
+            }
+
+            // Šalji email na osnovu tipa dokumenta
+            boolean success = sendEmailByDocumentType(document, thesisDetails);
+
+            if (success) {
+                GlobalErrorHandler.info("✓ Email je uspješno poslan svim relevatnim osobama!");
+            } else {
+                GlobalErrorHandler.error("✗ Slanje emaila nije uspjelo. Provjerite App Password u podešavanjima.");
+            }
+
+            return success;
+
+        } catch (Exception e) {
+            System.err.println("Error sending document email: " + e.getMessage());
+            e.printStackTrace();
+            GlobalErrorHandler.error("Greška pri slanju emaila: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Rutira slanje emaila na osnovu tipa dokumenta
+     */
+    private boolean sendEmailByDocumentType(Document document, ThesisDetailsDTO thesisDetails) {
+        if (document.getDocumentType() == null) {
+            GlobalErrorHandler.error("Tip dokumenta nije definisan.");
+            return false;
+        }
+
+        String documentTypeName = document.getDocumentType().getName();
+
+        return switch (documentTypeName) {
+            case "Rješenje o izradi rada", "Rješenje o izradi završnog rada" -> 
+                emailService.sendThesisDecisionDocument(document, thesisDetails);
+            
+            // Ovdje možeš dodati druge tipove dokumenata:
+            // case "Komisija", "Rješenje o formiranju Komisije" -> emailService.sendCommissionDocument(document, thesisDetails);
+            // case "Zapisnik o odbrani" -> emailService.sendDefenseReportDocument(document, thesisDetails);
+            
+            default -> {
+                GlobalErrorHandler.warning("Email slanje nije podržano za tip dokumenta: " + documentTypeName);
+                yield false;
+            }
+        };
+    }
+}

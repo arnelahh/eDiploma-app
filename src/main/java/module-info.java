@@ -18,6 +18,8 @@ module main.ediploma {
     requires com.zaxxer.hikari;
     requires openhtmltopdf.pdfbox;
     requires openhtmltopdf.core;
+    requires java.mail;
+    requires activation;
 
 
     opens main.ediploma to javafx.fxml;

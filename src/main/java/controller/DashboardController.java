@@ -100,6 +100,7 @@ public class DashboardController {
             e.printStackTrace();
         }
     }
+    
     @FXML
     private void handleSekretariClick() {
         try {
@@ -107,6 +108,18 @@ public class DashboardController {
                     getClass().getResource("/app/secretaries.fxml")
             );
             mainBorderPane.setCenter(secretariesView);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleAccountSettings() {
+        try {
+            Parent accountSettingsView = FXMLLoader.load(
+                    getClass().getResource("/app/accountSettings.fxml")
+            );
+            mainBorderPane.setCenter(accountSettingsView);
         } catch (Exception e) {
             e.printStackTrace();
         }

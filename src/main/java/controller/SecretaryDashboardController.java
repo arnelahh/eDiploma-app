@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import utils.SceneManager;
 import utils.UserSession;
@@ -12,13 +13,40 @@ import utils.UserSession;
 import java.util.Optional;
 
 public class SecretaryDashboardController {
-    @FXML
-    private BorderPane mainBorderPane;
+
+    @FXML private BorderPane mainBorderPane;
+    @FXML private Label radoviLabel;
+    @FXML private Label accountSettingsLabel;
+    @FXML private Label lblOdjava;
 
     @FXML
     public void initialize(){
         // Automatski učitaj završne radove pri pokretanju
         handleRadoviClick();
+    }
+
+    @FXML
+    private void handleRadoviClick() {
+        try {
+            Parent thesisView = FXMLLoader.load(
+                    getClass().getResource("/app/thesis.fxml")
+            );
+            mainBorderPane.setCenter(thesisView);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleAccountSettings() {
+        try {
+            Parent accountSettingsView = FXMLLoader.load(
+                    getClass().getResource("/app/accountSettings.fxml")
+            );
+            mainBorderPane.setCenter(accountSettingsView);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -46,20 +74,6 @@ public class SecretaryDashboardController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    @FXML
-    private void handleRadoviClick(){
-        try{
-            Parent worksView = FXMLLoader.load(
-                    getClass().getResource("/app/thesis.fxml")
-            );
-
-            mainBorderPane.setCenter(worksView);
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }
