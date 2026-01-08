@@ -174,4 +174,75 @@ public class AppUserDAO {
             throw new RuntimeException("Failed to find AppUser ID for AcademicStaff", e);
         }
     }
+
+    // ========== NEW METHODS FOR ACCOUNT SETTINGS ==========
+
+    public void updatePassword(int userId, String newPasswordHash) throws SQLException {
+        String sql = "UPDATE AppUser SET PasswordHash = ?, UpdatedAt = ? WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newPasswordHash);
+            ps.setTimestamp(2, Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setInt(3, userId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new SQLException("Failed to update password. User not found.");
+            }
+        }
+    }
+
+    public void updateAppPassword(int userId, String hashedAppPassword) throws SQLException {
+        String sql = "UPDATE AppUser SET AppPassword = ?, UpdatedAt = ? WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, hashedAppPassword);
+            ps.setTimestamp(2, Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setInt(3, userId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new SQLException("Failed to update app password. User not found.");
+            }
+        }
+    }
+
+    public void updateEmail(int userId, String newEmail) throws SQLException {
+        String sql = "UPDATE AppUser SET Email = ?, UpdatedAt = ? WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newEmail);
+            ps.setTimestamp(2, Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setInt(3, userId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new SQLException("Failed to update email. User not found.");
+            }
+        }
+    }
+
+    public boolean isEmailTaken(String email, int excludeUserId) throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM AppUser WHERE Email = ? AND Id != ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+            ps.setInt(2, excludeUserId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count") > 0;
+                }
+            }
+        }
+        return false;
+    }
 }
