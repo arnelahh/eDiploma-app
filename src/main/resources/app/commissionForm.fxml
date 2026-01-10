@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 
+<?import org.controlsfx.control.SearchableComboBox?>
 <AnchorPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controller.CommissionFormController"
@@ -23,7 +24,7 @@
                 </padding>
 
                 <Button text="←" onAction="#handleCancel"
-                        style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;"
+                        styleClass="btn-back-outline"
                         HBox.hgrow="NEVER"/>
 
                 <Region HBox.hgrow="ALWAYS"/>
@@ -66,15 +67,15 @@
                                 <!-- Predsjednik komisije -->
                                 <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                     <Label text="Predsjednik komisije *" styleClass="field-label"/>
-                                    <ComboBox fx:id="chairmanComboBox"
-                                              promptText="Izaberite predsjednika komisije"
-                                              prefWidth="9999" styleClass="form-field"/>
+                                    <SearchableComboBox fx:id="chairmanComboBox"
+                                                        promptText="Izaberite predsjednika komisije"
+                                                        prefWidth="9999" styleClass="form-field"/>
                                 </VBox>
 
                                 <!-- Mentor (SADA EDITABLE) -->
                                 <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                     <Label text="Mentor *" styleClass="field-label"/>
-                                    <ComboBox fx:id="mentorComboBox"
+                                    <SearchableComboBox fx:id="mentorComboBox"
                                               promptText="Izaberite mentora"
                                               prefWidth="9999" styleClass="form-field"/>
                                 </VBox>
@@ -82,7 +83,7 @@
                                 <!-- Član komisije -->
                                 <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                     <Label text="Član komisije *" styleClass="field-label"/>
-                                    <ComboBox fx:id="memberComboBox"
+                                    <SearchableComboBox fx:id="memberComboBox"
                                               promptText="Izaberite člana komisije"
                                               prefWidth="9999" styleClass="form-field"/>
                                 </VBox>
@@ -90,7 +91,7 @@
                                 <!-- Sekretar (SADA EDITABLE) -->
                                 <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                     <Label text="Sekretar *" styleClass="field-label"/>
-                                    <ComboBox fx:id="secretaryComboBox"
+                                    <SearchableComboBox fx:id="secretaryComboBox"
                                               promptText="Izaberite sekretara"
                                               prefWidth="9999" styleClass="form-field"/>
                                 </VBox>
@@ -98,7 +99,7 @@
                                 <!-- Zamjenski član -->
                                 <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
                                     <Label text="Zamjenski član" styleClass="field-label"/>
-                                    <ComboBox fx:id="substituteComboBox"
+                                    <SearchableComboBox fx:id="substituteComboBox"
                                               promptText="Izaberite zamjenskog člana (opciono)"
                                               prefWidth="9999" styleClass="form-field"/>
                                 </VBox>

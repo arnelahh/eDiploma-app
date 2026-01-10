@@ -32,12 +32,12 @@
                 </padding>
 
                 <Button onAction="#back"
-                        style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;"
+                        styleClass="btn-back-outline"
                         text="←" />
 
                 <Region HBox.hgrow="ALWAYS" />
 
-                <Text styleClass="app-title" text="eDiploma - Uvjerenje o završenom ciklusu" />
+                <Text styleClass="app-title" text="Uvjerenje o završenom ciklusu studija" />
 
                 <Region HBox.hgrow="ALWAYS" />
 

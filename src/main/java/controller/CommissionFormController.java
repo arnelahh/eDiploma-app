@@ -13,6 +13,7 @@ import model.AcademicStaff;
 import model.Commission;
 import model.CommissionRole;
 import model.Thesis;
+import org.controlsfx.control.SearchableComboBox;
 import utils.AsyncHelper;
 import utils.CommissionValidator;
 import utils.SceneManager;
@@ -26,11 +27,11 @@ public class CommissionFormController {
     @FXML private Text formTitle;
     @FXML private Text formSubtitle;
 
-    @FXML private ComboBox<AcademicStaff> chairmanComboBox;
-    @FXML private ComboBox<AcademicStaff> mentorComboBox;
-    @FXML private ComboBox<AcademicStaff> memberComboBox;
-    @FXML private ComboBox<AcademicStaff> secretaryComboBox;
-    @FXML private ComboBox<AcademicStaff> substituteComboBox;
+    @FXML private SearchableComboBox<AcademicStaff> chairmanComboBox;
+    @FXML private SearchableComboBox<AcademicStaff> mentorComboBox;
+    @FXML private SearchableComboBox<AcademicStaff> memberComboBox;
+    @FXML private SearchableComboBox<AcademicStaff> secretaryComboBox;
+    @FXML private SearchableComboBox<AcademicStaff> substituteComboBox;
 
     @FXML private ProgressIndicator loader;
 

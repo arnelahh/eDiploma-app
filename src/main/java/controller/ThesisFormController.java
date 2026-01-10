@@ -11,6 +11,7 @@ import model.*;
 import utils.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.controlsfx.control.SearchableComboBox;
 
 public class ThesisFormController {
 
@@ -53,11 +54,11 @@ public class ThesisFormController {
     @FXML private VBox statusContainer;
     @FXML private ComboBox<ThesisStatus> statusComboBox;
     
-    @FXML private ComboBox<Student> studentComboBox;
-    @FXML private ComboBox<AcademicStaff> mentorComboBox;
+    @FXML private SearchableComboBox<Student> studentComboBox;
+    @FXML private SearchableComboBox<AcademicStaff> mentorComboBox;
     @FXML private ComboBox<Department> departmentComboBox;
-    @FXML private ComboBox<Subject> subjectComboBox;
-    @FXML private ComboBox<AcademicStaff> secretaryComboBox;
+    @FXML private SearchableComboBox<Subject> subjectComboBox;
+    @FXML private SearchableComboBox<AcademicStaff> secretaryComboBox;
     @FXML private Button deleteButton;
     @FXML private HBox deleteButtonContainer;
 
