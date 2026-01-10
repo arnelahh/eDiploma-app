@@ -17,8 +17,10 @@ import javax.mail.util.ByteArrayDataSource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 public class EmailService {
 
@@ -26,7 +28,7 @@ public class EmailService {
 
     /**
      * Šalje email sa PDF attachment-om koristeći trenutno prijavljenog korisnika
-     * 
+     *
      * @param recipients Lista email adresa primaoca
      * @param subject Naslov emaila
      * @param body Sadržaj emaila (HTML)
@@ -35,10 +37,10 @@ public class EmailService {
      * @param documentId Opcioni ID dokumenta koji je triggerovao email
      * @return true ako je email uspješno poslan
      */
-    public boolean sendEmailWithAttachment(List<String> recipients, String subject, String body, 
-                                           byte[] pdfBytes, String pdfFileName, Integer documentId) {
+    public boolean sendEmailWithAttachment(List<String> recipients, String subject, String body,
+                                          byte[] pdfBytes, String pdfFileName, Integer documentId) {
         AppUser currentUser = UserSession.getUser();
-        
+
         if (currentUser == null) {
             System.err.println("[EmailService] No user logged in. Cannot send email.");
             return false;
@@ -88,7 +90,7 @@ public class EmailService {
             for (String recipient : recipients) {
                 try {
                     System.out.println("[EmailService] Sending to: " + recipient);
-                    
+
                     MimeMessage message = new MimeMessage(session);
                     message.setFrom(new InternetAddress(senderEmail));
                     message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
@@ -118,7 +120,7 @@ public class EmailService {
 
                     // Loguj uspješan email
                     logSuccessfulEmail(currentUser.getId(), recipient, subject, documentId);
-                    
+
                     System.out.println("[EmailService] ✓ Email sent successfully to: " + recipient);
 
                 } catch (MessagingException e) {
@@ -141,36 +143,23 @@ public class EmailService {
 
     /**
      * Šalje "Rješenje o izradi rada" studentu, mentoru i sekretaru
-     * 
-     * @param document Document objekat sa PDF-om u ContentBase64
-     * @param thesisDetails ThesisDetailsDTO objekat sa informacijama o radu
-     * @return true ako je uspješno poslano
      */
     public boolean sendThesisDecisionDocument(Document document, ThesisDetailsDTO thesisDetails) {
         try {
             System.out.println("[EmailService] sendThesisDecisionDocument called");
-            
-            // Validacija
+
             if (document == null || thesisDetails == null) {
                 System.err.println("[EmailService] Document or ThesisDetails is null.");
                 return false;
             }
-
-            System.out.println("[EmailService] Document ID: " + document.getId());
-            System.out.println("[EmailService] Thesis ID: " + thesisDetails.getId());
 
             if (document.getContentBase64() == null || document.getContentBase64().isEmpty()) {
                 System.err.println("[EmailService] Document has no PDF content.");
                 return false;
             }
 
-            System.out.println("[EmailService] Base64 content length: " + document.getContentBase64().length());
-
-            // Dekoduj Base64 PDF
             byte[] pdfBytes = Base64.getDecoder().decode(document.getContentBase64());
-            System.out.println("[EmailService] PDF decoded. Size: " + pdfBytes.length + " bytes");
 
-            // Pripremi primaioce
             Student student = thesisDetails.getStudent();
             AcademicStaff mentor = thesisDetails.getMentor();
             AcademicStaff secretary = thesisDetails.getSecretary();
@@ -180,42 +169,139 @@ public class EmailService {
                 return false;
             }
 
-            List<String> recipients = new java.util.ArrayList<>();
-            recipients.add(student.getEmail());
-            System.out.println("[EmailService] Student email: " + student.getEmail());
+            Set<String> recipientsSet = new LinkedHashSet<>();
+            recipientsSet.add(student.getEmail());
 
-            if (mentor != null && mentor.getEmail() != null) {
-                recipients.add(mentor.getEmail());
-                System.out.println("[EmailService] Mentor email: " + mentor.getEmail());
-            }
+            if (mentor != null && mentor.getEmail() != null) recipientsSet.add(mentor.getEmail());
+            if (secretary != null && secretary.getEmail() != null) recipientsSet.add(secretary.getEmail());
 
-            if (secretary != null && secretary.getEmail() != null) {
-                recipients.add(secretary.getEmail());
-                System.out.println("[EmailService] Secretary email: " + secretary.getEmail());
-            }
+            List<String> recipients = new java.util.ArrayList<>(recipientsSet);
 
-            // Generiši email sadržaj
             String subject = "Rješenje o izradi diplomskog rada";
             String body = generateThesisDecisionEmailBody(thesisDetails);
 
-            // Generiši filename
-            String fileName = String.format("Rjesenje_o_izradi_rada_%s.pdf", 
-                document.getDocumentNumber() != null ? document.getDocumentNumber() : document.getId());
+            String fileName = String.format("Rjesenje_o_izradi_rada_%s.pdf",
+                    document.getDocumentNumber() != null ? document.getDocumentNumber() : document.getId());
 
-            System.out.println("[EmailService] Calling sendEmailWithAttachment...");
-            
-            // Pošalji email
-            return sendEmailWithAttachment(
-                recipients, 
-                subject, 
-                body, 
-                pdfBytes, 
-                fileName, 
-                document.getId()
-            );
+            return sendEmailWithAttachment(recipients, subject, body, pdfBytes, fileName, document.getId());
 
         } catch (Exception e) {
             System.err.println("[EmailService] Failed to send thesis decision document: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Šalje "Rješenje o formiranju Komisije" studentu, mentoru, sekretaru + predsjedniku i članu komisije
+     */
+    public boolean sendCommissionDecisionDocument(Document document, ThesisDetailsDTO thesisDetails, Commission commission) {
+        try {
+            System.out.println("[EmailService] sendCommissionDecisionDocument called");
+
+            if (document == null || thesisDetails == null || commission == null) {
+                System.err.println("[EmailService] Document/ThesisDetails/Commission is null.");
+                return false;
+            }
+
+            if (document.getContentBase64() == null || document.getContentBase64().isEmpty()) {
+                System.err.println("[EmailService] Document has no PDF content.");
+                return false;
+            }
+
+            byte[] pdfBytes = Base64.getDecoder().decode(document.getContentBase64());
+
+            Student student = thesisDetails.getStudent();
+            AcademicStaff mentor = thesisDetails.getMentor();
+            AcademicStaff secretary = thesisDetails.getSecretary();
+
+            AcademicStaff chairman = commission.getMember1();
+            AcademicStaff member = commission.getMember2();
+
+            if (student == null || student.getEmail() == null) {
+                System.err.println("[EmailService] Student email is missing.");
+                return false;
+            }
+
+            Set<String> recipientsSet = new LinkedHashSet<>();
+            recipientsSet.add(student.getEmail());
+
+            if (mentor != null && mentor.getEmail() != null) recipientsSet.add(mentor.getEmail());
+            if (secretary != null && secretary.getEmail() != null) recipientsSet.add(secretary.getEmail());
+            if (chairman != null && chairman.getEmail() != null) recipientsSet.add(chairman.getEmail());
+            if (member != null && member.getEmail() != null) recipientsSet.add(member.getEmail());
+
+            List<String> recipients = new java.util.ArrayList<>(recipientsSet);
+
+            String subject = "Rješenje o formiranju Komisije";
+            String body = generateCommissionDecisionEmailBody(thesisDetails, commission);
+
+            String fileName = String.format("Rjesenje_o_formiranju_komisije_%s.pdf",
+                    document.getDocumentNumber() != null ? document.getDocumentNumber() : document.getId());
+
+            return sendEmailWithAttachment(recipients, subject, body, pdfBytes, fileName, document.getId());
+
+        } catch (Exception e) {
+            System.err.println("[EmailService] Failed to send commission decision document: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * NOVO: Šalje "Obavijest" studentu, mentoru, sekretaru i članovima komisije (Member1/2/3)
+     */
+    public boolean sendNoticeDocument(Document document, ThesisDetailsDTO thesisDetails, Commission commission) {
+        try {
+            System.out.println("[EmailService] sendNoticeDocument called");
+
+            if (document == null || thesisDetails == null || commission == null) {
+                System.err.println("[EmailService] Document/ThesisDetails/Commission is null.");
+                return false;
+            }
+
+            if (document.getContentBase64() == null || document.getContentBase64().isEmpty()) {
+                System.err.println("[EmailService] Document has no PDF content.");
+                return false;
+            }
+
+            byte[] pdfBytes = Base64.getDecoder().decode(document.getContentBase64());
+
+            Student student = thesisDetails.getStudent();
+            AcademicStaff mentor = thesisDetails.getMentor();
+            AcademicStaff secretary = thesisDetails.getSecretary();
+
+            AcademicStaff chairman = commission.getMember1();
+            AcademicStaff member = commission.getMember2();
+            AcademicStaff substitute = commission.getMember3();
+
+            if (student == null || student.getEmail() == null) {
+                System.err.println("[EmailService] Student email is missing.");
+                return false;
+            }
+
+            Set<String> recipientsSet = new LinkedHashSet<>();
+            recipientsSet.add(student.getEmail());
+
+            if (mentor != null && mentor.getEmail() != null) recipientsSet.add(mentor.getEmail());
+            if (secretary != null && secretary.getEmail() != null) recipientsSet.add(secretary.getEmail());
+
+            if (chairman != null && chairman.getEmail() != null) recipientsSet.add(chairman.getEmail());
+            if (member != null && member.getEmail() != null) recipientsSet.add(member.getEmail());
+            if (substitute != null && substitute.getEmail() != null) recipientsSet.add(substitute.getEmail());
+
+            List<String> recipients = new java.util.ArrayList<>(recipientsSet);
+
+            String subject = "Obavijest o terminu završnog rada";
+            String body = generateNoticeEmailBody(thesisDetails, commission);
+
+            String fileName = String.format("Obavijest_%s.pdf",
+                    document.getDocumentNumber() != null ? document.getDocumentNumber() : document.getId());
+
+            return sendEmailWithAttachment(recipients, subject, body, pdfBytes, fileName, document.getId());
+
+        } catch (Exception e) {
+            System.err.println("[EmailService] Failed to send notice document: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -227,17 +313,17 @@ public class EmailService {
     private String generateThesisDecisionEmailBody(ThesisDetailsDTO thesisDetails) {
         Student student = thesisDetails.getStudent();
         AcademicStaff mentor = thesisDetails.getMentor();
-        
-        String studentName = (student != null) 
-            ? student.getFirstName() + " " + student.getLastName() 
-            : "N/A";
-        
-        String mentorName = (mentor != null) 
-            ? (mentor.getTitle() != null ? mentor.getTitle() + " " : "") + mentor.getFirstName() + " " + mentor.getLastName() 
-            : "N/A";
-        
+
+        String studentName = (student != null)
+                ? student.getFirstName() + " " + student.getLastName()
+                : "N/A";
+
+        String mentorName = (mentor != null)
+                ? (mentor.getTitle() != null ? mentor.getTitle() + " " : "") + mentor.getFirstName() + " " + mentor.getLastName()
+                : "N/A";
+
         String thesisTitle = thesisDetails.getTitle() != null ? thesisDetails.getTitle() : "N/A";
-        
+
         String approvalDate = "";
         if (thesisDetails.getApprovalDate() != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -245,32 +331,170 @@ public class EmailService {
         }
 
         return String.format("""
-            <html>
-            <body style="font-family: Arial, sans-serif; color: #333;">
-                <h2 style="color: #2c3e50;">Rješenje o izradi diplomskog rada</h2>
-                
-                <p>Poštovani/a,</p>
-                
-                <p>U prilogu se nalazi dokument <strong>Rješenja o izradi diplomskog rada</strong>.</p>
-                
-                <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3498db; margin: 20px 0;">
-                    <p style="margin: 5px 0;"><strong>Student:</strong> %s</p>
-                    <p style="margin: 5px 0;"><strong>Mentor:</strong> %s</p>
-                    <p style="margin: 5px 0;"><strong>Naslov rada:</strong> %s</p>
-                    %s
-                </div>
-                
-                <p>Molimo vas da dokument pregledate i sačuvate za svoje evidencije.</p>
-                
-                <br>
-                <p style="color: #7f8c8d; font-size: 12px;">Srdačan pozdrav,<br>Studentska služba<br><i>Ova poruka je automatski generisana iz eDiploma sistema.</i></p>
-            </body>
-            </html>
-            """, 
-            studentName, 
-            mentorName, 
-            thesisTitle,
-            !approvalDate.isEmpty() ? "<p style=\"margin: 5px 0;\"><strong>Datum odobrenja:</strong> " + approvalDate + "</p>" : ""
+                        <html>
+                        <body style=\"font-family: Arial, sans-serif; color: #333;\">
+                            <h2 style=\"color: #2c3e50;\">Rješenje o izradi diplomskog rada</h2>
+
+                            <p>Poštovani/a,</p>
+
+                            <p>U prilogu se nalazi dokument <strong>Rješenja o izradi diplomskog rada</strong>.</p>
+
+                            <div style=\"background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3498db; margin: 20px 0;\">
+                                <p style=\"margin: 5px 0;\"><strong>Student:</strong> %s</p>
+                                <p style=\"margin: 5px 0;\"><strong>Mentor:</strong> %s</p>
+                                <p style=\"margin: 5px 0;\"><strong>Naslov rada:</strong> %s</p>
+                                %s
+                            </div>
+
+                            <p>Molimo vas da dokument pregledate i sačuvate za svoje evidencije.</p>
+
+                            <br>
+                            <p style=\"color: #7f8c8d; font-size: 12px;\">Srdačan pozdrav,<br>Studentska služba<br><i>Ova poruka je automatski generisana iz eDiploma sistema.</i></p>
+                        </body>
+                        </html>
+                        """,
+                studentName,
+                mentorName,
+                thesisTitle,
+                !approvalDate.isEmpty() ? "<p style=\"margin: 5px 0;\"><strong>Datum odobrenja:</strong> " + approvalDate + "</p>" : ""
+        );
+    }
+
+    /**
+     * Generiše HTML body za "Rješenje o formiranju Komisije" email
+     */
+    private String generateCommissionDecisionEmailBody(ThesisDetailsDTO thesisDetails, Commission commission) {
+        Student student = thesisDetails.getStudent();
+        AcademicStaff mentor = thesisDetails.getMentor();
+        AcademicStaff chairman = commission != null ? commission.getMember1() : null;
+        AcademicStaff member = commission != null ? commission.getMember2() : null;
+
+        String studentName = (student != null)
+                ? student.getFirstName() + " " + student.getLastName()
+                : "N/A";
+
+        String mentorName = (mentor != null)
+                ? (mentor.getTitle() != null ? mentor.getTitle() + " " : "") + mentor.getFirstName() + " " + mentor.getLastName()
+                : "N/A";
+
+        String chairmanName = (chairman != null)
+                ? (chairman.getTitle() != null ? chairman.getTitle() + " " : "") + chairman.getFirstName() + " " + chairman.getLastName()
+                : "N/A";
+
+        String memberName = (member != null)
+                ? (member.getTitle() != null ? member.getTitle() + " " : "") + member.getFirstName() + " " + member.getLastName()
+                : "N/A";
+
+        String thesisTitle = thesisDetails.getTitle() != null ? thesisDetails.getTitle() : "N/A";
+
+        return String.format("""
+                        <html>
+                        <body style=\"font-family: Arial, sans-serif; color: #333;\">
+                            <h2 style=\"color: #2c3e50;\">Rješenje o formiranju Komisije</h2>
+
+                            <p>Poštovani/a,</p>
+
+                            <p>U prilogu se nalazi dokument <strong>Rješenja o formiranju Komisije</strong>.</p>
+
+                            <div style=\"background-color: #f5f5f5; padding: 15px; border-left: 4px solid #8e44ad; margin: 20px 0;\">
+                                <p style=\"margin: 5px 0;\"><strong>Student:</strong> %s</p>
+                                <p style=\"margin: 5px 0;\"><strong>Mentor:</strong> %s</p>
+                                <p style=\"margin: 5px 0;\"><strong>Naslov rada:</strong> %s</p>
+                                <hr style=\"border: none; border-top: 1px solid #ddd; margin: 12px 0;\">
+                                <p style=\"margin: 5px 0;\"><strong>Predsjednik komisije:</strong> %s</p>
+                                <p style=\"margin: 5px 0;\"><strong>Član komisije:</strong> %s</p>
+                            </div>
+
+                            <p>Molimo vas da dokument pregledate i sačuvate za svoje evidencije.</p>
+
+                            <br>
+                            <p style=\"color: #7f8c8d; font-size: 12px;\">Srdačan pozdrav,<br>Studentska služba<br><i>Ova poruka je automatski generisana iz eDiploma sistema.</i></p>
+                        </body>
+                        </html>
+                        """,
+                studentName,
+                mentorName,
+                thesisTitle,
+                chairmanName,
+                memberName
+        );
+    }
+
+    /**
+     * NOVO: Generiše HTML body za "Obavijest" email
+     */
+    private String generateNoticeEmailBody(ThesisDetailsDTO thesisDetails, Commission commission) {
+        Student student = thesisDetails.getStudent();
+        AcademicStaff mentor = thesisDetails.getMentor();
+
+        AcademicStaff chairman = commission != null ? commission.getMember1() : null;
+        AcademicStaff member = commission != null ? commission.getMember2() : null;
+        AcademicStaff substitute = commission != null ? commission.getMember3() : null;
+
+        String studentName = (student != null)
+                ? student.getFirstName() + " " + student.getLastName()
+                : "N/A";
+
+        String mentorName = (mentor != null)
+                ? (mentor.getTitle() != null ? mentor.getTitle() + " " : "") + mentor.getFirstName() + " " + mentor.getLastName()
+                : "N/A";
+
+        String thesisTitle = thesisDetails.getTitle() != null ? thesisDetails.getTitle() : "N/A";
+
+        String defenseDate = "";
+        if (thesisDetails.getDefenseDate() != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            defenseDate = thesisDetails.getDefenseDate().format(formatter);
+        }
+
+        String chairmanName = (chairman != null)
+                ? (chairman.getTitle() != null ? chairman.getTitle() + " " : "") + chairman.getFirstName() + " " + chairman.getLastName()
+                : "N/A";
+
+        String memberName = (member != null)
+                ? (member.getTitle() != null ? member.getTitle() + " " : "") + member.getFirstName() + " " + member.getLastName()
+                : "N/A";
+
+        String substituteName = (substitute != null)
+                ? (substitute.getTitle() != null ? substitute.getTitle() + " " : "") + substitute.getFirstName() + " " + substitute.getLastName()
+                : "N/A";
+
+        String substituteLine = (substitute != null) ? "<p style=\"margin: 5px 0;\"><strong>Zamjenski član:</strong> " + substituteName + "</p>" : "";
+
+        return String.format("""
+                        <html>
+                        <body style=\"font-family: Arial, sans-serif; color: #333;\">
+                            <h2 style=\"color: #2c3e50;\">Obavijest o terminu završnog rada</h2>
+
+                            <p>Poštovani/a,</p>
+
+                            <p>U prilogu se nalazi dokument <strong>Obavijesti o terminu završnog rada</strong>.</p>
+
+                            <div style=\"background-color: #f5f5f5; padding: 15px; border-left: 4px solid #16a085; margin: 20px 0;\">
+                                <p style=\"margin: 5px 0;\"><strong>Student:</strong> %s</p>
+                                <p style=\"margin: 5px 0;\"><strong>Mentor:</strong> %s</p>
+                                <p style=\"margin: 5px 0;\"><strong>Naslov rada:</strong> %s</p>
+                                %s
+                                <hr style=\"border: none; border-top: 1px solid #ddd; margin: 12px 0;\">
+                                <p style=\"margin: 5px 0;\"><strong>Predsjednik komisije:</strong> %s</p>
+                                <p style=\"margin: 5px 0;\"><strong>Član komisije:</strong> %s</p>
+                                %s
+                            </div>
+
+                            <p>Molimo vas da dokument pregledate i sačuvate za svoje evidencije.</p>
+
+                            <br>
+                            <p style=\"color: #7f8c8d; font-size: 12px;\">Srdačan pozdrav,<br>Studentska služba<br><i>Ova poruka je automatski generisana iz eDiploma sistema.</i></p>
+                        </body>
+                        </html>
+                        """,
+                studentName,
+                mentorName,
+                thesisTitle,
+                !defenseDate.isEmpty() ? "<p style=\"margin: 5px 0;\"><strong>Datum odbrane:</strong> " + defenseDate + "</p>" : "",
+                chairmanName,
+                memberName,
+                substituteLine
         );
     }
 
@@ -281,33 +505,24 @@ public class EmailService {
         return sendEmailWithAttachment(recipients, subject, body, null, null, documentId);
     }
 
-    /**
-     * Skraćena verzija za slanje jednom primaocu
-     */
     public boolean sendEmail(String recipient, String subject, String body, Integer documentId) {
         return sendEmail(List.of(recipient), subject, body, documentId);
     }
 
-    /**
-     * Skraćena verzija bez documentId
-     */
     public boolean sendEmail(List<String> recipients, String subject, String body) {
         return sendEmail(recipients, subject, body, null);
     }
 
-    /**
-     * Loguje uspješan email u bazu
-     */
     private void logSuccessfulEmail(int userId, String recipient, String subject, Integer documentId) {
         try {
             EmailLog log = new EmailLog(
-                userId,
-                recipient,
-                subject,
-                "SUCCESS",
-                null,
-                LocalDateTime.now(),
-                documentId
+                    userId,
+                    recipient,
+                    subject,
+                    "SUCCESS",
+                    null,
+                    LocalDateTime.now(),
+                    documentId
             );
             emailLogDAO.logEmail(log);
         } catch (Exception e) {
@@ -315,20 +530,17 @@ public class EmailService {
         }
     }
 
-    /**
-     * Loguje neuspješan email u bazu
-     */
     private void logFailedEmail(int userId, List<String> recipients, String subject, String errorMessage, Integer documentId) {
         try {
             for (String recipient : recipients) {
                 EmailLog log = new EmailLog(
-                    userId,
-                    recipient,
-                    subject,
-                    "FAILED",
-                    errorMessage,
-                    LocalDateTime.now(),
-                    documentId
+                        userId,
+                        recipient,
+                        subject,
+                        "FAILED",
+                        errorMessage,
+                        LocalDateTime.now(),
+                        documentId
                 );
                 emailLogDAO.logEmail(log);
             }
@@ -337,21 +549,18 @@ public class EmailService {
         }
     }
 
-    /**
-     * Test metoda za slanje test emaila
-     */
     public boolean sendTestEmail() {
         AppUser currentUser = UserSession.getUser();
         if (currentUser == null) return false;
 
         String subject = "eDiploma - Test Email";
         String body = """
-            <h2>Test Email</h2>
-            <p>Ovo je test email iz eDiploma aplikacije.</p>
-            <p>Vaš email sistem je uspješno konfigurisan!</p>
-            <br>
-            <p><i>Ova poruka je automatski generisana.</i></p>
-            """;
+                <h2>Test Email</h2>
+                <p>Ovo je test email iz eDiploma aplikacije.</p>
+                <p>Vaš email sistem je uspješno konfigurisan!</p>
+                <br>
+                <p><i>Ova poruka je automatski generisana.</i></p>
+                """;
 
         return sendEmail(currentUser.getEmail(), subject, body, null);
     }
