@@ -557,7 +557,7 @@ public class ThesisDetailsController {
         alert.setContentText(
                 "Ovaj završni rad trenutno uređuje: " + userName +
                         whenText +
-                        "\n\nPokušajte ponovo kasnije."
+                        "\n\nPokušajte ponovo za 30 minuta."
         );
         alert.showAndWait();
     }

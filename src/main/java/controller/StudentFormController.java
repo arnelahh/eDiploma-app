@@ -242,6 +242,6 @@ public class StudentFormController {
     @FXML
     private void back() {
         NavigationContext.setTargetView(DashboardView.STUDENTS);
-        SceneManager.show("/app/dashboard.fxml", "Dashboard");
+        SceneManager.show("/app/dashboard.fxml", "eDiploma");
     }
 }

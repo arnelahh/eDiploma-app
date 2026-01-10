@@ -4,6 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
+<?import org.controlsfx.control.SearchableComboBox?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -23,7 +24,7 @@
                 </padding>
 
                 <Button text="←" onAction="#back"
-                        style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;"/>
+                        styleClass="btn-back-outline"/>
 
                 <Text text="eDiploma" styleClass="app-title"/>
             </HBox>
@@ -89,7 +90,7 @@
 
                             <VBox fx:id="approvalDateContainer" spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="4"
                                   visible="false" managed="false">
-                                <Label text="Datum odobrenja" styleClass="field-label"/>
+                                <Label text="Datum sjednice komisije" styleClass="field-label"/>
                                 <DatePicker fx:id="approvalDatePicker" prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
@@ -127,21 +128,21 @@
                             <!-- Student -->
                             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                 <Label text="Student *" styleClass="field-label"/>
-                                <ComboBox fx:id="studentComboBox" promptText="Izaberite studenta"
+                                <SearchableComboBox fx:id="studentComboBox" promptText="Izaberite studenta"
                                           prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
                             <!-- Mentor -->
                             <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                 <Label text="Mentor *" styleClass="field-label"/>
-                                <ComboBox fx:id="mentorComboBox" promptText="Izaberite mentora"
+                                <SearchableComboBox fx:id="mentorComboBox" promptText="Izaberite mentora"
                                           prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
                             <!-- Sekretar -->
                             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                 <Label text="Sekretar *" styleClass="field-label"/>
-                                <ComboBox fx:id="secretaryComboBox" promptText="Izaberite sekretara"
+                                <SearchableComboBox fx:id="secretaryComboBox" promptText="Izaberite sekretara"
                                           prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
@@ -174,7 +175,7 @@
                             <!-- Predmet -->
                             <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                 <Label text="Predmet *" styleClass="field-label"/>
-                                <ComboBox fx:id="subjectComboBox" promptText="Izaberite predmet"
+                                <SearchableComboBox fx:id="subjectComboBox" promptText="Izaberite predmet"
                                           prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 

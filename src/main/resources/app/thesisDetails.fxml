@@ -22,7 +22,7 @@
                 </padding>
 
                 <Button text="←" onAction="#back"
-                        style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;"
+                        styleClass="btn-back-outline"
                         HBox.hgrow="NEVER"/>
 
                 <Region HBox.hgrow="ALWAYS"/>

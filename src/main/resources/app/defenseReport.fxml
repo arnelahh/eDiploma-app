@@ -25,11 +25,13 @@
                     <Insets bottom="20" left="30" right="30" top="20" />
                 </padding>
 
-                <Button onAction="#back" style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;" text="←" />
+                <Button onAction="#back"
+                        styleClass="btn-back-outline"
+                        text="←" />
 
                 <Region HBox.hgrow="ALWAYS" />
 
-                <Text styleClass="app-title" text="eDiploma - Generisanje Zapisnika" />
+                <Text styleClass="app-title" text="Zapisnik sa odbrane diplomskog rada" />
 
                 <Region HBox.hgrow="ALWAYS" />
 

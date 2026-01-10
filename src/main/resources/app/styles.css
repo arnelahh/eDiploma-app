@@ -836,3 +836,20 @@
     -fx-background-color: #b2bec3;
     -fx-background-radius: 5em;
 }
+.btn-back-outline {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6c5ce7;
+    -fx-font-size: 30px;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-min-width: 50px;
+    -fx-min-height: 50px;
+    -fx-max-width: 50px;
+    -fx-max-height: 50px;
+    -fx-background-radius: 50%;
+}
+
+.btn-back-outline:hover {
+    -fx-background-color: #6c5ce7;
+    -fx-text-fill: white;
+}

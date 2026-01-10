@@ -34,11 +34,11 @@
                 </padding>
 
                 <Button text="←" onAction="#back"
-                        style="-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand;"/>
+                        styleClass="btn-back-outline"/>
 
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <Text text="Rješenje o izradi završnog rada" styleClass="app-title"/>
+                <Text text="Obavijest o terminu završnog rada" styleClass="app-title"/>
 
                 <Region HBox.hgrow="ALWAYS"/>
 
