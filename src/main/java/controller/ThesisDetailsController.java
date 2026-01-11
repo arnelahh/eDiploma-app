@@ -404,6 +404,10 @@ public class ThesisDetailsController {
                     lines.add(formatStaffLine("Zamjenski član", substitute));
                 }
             }
+            case "Uvjerenje o završenom ciklusu" -> {
+                // šalje se samo studentu
+                lines.add(formatStudentLine(student));
+            }
             default -> {
                 // default minimal preview
                 lines.add(formatStudentLine(student));
@@ -416,7 +420,7 @@ public class ThesisDetailsController {
     }
 
     /**
-     * NOVO: Handler za slanje emaila sa dokumentom
+     * NOVO: Handler za slanje emaila sa dokumentom (sa loading indikatorom)
      */
     private void handleSendEmailDocument(Document document) {
         if (document == null) {
@@ -454,9 +458,37 @@ public class ThesisDetailsController {
                 document.setDocumentType(typeById.get(document.getTypeId()));
             }
 
-            // Pošalji email
-            emailNotificationService.sendDocumentEmail(document);
+            // Pošalji email u pozadini sa loading indikatorom
+            sendEmailAsync(document);
         }
+    }
+
+    /**
+     * Asinkrono slanje emaila sa loading indikatorom
+     */
+    private void sendEmailAsync(Document document) {
+        Task<Boolean> task = new Task<>() {
+            @Override
+            protected Boolean call() throws Exception {
+                return emailNotificationService.sendDocumentEmail(document);
+            }
+        };
+
+        // Prikaži loading indicator
+        if (loader != null) {
+            loader.visibleProperty().bind(task.runningProperty());
+        }
+
+        task.setOnSucceeded(e -> {
+            // Success/error poruke se već prikazuju u emailNotificationService
+            // Ovdje ne treba dodatno prikazivati
+        });
+
+        task.setOnFailed(e -> {
+            GlobalErrorHandler.error("Greška pri slanju emaila.", task.getException());
+        });
+
+        new Thread(task, "send-document-email").start();
     }
 
 

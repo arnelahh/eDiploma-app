@@ -13,6 +13,7 @@ import model.Document;
 import model.DocumentStatus;
 import model.DocumentType;
 
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class DocumentCardFactory {
@@ -23,6 +24,11 @@ public class DocumentCardFactory {
         public Consumer<DocumentType> onEdit;
         public Consumer<Document> onSendEmail; // NOVO: akcija za slanje emaila
     }
+
+    private static final Set<String> EMAIL_DISABLED_DOC_NAMES = Set.of(
+            "Zapisnik sa odbrane",
+            "Zapisnik o pismenom dijelu diplomskog rada"
+    );
 
     public HBox create(DocumentType type, Document doc, boolean blockedByPrevious, Actions actions) {
         HBox card = new HBox(10);
@@ -82,16 +88,25 @@ public class DocumentCardFactory {
             }
         });
 
-        // SEND EMAIL: omogućen samo za READY dokumente
-        btnSendEmail.setDisable(notStarted || !ready || blockedByPrevious);
-        btnSendEmail.setOnAction(e -> {
-            if (!btnSendEmail.isDisable() && actions != null && actions.onSendEmail != null) {
-                actions.onSendEmail.accept(doc);
-            }
-        });
+        boolean emailDisabledForType = (type != null
+                && type.getName() != null
+                && EMAIL_DISABLED_DOC_NAMES.contains(type.getName()));
 
-        // Dodaj dugmad - redoslijed: Send Email, Download, Edit
-        card.getChildren().addAll(left, btnSendEmail, btnDownload, btnEdit);
+        // SEND EMAIL: prikazati samo ako je omogućeno za ovaj tip dokumenta
+        if (!emailDisabledForType) {
+            btnSendEmail.setDisable(notStarted || !ready || blockedByPrevious);
+            btnSendEmail.setOnAction(e -> {
+                if (!btnSendEmail.isDisable() && actions != null && actions.onSendEmail != null) {
+                    actions.onSendEmail.accept(doc);
+                }
+            });
+            // Dodaj dugmad - redoslijed: Send Email, Download, Edit
+            card.getChildren().addAll(left, btnSendEmail, btnDownload, btnEdit);
+        } else {
+            // Dodaj dugmad - redoslijed: Download, Edit
+            card.getChildren().addAll(left, btnDownload, btnEdit);
+        }
+
         return card;
     }
 }

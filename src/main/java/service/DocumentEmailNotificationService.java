@@ -94,13 +94,7 @@ public class DocumentEmailNotificationService {
             case "Rješenje o formiranju Komisije" -> {
                 Commission commission = commissionDAO.getCommissionByThesisId(document.getThesisId());
 
-                if (commission == null) {
-                    GlobalErrorHandler.error("Komisija nije pronađena za ovaj rad.");
-                    yield false;
-                }
-
-                if (commission.getMember1() == null || commission.getMember2() == null) {
-                    GlobalErrorHandler.error("Komisija nije kompletna (nedostaje predsjednik ili član).");
+                if (!validateCommission(commission, true)) {
                     yield false;
                 }
 
@@ -110,18 +104,49 @@ public class DocumentEmailNotificationService {
             case "Obavijest" -> {
                 Commission commission = commissionDAO.getCommissionByThesisId(document.getThesisId());
 
-                if (commission == null || commission.getMember1() == null) {
-                    GlobalErrorHandler.error("Komisija mora biti formirana prije slanja obavijesti.");
+                if (!validateCommission(commission, false)) {
                     yield false;
                 }
 
                 yield emailService.sendNoticeDocument(document, thesisDetails, commission);
             }
 
+            case "Uvjerenje o završenom ciklusu" ->
+                    emailService.sendCycleCompletionDocument(document, thesisDetails);
+
             default -> {
                 GlobalErrorHandler.warning("Email slanje nije podržano za tip dokumenta: " + documentTypeName);
                 yield false;
             }
         };
+    }
+
+    /**
+     * Validira Commission objekat i članove
+     * 
+     * @param commission Commission objekat za validaciju
+     * @param requireMembers Da li se zahtijeva postojanje member1 i member2
+     * @return true ako je komisija validna, false inače
+     */
+    private boolean validateCommission(Commission commission, boolean requireMembers) {
+        if (commission == null) {
+            GlobalErrorHandler.error("Komisija nije pronađena za ovaj rad.");
+            return false;
+        }
+
+        if (requireMembers) {
+            if (commission.getMember1() == null || commission.getMember2() == null) {
+                GlobalErrorHandler.error("Komisija nije kompletna (nedostaje predsjednik ili član).");
+                return false;
+            }
+        } else {
+            // Za Obavijest treba samo member1 (predsjednik)
+            if (commission.getMember1() == null) {
+                GlobalErrorHandler.error("Komisija mora biti formirana prije slanja obavijesti.");
+                return false;
+            }
+        }
+
+        return true;
     }
 }
