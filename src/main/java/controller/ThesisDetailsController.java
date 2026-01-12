@@ -73,14 +73,12 @@ public class ThesisDetailsController {
     @FXML
     private ProgressIndicator loader;
 
-    // DOCUMENTS UI CONTAINER
     @FXML
     private VBox documentsContainer;
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
 
-    // DOCUMENTS
     private final DocumentDAO documentDAO = new DocumentDAO();
     private final DocumentTypeDAO documentTypeDAO = new DocumentTypeDAO();
     private final DocumentCardFactory cardFactory = new DocumentCardFactory();
@@ -281,9 +279,7 @@ public class ThesisDetailsController {
         return title + member.getFirstName() + " " + member.getLastName();
     }
 
-    // -------------------------
     // DOCUMENT ACTIONS
-    // -------------------------
 
     private void openEditorForType(DocumentType type) {
         if (type == null) return;
@@ -312,7 +308,6 @@ public class ThesisDetailsController {
         }
 
         try {
-            // pošto getByThesisId ne vraća content, uzmi ga ovdje
             String base64 = documentDAO.getContentBase64(doc.getId());
             if (base64 == null || base64.isBlank()) {
                 GlobalErrorHandler.error("Dokument nema sačuvan sadržaj (PDF).");
@@ -479,10 +474,7 @@ public class ThesisDetailsController {
             loader.visibleProperty().bind(task.runningProperty());
         }
 
-        task.setOnSucceeded(e -> {
-            // Success/error poruke se već prikazuju u emailNotificationService
-            // Ovdje ne treba dodatno prikazivati
-        });
+        task.setOnSucceeded(e -> {});
 
         task.setOnFailed(e -> {
             GlobalErrorHandler.error("Greška pri slanju emaila.", task.getException());
@@ -586,12 +578,10 @@ public class ThesisDetailsController {
 
     @FXML
     private void back() {
-        // Dohvati trenutnog korisnika
         AppUser currentUser = UserSession.getUser();
 
         NavigationContext.setTargetView(DashboardView.THESIS);
 
-        // Provjeri tip korisnika i vrati ga na odgovarajući dashboard
         if (currentUser != null && currentUser.getRole() != null) {
             String roleName = currentUser.getRole().getName();
 
@@ -688,7 +678,6 @@ public class ThesisDetailsController {
             return;
         }
 
-        // Check if required documents are READY
         DocumentType commissionReportDocType = documentTypeDAO.getByName("Rješenje o formiranju Komisije");
         if (commissionReportDocType != null) {
             Document commissionReportDoc = documentDAO.getByThesisAndType(thesisId, commissionReportDocType.getId());

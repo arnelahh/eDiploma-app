@@ -1,18 +1,11 @@
 package controller;
 
-import dao.AcademicStaffDAO;
-import dao.AppUserDAO;
-import dao.CommissionDAO;
-import dao.CommissionRoleDAO;
-import dao.ThesisDAO;
+import dao.*;
 import dto.ThesisDetailsDTO;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
-import model.AcademicStaff;
-import model.Commission;
-import model.CommissionRole;
-import model.Thesis;
+import model.*;
 import org.controlsfx.control.SearchableComboBox;
 import utils.AsyncHelper;
 import utils.CommissionValidator;
@@ -41,6 +34,9 @@ public class CommissionFormController {
     private final CommissionRoleDAO commissionRoleDAO = new CommissionRoleDAO();
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionValidator validator = new CommissionValidator();
+    private final DocumentDAO documentDAO = new DocumentDAO();
+    private final DocumentTypeDAO documentTypeDAO = new DocumentTypeDAO();
+
 
     private int thesisId;
     private ThesisDetailsDTO thesisDetails;
@@ -252,6 +248,25 @@ public class CommissionFormController {
                 thesis.setAcademicStaffId(mentorComboBox.getValue().getId());
                 thesis.setSecretaryId(secretaryAppUserId);
                 thesisDAO.updateThesis(thesis);
+
+                String current = thesisDAO.getStatusName(thesisId);
+                if (ThesisStatuses.FORMIRANJE_KOMISIJE.equals(current)) {
+                    thesisDAO.updateStatusByName(thesisId, ThesisStatuses.UNOS_RJESENJA_KOMISIJE);
+                }
+                DocumentType commissionDocType =
+                        documentTypeDAO.getByName("Rješenje o formiranju Komisije");
+
+                if (commissionDocType == null) {
+                    throw new RuntimeException(
+                            "DocumentType 'Rješenje o formiranju Komisije' nije pronađen."
+                    );
+                }
+
+                documentDAO.ensureDocumentInProgress(
+                        thesisId,
+                        commissionDocType.getId(),
+                        secretaryAppUserId
+                );
             }
 
             GlobalErrorHandler.info(isEditMode ? "Komisija je uspješno ažurirana!" : "Komisija je uspješno kreirana!");

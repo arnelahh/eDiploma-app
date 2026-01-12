@@ -188,6 +188,23 @@ public class NoticeController {
                     status
             );
 
+            // nakon upsert-a, uskladi status thesis-a sa statusom dokumenta
+            String current = thesisDAO.getStatusName(thesisId);
+
+            if (status == DocumentStatus.READY) {
+                // Obavijest završena → ide se na zapisnike
+                if (ThesisStatuses.UNOS_RJESENJA_OBAVIJESTI.equals(current)
+                        || ThesisStatuses.KREIRANJE_OBAVIJESTI.equals(current)) {
+                    thesisDAO.updateStatusByName(thesisId, ThesisStatuses.GENERISANJE_ZAPISNIKA);
+                }
+            } else {
+                // status == IN_PROGRESS (npr. obrisan broj rješenja) → vrati na unos broja rješenja obavijesti
+                if (!ThesisStatuses.UNOS_RJESENJA_OBAVIJESTI.equals(current)) {
+                    thesisDAO.updateStatusByName(thesisId, ThesisStatuses.UNOS_RJESENJA_OBAVIJESTI);
+                }
+            }
+
+
             GlobalErrorHandler.info("Dokument je uspješno sačuvan.");
             back();
 

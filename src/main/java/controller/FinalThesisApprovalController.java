@@ -164,6 +164,26 @@ public class FinalThesisApprovalController {
                     status
             );
 
+            String current = thesisDAO.getStatusName(thesisId);
+
+            if (status == DocumentStatus.READY) {
+                if (ThesisStatuses.RAD_KREIRAN.equals(current)) {
+
+                    thesisDAO.updateStatusByName(
+                            thesisId,
+                            ThesisStatuses.FORMIRANJE_KOMISIJE
+                    );
+                }
+            } else {
+                if (!ThesisStatuses.RAD_KREIRAN.equals(current)) {
+
+                    thesisDAO.updateStatusByName(
+                            thesisId,
+                            ThesisStatuses.RAD_KREIRAN
+                    );
+                }
+            }
+
             GlobalErrorHandler.info("Dokument je uspješno sačuvan. ");
             back();
 

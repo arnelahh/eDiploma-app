@@ -149,6 +149,19 @@ public class CommissionReportController {
                     status
             );
 
+            String current = thesisDAO.getStatusName(thesisId);
+
+            if (status == DocumentStatus.READY) {
+                if (ThesisStatuses.UNOS_RJESENJA_KOMISIJE.equals(current)
+                        || ThesisStatuses.FORMIRANJE_KOMISIJE.equals(current)) {
+                    thesisDAO.updateStatusByName(thesisId, ThesisStatuses.KREIRANJE_OBAVIJESTI);
+                }
+            } else {
+                if (!ThesisStatuses.UNOS_RJESENJA_KOMISIJE.equals(current)) {
+                    thesisDAO.updateStatusByName(thesisId, ThesisStatuses.UNOS_RJESENJA_KOMISIJE);
+                }
+            }
+
             GlobalErrorHandler.info("Dokument je uspješno sačuvan.");
             back();
 
