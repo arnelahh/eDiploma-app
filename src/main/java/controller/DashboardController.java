@@ -28,6 +28,7 @@ public class DashboardController {
             case THESIS -> handleRadoviClick();
             case MENTORS -> handleMentoriClick();
             case SECRETARIES -> handleSekretariClick();
+            case STATISTICS -> handleStatisticsClick();
         }
     }
 
@@ -124,5 +125,15 @@ public class DashboardController {
             e.printStackTrace();
         }
     }
-
+    @FXML
+    private void handleStatisticsClick() {
+        try {
+            Parent statisticsView = FXMLLoader.load(
+                    getClass().getResource("/app/statistics.fxml")
+            );
+            mainBorderPane.setCenter(statisticsView);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

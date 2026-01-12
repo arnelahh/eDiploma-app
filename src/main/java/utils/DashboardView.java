@@ -4,5 +4,6 @@ public enum DashboardView {
     STUDENTS,
     MENTORS,
     THESIS,
-    SECRETARIES
+    SECRETARIES,
+    STATISTICS
 }
