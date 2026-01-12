@@ -73,18 +73,16 @@ public class ThesisDetailsController {
     @FXML
     private ProgressIndicator loader;
 
-    // DOCUMENTS UI CONTAINER
     @FXML
     private VBox documentsContainer;
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
 
-    // DOCUMENTS
     private final DocumentDAO documentDAO = new DocumentDAO();
     private final DocumentTypeDAO documentTypeDAO = new DocumentTypeDAO();
     private final DocumentCardFactory cardFactory = new DocumentCardFactory();
-    
+
     // EMAIL SERVICE
     private final DocumentEmailNotificationService emailNotificationService = new DocumentEmailNotificationService();
 
@@ -281,9 +279,7 @@ public class ThesisDetailsController {
         return title + member.getFirstName() + " " + member.getLastName();
     }
 
-    // -------------------------
     // DOCUMENT ACTIONS
-    // -------------------------
 
     private void openEditorForType(DocumentType type) {
         if (type == null) return;
@@ -312,7 +308,6 @@ public class ThesisDetailsController {
         }
 
         try {
-            // pošto getByThesisId ne vraća content, uzmi ga ovdje
             String base64 = documentDAO.getContentBase64(doc.getId());
             if (base64 == null || base64.isBlank()) {
                 GlobalErrorHandler.error("Dokument nema sačuvan sadržaj (PDF).");
@@ -346,8 +341,81 @@ public class ThesisDetailsController {
         }
     }
 
+    private String formatNameWithEmail(String fullName, String email) {
+        if (fullName == null || fullName.isBlank()) fullName = "—";
+        if (email == null || email.isBlank()) return fullName;
+        return fullName + " (" + email + ")";
+    }
+
+    private String formatStudentLine(Student s) {
+        if (s == null) return "Student: —";
+        String fullName = s.getFirstName() + " " + s.getLastName();
+        return "Student: " + formatNameWithEmail(fullName, s.getEmail());
+    }
+
+    private String formatStaffLine(String roleLabel, AcademicStaff staff) {
+        if (staff == null) return roleLabel + ": —";
+        String title = (staff.getTitle() != null && !staff.getTitle().isBlank()) ? staff.getTitle() + " " : "";
+        String fullName = title + staff.getFirstName() + " " + staff.getLastName();
+        return roleLabel + ": " + formatNameWithEmail(fullName, staff.getEmail());
+    }
+
+    private List<String> getRecipientPreviewLines(String documentTypeName) {
+        List<String> lines = new ArrayList<>();
+
+        Student student = (currentDetails != null) ? currentDetails.getStudent() : null;
+        AcademicStaff mentor = (currentDetails != null) ? currentDetails.getMentor() : null;
+        AcademicStaff secretary = (currentDetails != null) ? currentDetails.getSecretary() : null;
+
+        switch (documentTypeName) {
+            case "Rješenje o izradi rada", "Rješenje o izradi završnog rada" -> {
+                lines.add(formatStudentLine(student));
+                lines.add(formatStaffLine("Mentor", mentor));
+                lines.add(formatStaffLine("Sekretar", secretary));
+            }
+            case "Rješenje o formiranju Komisije" -> {
+                lines.add(formatStudentLine(student));
+                lines.add(formatStaffLine("Mentor", mentor));
+                lines.add(formatStaffLine("Sekretar", secretary));
+
+                AcademicStaff chairman = (currentCommission != null) ? currentCommission.getMember1() : null;
+                AcademicStaff member = (currentCommission != null) ? currentCommission.getMember2() : null;
+
+                lines.add(formatStaffLine("Predsjednik komisije", chairman));
+                lines.add(formatStaffLine("Član komisije", member));
+            }
+            case "Obavijest" -> {
+                lines.add(formatStudentLine(student));
+                lines.add(formatStaffLine("Mentor", mentor));
+                lines.add(formatStaffLine("Sekretar", secretary));
+
+                AcademicStaff chairman = (currentCommission != null) ? currentCommission.getMember1() : null;
+                AcademicStaff member = (currentCommission != null) ? currentCommission.getMember2() : null;
+                AcademicStaff substitute = (currentCommission != null) ? currentCommission.getMember3() : null;
+
+                lines.add(formatStaffLine("Predsjednik komisije", chairman));
+                lines.add(formatStaffLine("Član komisije", member));
+                if (substitute != null) {
+                    lines.add(formatStaffLine("Zamjenski član", substitute));
+                }
+            }
+            case "Uvjerenje o završenom ciklusu" -> {
+                // šalje se samo studentu
+                lines.add(formatStudentLine(student));
+            }
+            default -> {
+                // default minimal preview
+                lines.add(formatStudentLine(student));
+                lines.add(formatStaffLine("Mentor", mentor));
+                lines.add(formatStaffLine("Sekretar", secretary));
+            }
+        }
+
+        return lines;
+    }
+
     /**
-     * NOVO: Handler za slanje emaila sa dokumentom
+     * NOVO: Handler za slanje emaila sa dokumentom (sa loading indikatorom)
      */
     private void handleSendEmailDocument(Document document) {
         if (document == null) {
@@ -359,31 +427,60 @@ public class ThesisDetailsController {
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
         confirmation.setTitle("Pošalji Email");
         confirmation.setHeaderText("Da li ste sigurni da želite poslati email?");
-        
+
         String documentTypeName = "N/A";
         if (document.getDocumentType() != null) {
             documentTypeName = document.getDocumentType().getName();
         } else if (typeById.containsKey(document.getTypeId())) {
             documentTypeName = typeById.get(document.getTypeId()).getName();
         }
-        
+
+        List<String> previewLines = getRecipientPreviewLines(documentTypeName);
+        String recipientsBlock = String.join("\n", previewLines);
+
         confirmation.setContentText(
-            "Email će biti poslan studentu, mentoru i sekretaru.\n\n" +
-            "Tip dokumenta: " + documentTypeName + "\n" +
-            "Status: " + document.getStatus()
+                "Dokument će se poslati na sljedeće primaoce:\n" +
+                        recipientsBlock +
+                        "\n\nDokument: " + documentTypeName +
+                        "\nStatus: " + document.getStatus()
         );
 
         Optional<ButtonType> result = confirmation.showAndWait();
-        
+
         if (result.isPresent() && result.get() == ButtonType.OK) {
             // Postavi DocumentType ako nije već postavljen
             if (document.getDocumentType() == null && typeById.containsKey(document.getTypeId())) {
                 document.setDocumentType(typeById.get(document.getTypeId()));
             }
-            
-            // Pošalji email
-            emailNotificationService.sendDocumentEmail(document);
+
+            // Pošalji email u pozadini sa loading indikatorom
+            sendEmailAsync(document);
         }
+    }
+
+    /**
+     * Asinkrono slanje emaila sa loading indikatorom
+     */
+    private void sendEmailAsync(Document document) {
+        Task<Boolean> task = new Task<>() {
+            @Override
+            protected Boolean call() throws Exception {
+                return emailNotificationService.sendDocumentEmail(document);
+            }
+        };
+
+        // Prikaži loading indicator
+        if (loader != null) {
+            loader.visibleProperty().bind(task.runningProperty());
+        }
+
+        task.setOnSucceeded(e -> {});
+
+        task.setOnFailed(e -> {
+            GlobalErrorHandler.error("Greška pri slanju emaila.", task.getException());
+        });
+
+        new Thread(task, "send-document-email").start();
     }
 
 
@@ -481,22 +578,20 @@ public class ThesisDetailsController {
 
     @FXML
     private void back() {
-        // Dohvati trenutnog korisnika
         AppUser currentUser = UserSession.getUser();
-        
+
         NavigationContext.setTargetView(DashboardView.THESIS);
-        
-        // Provjeri tip korisnika i vrati ga na odgovarajući dashboard
+
         if (currentUser != null && currentUser.getRole() != null) {
             String roleName = currentUser.getRole().getName();
-            
+
             if ("SECRETARY".equalsIgnoreCase(roleName)) {
                 // Sekretar se vraća na secretary dashboard
                 SceneManager.show("/app/secretary-dashboard.fxml", "eDiploma - Sekretar");
                 return;
             }
         }
-        
+
         // Svi ostali korisnici se vraćaju na glavni dashboard
         SceneManager.show("/app/dashboard.fxml", "eDiploma");
     }
@@ -583,7 +678,6 @@ public class ThesisDetailsController {
             return;
         }
 
-        // Check if required documents are READY
         DocumentType commissionReportDocType = documentTypeDAO.getByName("Rješenje o formiranju Komisije");
         if (commissionReportDocType != null) {
             Document commissionReportDoc = documentDAO.getByThesisAndType(thesisId, commissionReportDocType.getId());
@@ -608,6 +702,7 @@ public class ThesisDetailsController {
                 (NoticeController controller) -> controller.initWithThesisId(thesisId)
         );
     }
+
     @FXML
     private void handleOpenCycleCompletion() {
         SceneManager.showWithData(

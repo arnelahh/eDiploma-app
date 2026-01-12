@@ -7,11 +7,7 @@ import dto.DefenseReportDTO;
 import dto.ThesisDetailsDTO;
 import javafx.fxml.FXML;
 import javafx.scene.text.Text;
-import model.Commission;
-import model.AppUser;
-import model.Document;
-import model.DocumentType;
-import model.DocumentStatus;
+import model.*;
 import utils.GlobalErrorHandler;
 import utils.SceneManager;
 import utils.UserSession;
@@ -146,6 +142,21 @@ public class DefenseReportController {
                     null, // Nema document number za defense report
                     status
             );
+            // nakon documentDAO.upsert(...)
+            DocumentType writtenType = documentTypeDAO.getByName("Zapisnik o pismenom dijelu diplomskog rada");
+            if (writtenType == null) {
+                throw new RuntimeException("DocumentType 'Zapisnik o pismenom dijelu diplomskog rada' nije pronađen.");
+            }
+
+            boolean defenseReady = true;
+            boolean writtenReady = documentDAO.isDocumentReady(thesisId, writtenType.getId());
+
+            if (writtenReady) {
+                String current = thesisDAO.getStatusName(thesisId);
+                if (ThesisStatuses.GENERISANJE_ZAPISNIKA.equals(current)) {
+                    thesisDAO.updateStatusByName(thesisId, ThesisStatuses.KREIRANJE_UVJERENJA);
+                }
+            }
 
             GlobalErrorHandler.info("Dokument je uspješno sačuvan.");
             back();

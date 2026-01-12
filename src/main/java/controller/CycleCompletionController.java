@@ -179,6 +179,27 @@ public class CycleCompletionController {
                     status
             );
 
+            String current = thesisDAO.getStatusName(thesisId);
+
+            if (status == DocumentStatus.READY) {
+                if (ThesisStatuses.KREIRANJE_UVJERENJA.equals(current)) {
+
+                    thesisDAO.updateStatusByName(
+                            thesisId,
+                            ThesisStatuses.DIPLOMIRAN
+                    );
+                }
+            } else {
+                if (!ThesisStatuses.KREIRANJE_UVJERENJA.equals(current)) {
+
+                    thesisDAO.updateStatusByName(
+                            thesisId,
+                            ThesisStatuses.KREIRANJE_UVJERENJA
+                    );
+                }
+            }
+
+
             GlobalErrorHandler.info("Dokument je uspješno sačuvan.");
             back();
 

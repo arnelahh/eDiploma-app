@@ -1,10 +1,10 @@
 package main.ediploma;
 
-import app.LoginTestApp;
+import app.Main;
 import javafx.application.Application;
 
 public class Launcher {
     public static void main(String[] args) {
-        Application.launch(LoginTestApp.class, args);
+        Application.launch(Main.class, args);
     }
 }
