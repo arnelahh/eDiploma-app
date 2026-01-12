@@ -107,35 +107,68 @@ public class ThesisDAO {
         return thesis;
     }
 
-    public void insertThesis(Thesis thesis) {
+    public int insertThesis(Thesis thesis) {
         String sql = """
-                INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId, Description, Structure, Literature)
-                VALUES(?,?,?,?,?,?,?,?,?, ?)
-                """;
-        try (Connection connection = CloudDatabaseConnection.Konekcija();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-            java.time.LocalDate applicationLocalDate = thesis.getApplicationDate();
-            java.sql.Date sqlDate = java.sql.Date.valueOf(applicationLocalDate);
+        INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId, Description, Structure, Literature)
+        VALUES(?,?,?,?,?,?,?,?,?, ?)
+        """;
 
-            stmt.setString(1, thesis.getTitle());
-            stmt.setDate(2, sqlDate);
-            stmt.setInt(3, thesis.getDepartmentId());
-            stmt.setInt(4, thesis.getStudentId());
-            stmt.setInt(5, thesis.getAcademicStaffId());
-            stmt.setInt(6, thesis.getSecretaryId());
-            stmt.setInt(7, thesis.getSubjectId());
-            stmt.setString(8, thesis.getDescription());
-            stmt.setString(9, thesis.getStructure());
-            stmt.setString(10, thesis.getLiterature());
+        try (Connection connection = CloudDatabaseConnection.Konekcija()) {
+            connection.setAutoCommit(false);
 
-            int affectedRows = stmt.executeUpdate();
-            if (affectedRows == 0) {
-                throw new RuntimeException("Error in inserting thesis");
+            int thesisId;
+
+            try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                LocalDate applicationLocalDate = thesis.getApplicationDate();
+                java.sql.Date sqlDate = java.sql.Date.valueOf(applicationLocalDate);
+
+                stmt.setString(1, thesis.getTitle());
+                stmt.setDate(2, sqlDate);
+                stmt.setInt(3, thesis.getDepartmentId());
+                stmt.setInt(4, thesis.getStudentId());
+                stmt.setInt(5, thesis.getAcademicStaffId());
+                stmt.setInt(6, thesis.getSecretaryId());
+                stmt.setInt(7, thesis.getSubjectId());
+                stmt.setString(8, thesis.getDescription());
+                stmt.setString(9, thesis.getStructure());
+                stmt.setString(10, thesis.getLiterature());
+
+                int affectedRows = stmt.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new RuntimeException("Error in inserting thesis");
+                }
+
+                try (ResultSet keys = stmt.getGeneratedKeys()) {
+                    if (!keys.next()) {
+                        throw new RuntimeException("Nije moguće dobiti ID novog rada (generated key).");
+                    }
+                    thesisId = keys.getInt(1);
+                }
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+
+            // 1) Kreiraj prvi dokument odmah po kreiranju rada: IN_PROGRESS
+            //    Tip dokumenta: "Rješenje o izradi završnog rada"
+            DocumentTypeDAO documentTypeDAO = new DocumentTypeDAO();
+            DocumentDAO documentDAO = new DocumentDAO();
+
+            DocumentType firstDocType = documentTypeDAO.getByName("Rješenje o izradi završnog rada");
+            if (firstDocType == null) {
+                throw new RuntimeException("DocumentType 'Rješenje o izradi završnog rada' nije pronađen.");
+            }
+
+            Integer uploadedByUserId = thesis.getSecretaryId();
+
+            // Kreira placeholder zapis dokumenta (bez content/number) -> IN_PROGRESS
+            documentDAO.ensureDocumentExists(connection, thesisId, firstDocType.getId(), DocumentStatus.IN_PROGRESS, uploadedByUserId);
+
+            connection.commit();
+            return thesisId;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Greška pri kreiranju rada i inicijalnog dokumenta: " + e.getMessage(), e);
         }
     }
+
 
     public void updateThesis(Thesis thesis) {
         String sql = """
@@ -539,6 +572,52 @@ public class ThesisDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException("Greška pri ažuriranju datuma odbrane.", e);
+        }
+    }
+
+    public void updateStatusByName(int thesisId, String statusName) {
+        String sql = """
+        UPDATE Thesis
+        SET StatusId = (SELECT Id FROM ThesisStatus WHERE Name = ? LIMIT 1),
+            UpdatedAt = CURRENT_TIMESTAMP
+        WHERE Id = ? AND IsActive = 1
+    """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, statusName);
+            ps.setInt(2, thesisId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("Status nije ažuriran. Provjeri da li status postoji u bazi i da li je rad aktivan.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri ažuriranju statusa rada.", e);
+        }
+    }
+
+    public String getStatusName(int thesisId) {
+        String sql = """
+        SELECT TS.Name
+        FROM Thesis T
+        JOIN ThesisStatus TS ON TS.Id = T.StatusId
+        WHERE T.Id = ? AND T.IsActive = 1
+    """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, thesisId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return rs.getString(1);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri čitanju statusa rada.", e);
         }
     }
 }
