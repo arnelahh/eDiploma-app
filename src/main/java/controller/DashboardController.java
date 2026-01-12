@@ -40,11 +40,10 @@ public class DashboardController {
         alert.setContentText(null); // Removes the detailed content text to keep it clean
 
         // Create custom buttons
-        ButtonType buttonTypeNo = new ButtonType("Ne");
         ButtonType buttonTypeYes = new ButtonType("Da");
+        ButtonType buttonTypeNo = new ButtonType("Ne");
 
-        // Set buttons (Order matters: No first means it appears on the left)
-        alert.getButtonTypes().setAll(buttonTypeNo, buttonTypeYes);
+        alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
 
         // Show and wait for response
         Optional<ButtonType> result = alert.showAndWait();

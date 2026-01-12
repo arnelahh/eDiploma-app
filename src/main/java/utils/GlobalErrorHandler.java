@@ -51,7 +51,6 @@ public final class GlobalErrorHandler {
         String m = ex.getMessage();
         if (m != null && !m.isBlank()) return m;
 
-        // Fallback to exception class if message is empty
         return "Došlo je do greške: " + ex.getClass().getSimpleName();
     }
 
