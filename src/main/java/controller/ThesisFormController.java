@@ -3,10 +3,15 @@ package controller;
 import dao.*;
 import dto.ThesisDetailsDTO;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import model.*;
 import utils.*;
 import java.util.List;
@@ -14,7 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.controlsfx.control.SearchableComboBox;
 
 public class ThesisFormController {
-
     private enum Mode { CREATE, EDIT }
 
     private Mode mode;
@@ -61,6 +65,7 @@ public class ThesisFormController {
     @FXML private SearchableComboBox<AcademicStaff> secretaryComboBox;
     @FXML private Button deleteButton;
     @FXML private HBox deleteButtonContainer;
+    @FXML private Button addSubjectButton;
 
     @FXML
     public void initialize() {
@@ -591,5 +596,89 @@ public class ThesisFormController {
             });
         } catch (Exception ignored) {}
     }
+    @FXML
+    private void handleAddSubject() {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Dodaj novi predmet");
+        dialog.setHeaderText("Unesite naziv novog predmeta");
 
+        ButtonType saveButtonType = new ButtonType("Sačuvaj", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        content.getStyleClass().add("add-subject-dialog");
+
+        Label label = new Label("Naziv predmeta:");
+        label.getStyleClass().add("add-subject-dialog-label");
+
+        TextField subjectNameField = new TextField();
+        subjectNameField.setPromptText("Unesite naziv predmeta");
+        subjectNameField.setPrefWidth(400);
+        subjectNameField.getStyleClass().add("add-subject-dialog-field");
+
+        content.getChildren().addAll(label, subjectNameField);
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getStyleClass().add("add-subject-dialog");
+
+        javafx.scene.Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
+        saveButton.setDisable(true);
+        saveButton.getStyleClass().addAll("button", "add-subject-dialog-save");
+
+        javafx.scene.Node cancelButton = dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        cancelButton.getStyleClass().addAll("button", "add-subject-dialog-cancel");
+
+        subjectNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            saveButton.setDisable(newValue.trim().isEmpty());
+        });
+
+        javafx.application.Platform.runLater(() -> subjectNameField.requestFocus());
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                return subjectNameField.getText();
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(subjectName -> {
+            if (subjectName != null && !subjectName.trim().isEmpty()) {
+                saveNewSubject(subjectName.trim());
+            }
+        });
+    }
+
+    private void saveNewSubject(String subjectName) {
+        AsyncHelper.executeAsync(
+                () -> {
+                    Subject newSubject = new Subject();
+                    newSubject.setName(subjectName);
+
+                    subjectDAO.AddSubject(newSubject);
+
+                    return subjectDAO.getAllSubjects();
+                },
+                subjects -> {
+                    subjectComboBox.getItems().setAll(subjects);
+
+                    Subject newlyAddedSubject = subjects.stream()
+                            .filter(s -> s.getName().equals(subjectName))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (newlyAddedSubject != null) {
+                        subjectComboBox.setValue(newlyAddedSubject);
+                    }
+
+                    GlobalErrorHandler.info("Predmet '" + subjectName + "' je uspješno dodat!");
+                },
+                error -> {
+                    if (error instanceof IllegalArgumentException) {
+                        GlobalErrorHandler.error(error.getMessage());
+                    } else {
+                        GlobalErrorHandler.error("Greška pri dodavanju predmeta.", error);
+                    }
+                }
+        );
+    }
 }

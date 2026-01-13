@@ -173,12 +173,17 @@
                             </VBox>
 
                             <!-- Predmet -->
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label text="Predmet *" styleClass="field-label"/>
-                                <SearchableComboBox fx:id="subjectComboBox" promptText="Izaberite predmet"
-                                          prefWidth="9999" styleClass="form-field"/>
-                            </VBox>
-
+                            <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0" alignment="BOTTOM_LEFT">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="Predmet *" styleClass="field-label"/>
+                                    <SearchableComboBox fx:id="subjectComboBox" promptText="Izaberite predmet"
+                                                        prefWidth="9999" styleClass="form-field"/>
+                                </VBox>
+                                <Button fx:id="addSubjectButton"
+                                        text="+"
+                                        onAction="#handleAddSubject"
+                                        styleClass="add-subject-button"/>
+                            </HBox>
                             <!-- Status (EDIT ONLY) -->
                             <VBox fx:id="statusContainer" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1"
                                   visible="false" managed="false">
