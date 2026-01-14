@@ -12,9 +12,9 @@ public class MentorDAO {
 
     private static final String BASE_QUERY = """
         SELECT a.*, 
-        (SELECT COUNT(*) FROM Thesis t WHERE t.MentorId = a.Id) AS StudentCount,
+        (SELECT COUNT(*) FROM Thesis t WHERE t.MentorId = a.Id AND t.IsActive=1) AS StudentCount,
         (SELECT COUNT(*) FROM Thesis t INNER JOIN ThesisStatus ts ON t.StatusId = ts.Id WHERE t.MentorId = a.Id AND
-        ts.Name NOT IN ('Defended','Rejected')) AS OngoingThesisCount
+        ts.Name NOT IN ('Odbranjen') AND t.IsActive = 1) AS OngoingThesisCount
         FROM AcademicStaff a
         WHERE NOT EXISTS(
         SELECT 1
@@ -25,7 +25,7 @@ public class MentorDAO {
         """;
 
     public List<MentorDTO> getAllMentors() {
-        return fetchMentors(BASE_QUERY + " ORDER BY a.Id DESC");
+        return fetchMentors(BASE_QUERY + " ORDER BY a.FirstName");
     }
 
     public List<MentorDTO> searchMentors(String term) {
@@ -34,7 +34,7 @@ public class MentorDAO {
                OR LOWER(a.LastName) LIKE ?
                OR LOWER(a.Email) LIKE ?
                OR LOWER(a.Title) LIKE ?)
-            ORDER BY a.Id DESC
+            ORDER BY a.FirstName
             """;
 
         return fetchMentors(sql,

@@ -35,12 +35,12 @@ public class ThesisCardFactory {
         card.setCursor(Cursor.HAND);
 
         // Ako je rad odbranjen, dodaj poseban stil ali ne disabluj
-        if ("Defended".equals(rad.getStatus())) {
+        if ("Odbranjen".equals(rad.getStatus())) {
             card.getStyleClass().add("card-defended");
         }
 
 
-        if (isOlderThan90Days(rad.getApplicationDate()) && !"Defended".equals(rad.getStatus())) {
+        if (isOlderThan90Days(rad.getApplicationDate()) && !"Odbranjen".equals(rad.getStatus())) {
             card.getStyleClass().add("card-overdue");
         }
 
@@ -138,7 +138,7 @@ public class ThesisCardFactory {
     // Mapiranje teksta iz baze u CSS klasu
     private String getStatusCssClass(String status) {
         switch (status) {
-            case "Defended": return "status-approved"; // Zelena
+            case "Odbranjen": return "status-approved"; // Zelena
             case "Submitted": return "status-in-progress"; // Žuta
             case "Approved": return "status-in-progress";
             case "In Review": return "status-pending"; //plava

@@ -8,7 +8,9 @@ import model.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ThesisDAO {
     private static final int LOCK_TIMEOUT_MINUTES = 30;
@@ -619,5 +621,141 @@ public class ThesisDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Greška pri čitanju statusa rada.", e);
         }
+    }
+
+    public int getTotalThesisCount() {
+        String sql = "SELECT COUNT(*) FROM Thesis WHERE IsActive = 1";
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int getActiveThesisCount() {
+        String sql = """
+            
+                SELECT COUNT(*) 
+            FROM Thesis T
+            JOIN ThesisStatus TS ON T.StatusId = TS.Id
+            WHERE T.IsActive = 1 AND TS.Name <> 'Odbranjen'
+            """;
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * Vraća mapu gdje je ključ ime i prezime sekretara, a vrijednost broj radova koje vodi.
+     */
+    public java.util.Map<String, Integer> getSecretaryThesisCounts() {
+        // IZMJENA 1: Koristi LinkedHashMap umjesto HashMap.
+        // LinkedHashMap čuva redoslijed umetanja (insertion order).
+        java.util.Map<String, Integer> counts = new java.util.LinkedHashMap<>();
+
+        // IZMJENA 2: Dodan "ORDER BY Total DESC" na kraju SQL-a
+        String sql = """
+        SELECT CONCAT(S.FirstName, ' ', S.LastName) AS SecretaryName, COUNT(T.Id) AS Total
+        FROM Thesis T
+        JOIN AppUser U ON T.SecretaryId = U.Id
+        JOIN AcademicStaff S ON U.AcademicStaffId = S.Id
+        WHERE T.IsActive = 1
+        GROUP BY S.Id, S.FirstName, S.LastName
+        ORDER BY Total DESC
+    """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                String name = rs.getString("SecretaryName");
+                int total = rs.getInt("Total");
+                counts.put(name, total);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return counts;
+    }
+
+    public int getLateThesisCount() {
+        String sql = """
+            SELECT COUNT(*)
+            FROM Thesis T
+            JOIN ThesisStatus TS ON T.StatusId = TS.Id
+            WHERE T.IsActive = 1
+              AND TS.Name <> 'Odbranjen'
+              AND DATEDIFF(CURRENT_DATE, T.ApplicationDate) > 90
+        """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public Map<String, Integer> getTopMentorsFiltered(LocalDate startDate, LocalDate endDate) {
+        Map<String, Integer> stats = new LinkedHashMap<>();
+
+        StringBuilder sql = new StringBuilder("""
+            SELECT CONCAT(A.Title, ' ', A.FirstName, ' ', A.LastName) AS MentorName, COUNT(T.Id) AS Total
+            FROM Thesis T
+            JOIN AcademicStaff A ON T.MentorId = A.Id
+            JOIN ThesisStatus TS ON T.StatusId = TS.Id
+            WHERE T.IsActive = 1
+        """);
+
+        // Ako imamo filter datuma, dodajemo uvjet
+        if (startDate != null && endDate != null) {
+            sql.append(" AND T.ApplicationDate >= ? AND T.ApplicationDate <= ?");
+        }
+
+        sql.append("""
+            GROUP BY A.FirstName, A.LastName, A.Title
+            ORDER BY Total DESC
+        """);
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            // Postavljanje parametara za datum ako su proslijeđeni
+            if (startDate != null && endDate != null) {
+                ps.setDate(1, java.sql.Date.valueOf(startDate));
+                ps.setDate(2, java.sql.Date.valueOf(endDate));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    stats.put(rs.getString("MentorName"), rs.getInt("Total"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return stats;
     }
 }
