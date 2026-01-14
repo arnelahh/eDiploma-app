@@ -28,23 +28,6 @@ public class MentorDAO {
         return fetchMentors(BASE_QUERY + " ORDER BY a.FirstName");
     }
 
-    public List<MentorDTO> searchMentors(String term) {
-        String sql = BASE_QUERY + """
-            AND (LOWER(a.FirstName) LIKE ?
-               OR LOWER(a.LastName) LIKE ?
-               OR LOWER(a.Email) LIKE ?
-               OR LOWER(a.Title) LIKE ?)
-            ORDER BY a.FirstName
-            """;
-
-        return fetchMentors(sql,
-                "%" + term.toLowerCase() + "%",
-                "%" + term.toLowerCase() + "%",
-                "%" + term.toLowerCase() + "%",
-                "%" + term.toLowerCase() + "%"
-        );
-    }
-
     private List<MentorDTO> fetchMentors(String sql, String... params) {
         List<MentorDTO> list = new ArrayList<>();
 
@@ -204,6 +187,7 @@ public class MentorDAO {
     /**
      * Postavlja novog dekana i uklanja status prethodnom
      */
+
     public void setDean(int newDeanId) {
         String removeDeanSql = "UPDATE AcademicStaff SET IsDean = 0, UpdatedAt = ? WHERE IsDean = 1";
         String setDeanSql = "UPDATE AcademicStaff SET IsDean = 1, UpdatedAt = ? WHERE Id = ?";

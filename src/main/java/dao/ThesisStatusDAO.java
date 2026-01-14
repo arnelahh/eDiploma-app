@@ -47,24 +47,4 @@ public class ThesisStatusDAO {
         return statuses;
     }
 
-    public ThesisStatus getStatusById(int id) {
-        String sql = "SELECT * FROM ThesisStatus WHERE Id = ?";
-
-        try (Connection conn = CloudDatabaseConnection.Konekcija();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                ThesisStatus status = new ThesisStatus();
-                status.setId(rs.getInt("Id"));
-                status.setName(rs.getString("Name"));
-                return status;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Greška pri dohvatanju statusa: " + e.getMessage(), e);
-        }
-        return null;
-    }
 }

@@ -84,29 +84,6 @@ public class AppUserDAO {
                 staff
         );
     }
-    public List<AppUser> getAllAppUsers() {
-        List<AppUser> users = new ArrayList<>();
-        String sql = """
-            Select * from AppUser
-        """;
-        try(Connection conn=CloudDatabaseConnection.Konekcija();
-            Statement stmt=conn.createStatement();
-            ResultSet rs=stmt.executeQuery(sql);)
-        {
-            while (rs.next()) {
-                AppUser user = new AppUser();
-                user.setId(rs.getInt("Id"));
-                user.setUsername(rs.getString("Username"));
-                user.setEmail(rs.getString("Email"));
-                user.setPasswordHash(rs.getString("PasswordHash"));
-                users.add(user);
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return users;
-    }
     public List<AcademicStaff> getAllSecretariesAsStaff() {
         List<AcademicStaff> secretaries = new ArrayList<>();
 

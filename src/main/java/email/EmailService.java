@@ -1,4 +1,4 @@
-package service;
+package email;
 
 import dao.EmailLogDAO;
 import dto.ThesisDetailsDTO;
@@ -94,17 +94,26 @@ public class EmailService {
     }
 
     /**
-     * Generiše konzistentno ime PDF fajla
+     * Generiše konzistentno ime PDF fajla sa imenom studenta
+     * Format: {DocumentType}_{FirstName}_{LastName}.pdf
+     * 
      * @param prefix Prefiks naziva fajla (npr. "Rjesenje_o_izradi_rada")
-     * @param document Document objekat
+     * @param student Student objekat
      * @return Formatirano ime fajla sa .pdf ekstenzijom
      */
-    private String generatePdfFileName(String prefix, Document document) {
-        String identifier = (document.getDocumentNumber() != null && !document.getDocumentNumber().isBlank())
-                ? document.getDocumentNumber()
-                : String.valueOf(document.getId());
+    private String generatePdfFileName(String prefix, Student student) {
+        if (student == null) {
+            return prefix + ".pdf";
+        }
         
-        return String.format("%s_%s.pdf", prefix, identifier);
+        String firstName = (student.getFirstName() != null) ? student.getFirstName() : "";
+        String lastName = (student.getLastName() != null) ? student.getLastName() : "";
+        
+        // Sanitize names - remove special characters
+        firstName = firstName.replaceAll("[^a-zA-ZčćđšžČĆĐŠŽ]", "");
+        lastName = lastName.replaceAll("[^a-zA-ZčćđšžČĆĐŠŽ]", "");
+        
+        return String.format("%s_%s_%s.pdf", prefix, firstName, lastName);
     }
 
     // ==================== EMAIL SENDING METHODS ====================
@@ -256,7 +265,7 @@ public class EmailService {
 
             String subject = "Rješenje o izradi diplomskog rada";
             String body = generateThesisDecisionEmailBody(thesisDetails);
-            String fileName = generatePdfFileName("Rjesenje_o_izradi_rada", document);
+            String fileName = generatePdfFileName("Rjesenje_o_izradi_rada", student);
 
             return sendEmailWithAttachment(recipients, subject, body, pdfBytes, fileName, document.getId());
 
@@ -305,7 +314,7 @@ public class EmailService {
 
             String subject = "Rješenje o formiranju Komisije";
             String body = generateCommissionDecisionEmailBody(thesisDetails, commission);
-            String fileName = generatePdfFileName("Rjesenje_o_formiranju_komisije", document);
+            String fileName = generatePdfFileName("Rjesenje_o_formiranju_komisije", student);
 
             return sendEmailWithAttachment(recipients, subject, body, pdfBytes, fileName, document.getId());
 
@@ -356,7 +365,7 @@ public class EmailService {
 
             String subject = "Obavijest o terminu završnog rada";
             String body = generateNoticeEmailBody(thesisDetails, commission);
-            String fileName = generatePdfFileName("Obavijest", document);
+            String fileName = generatePdfFileName("Obavijest", student);
 
             return sendEmailWithAttachment(recipients, subject, body, pdfBytes, fileName, document.getId());
 
@@ -391,7 +400,7 @@ public class EmailService {
 
             String subject = "Uvjerenje o završenom ciklusu";
             String body = generateCycleCompletionEmailBody(thesisDetails);
-            String fileName = generatePdfFileName("Uvjerenje_o_zavrsenom_ciklusu", document);
+            String fileName = generatePdfFileName("Uvjerenje_o_zavrsenom_ciklusu", student);
 
             return sendEmailWithAttachment(List.of(student.getEmail()), subject, body, pdfBytes, fileName, document.getId());
 
@@ -607,9 +616,6 @@ public class EmailService {
         return sendEmail(List.of(recipient), subject, body, documentId);
     }
 
-    public boolean sendEmail(List<String> recipients, String subject, String body) {
-        return sendEmail(recipients, subject, body, null);
-    }
 
     // ==================== LOGGING METHODS ====================
 
