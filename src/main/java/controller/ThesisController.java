@@ -102,8 +102,8 @@ public class ThesisController {
     private void filterThesis() {
         String selectedStatus = statusFilter.getValue();
         
-        // Ako je selektovan "Diplomirao" status
-        if (selectedStatus != null && selectedStatus.equalsIgnoreCase("Diplomirao")) {
+        // Ako je selektovan "Odbranjen" status
+        if (selectedStatus != null && selectedStatus.equalsIgnoreCase("Odbranjen")) {
             if (!graduatedLoaded) {
                 // Učitaj odbranene radove prvi put
                 loadGraduatedTheses();

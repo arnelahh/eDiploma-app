@@ -60,7 +60,7 @@ public class ThesisDAO {
     }
 
     /**
-     * NOVI METOD: Dohvata sve radove OSIM odbranenih (Diplomirao status)
+     * NOVI METOD: Dohvata sve radove OSIM odbranenih (Odbranjen status)
      * Koristi se za inicijalno učitavanje stranice
      */
     public List<ThesisDTO> getAllThesisExcludingGraduated() {
@@ -77,7 +77,7 @@ public class ThesisDAO {
                 JOIN Student S ON S.Id = T.StudentId
                 JOIN AcademicStaff A ON A.Id = T.MentorId
                 JOIN ThesisStatus TS ON TS.Id = T.StatusId
-                WHERE T.IsActive = 1 AND TS.Name <> 'Diplomirao'
+                WHERE T.IsActive = 1 AND TS.Name <> 'Odbranjen'
                 ORDER BY T.Id DESC
                 """;
 
@@ -107,7 +107,7 @@ public class ThesisDAO {
     }
 
     /**
-     * NOVI METOD: Dohvata samo odbranene radove (Diplomirao status)
+     * NOVI METOD: Dohvata samo odbranene radove (Odbranjen status)
      * Koristi se za lazy loading kada korisnik klikne na filter
      */
     public List<ThesisDTO> getGraduatedTheses() {
@@ -124,7 +124,7 @@ public class ThesisDAO {
                 JOIN Student S ON S.Id = T.StudentId
                 JOIN AcademicStaff A ON A.Id = T.MentorId
                 JOIN ThesisStatus TS ON TS.Id = T.StatusId
-                WHERE T.IsActive = 1 AND TS.Name = 'Diplomirao'
+                WHERE T.IsActive = 1 AND TS.Name = 'Odbranjen'
                 ORDER BY T.Id DESC
                 """;
 
@@ -220,7 +220,7 @@ public class ThesisDAO {
                 JOIN Student S ON S.Id = T.StudentId
                 JOIN AcademicStaff A ON A.Id = T.MentorId
                 JOIN ThesisStatus TS ON TS.Id = T.StatusId
-                WHERE T.IsActive = 1 AND T.SecretaryId = ? AND TS.Name <> 'Diplomirao'
+                WHERE T.IsActive = 1 AND T.SecretaryId = ? AND TS.Name <> 'Odbranjen'
                 ORDER BY T.Id DESC
                 """;
 
@@ -267,7 +267,7 @@ public class ThesisDAO {
                 JOIN Student S ON S.Id = T.StudentId
                 JOIN AcademicStaff A ON A.Id = T.MentorId
                 JOIN ThesisStatus TS ON TS.Id = T.StatusId
-                WHERE T.IsActive = 1 AND T.SecretaryId = ? AND TS.Name = 'Diplomirao'
+                WHERE T.IsActive = 1 AND T.SecretaryId = ? AND TS.Name = 'Odbranjen'
                 ORDER BY T.Id DESC
                 """;
 
