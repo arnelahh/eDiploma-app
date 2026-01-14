@@ -947,33 +947,53 @@
 }
 /* Add Subject Button - Green Circle with Plus */
 .add-subject-button {
-    -fx-background-color: #10B981;
-    -fx-text-fill: white;
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
+    /* Definisanje fiksne veličine da bi bio savršen krug */
+    -fx-min-width: 42px;
+    -fx-min-height: 42px;
+    -fx-max-width: 42px;
+    -fx-max-height: 42px;
+    -fx-pref-width: 42px;
+    -fx-pref-height: 42px;
+
+    /* Pretvara kvadrat u krug */
     -fx-background-radius: 50%;
-    -fx-min-width: 40px;
-    -fx-min-height: 40px;
-    -fx-max-width: 40px;
-    -fx-max-height: 40px;
+
+    /* ZAHTJEV: Plava boja pozadine (koristimo tvoju glavnu boju teme) */
+    -fx-background-color: #6c5ce7;
+
+    /* Poravnanje sadržaja u centar */
+    -fx-alignment: center;
+    /* Uklanjamo defaultni padding dugmeta da bi se ikona centrirala */
+    -fx-padding: 0;
+
     -fx-cursor: hand;
-    -fx-border-width: 0;
-    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.3), 8, 0, 0, 2);
+    /* Dodajemo blagu sjenu za dubinu */
+    -fx-effect: dropshadow(gaussian, rgba(108, 92, 231, 0.4), 8, 0, 0, 2);
+
+    /* Da se dugme malo odmakne od SearchableComboBox-a lijevo ako je potrebno */
+    -fx-margin: 0 0 0 10;
 }
 
 .add-subject-button:hover {
-    -fx-background-color: #059669;
-    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.5), 12, 0, 0, 3);
+    -fx-background-color: #5f50d9; /* Malo tamnija plava */
+    -fx-effect: dropshadow(gaussian, rgba(108, 92, 231, 0.6), 12, 0, 0, 3);
+    -fx-scale-x: 1.05; /* Blago povećanje */
     -fx-scale-y: 1.05;
-    -fx-scale-x: 1.05;
 }
 
 .add-subject-button:pressed {
-    -fx-background-color: #047857;
-    -fx-scale-y: 0.95;
-    -fx-scale-x: 0.95;
+    -fx-background-color: #4a3fbf;
+    -fx-effect: none; /* Sjena nestaje na klik */
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
 }
-
+.plus-icon {
+    /* ZAHTJEV: Bijela boja plusa */
+    -fx-fill: white;
+    /* Skaliranje ikone da lijepo stane u krug (prilagodi po potrebi) */
+    -fx-scale-x: 0.55;
+    -fx-scale-y: 0.55;
+}
 /* Add Subject Dialog Styling */
 .add-subject-dialog {
     -fx-background-color: #ffffff;

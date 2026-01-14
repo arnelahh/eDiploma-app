@@ -4,6 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.shape.SVGPath?>
 <?import org.controlsfx.control.SearchableComboBox?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/17"
@@ -180,9 +181,12 @@
                                                         prefWidth="9999" styleClass="form-field"/>
                                 </VBox>
                                 <Button fx:id="addSubjectButton"
-                                        text="+"
                                         onAction="#handleAddSubject"
-                                        styleClass="add-subject-button"/>
+                                        styleClass="add-subject-button">
+                                    <graphic>
+                                        <SVGPath content="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" styleClass="plus-icon"/>
+                                    </graphic>
+                                </Button>
                             </HBox>
                             <!-- Status (EDIT ONLY) -->
                             <VBox fx:id="statusContainer" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1"
