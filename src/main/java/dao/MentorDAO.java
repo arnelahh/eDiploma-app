@@ -25,7 +25,7 @@ public class MentorDAO {
         """;
 
     public List<MentorDTO> getAllMentors() {
-        return fetchMentors(BASE_QUERY + " ORDER BY a.Id DESC");
+        return fetchMentors(BASE_QUERY + " ORDER BY a.FirstName");
     }
 
     public List<MentorDTO> searchMentors(String term) {
@@ -34,7 +34,7 @@ public class MentorDAO {
                OR LOWER(a.LastName) LIKE ?
                OR LOWER(a.Email) LIKE ?
                OR LOWER(a.Title) LIKE ?)
-            ORDER BY a.Id DESC
+            ORDER BY a.FirstName
             """;
 
         return fetchMentors(sql,

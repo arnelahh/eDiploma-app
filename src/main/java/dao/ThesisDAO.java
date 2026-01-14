@@ -663,17 +663,20 @@ public class ThesisDAO {
      * Vraća mapu gdje je ključ ime i prezime sekretara, a vrijednost broj radova koje vodi.
      */
     public java.util.Map<String, Integer> getSecretaryThesisCounts() {
-        java.util.Map<String, Integer> counts = new java.util.HashMap<>();
+        // IZMJENA 1: Koristi LinkedHashMap umjesto HashMap.
+        // LinkedHashMap čuva redoslijed umetanja (insertion order).
+        java.util.Map<String, Integer> counts = new java.util.LinkedHashMap<>();
 
-        // Spajamo Thesis -> AppUser -> AcademicStaff da dobijemo ime sekretara
+        // IZMJENA 2: Dodan "ORDER BY Total DESC" na kraju SQL-a
         String sql = """
-            SELECT CONCAT(S.FirstName, ' ', S.LastName) AS SecretaryName, COUNT(T.Id) AS Total
-            FROM Thesis T
-            JOIN AppUser U ON T.SecretaryId = U.Id
-            JOIN AcademicStaff S ON U.AcademicStaffId = S.Id
-            WHERE T.IsActive = 1
-            GROUP BY S.Id, S.FirstName, S.LastName
-        """;
+        SELECT CONCAT(S.FirstName, ' ', S.LastName) AS SecretaryName, COUNT(T.Id) AS Total
+        FROM Thesis T
+        JOIN AppUser U ON T.SecretaryId = U.Id
+        JOIN AcademicStaff S ON U.AcademicStaffId = S.Id
+        WHERE T.IsActive = 1
+        GROUP BY S.Id, S.FirstName, S.LastName
+        ORDER BY Total DESC
+    """;
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              Statement stmt = conn.createStatement();
@@ -686,7 +689,7 @@ public class ThesisDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace(); // U produkciji loguj grešku
+            e.printStackTrace();
         }
         return counts;
     }
@@ -723,8 +726,7 @@ public class ThesisDAO {
             FROM Thesis T
             JOIN AcademicStaff A ON T.MentorId = A.Id
             JOIN ThesisStatus TS ON T.StatusId = TS.Id
-            WHERE T.IsActive = 1 
-              AND TS.Name <> 'Odbranjen'
+            WHERE T.IsActive = 1
         """);
 
         // Ako imamo filter datuma, dodajemo uvjet
@@ -733,7 +735,7 @@ public class ThesisDAO {
         }
 
         sql.append("""
-            GROUP BY A.Id, A.FirstName, A.LastName, A.Title
+            GROUP BY A.FirstName, A.LastName, A.Title
             ORDER BY Total DESC
         """);
 
