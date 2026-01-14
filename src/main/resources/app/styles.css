@@ -944,6 +944,7 @@
 }
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
+}
 /* Add Subject Button - Green Circle with Plus */
 .add-subject-button {
     -fx-background-color: #10B981;
