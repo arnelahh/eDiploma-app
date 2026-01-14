@@ -30,26 +30,4 @@ public class DepartmentDAO {
         return departments;
     }
 
-    public Department getDepartmentById(int id) {
-        String sql = "SELECT * FROM Department WHERE Id = ?";
-
-        try (Connection conn = CloudDatabaseConnection.Konekcija();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                Department dept = new Department();
-                dept.setId(rs.getInt("Id"));
-                dept.setName(rs.getString("Name"));
-                return dept;
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Greška pri dohvatanju odjela: " + e.getMessage(), e);
-        }
-
-        return null;
-    }
 }

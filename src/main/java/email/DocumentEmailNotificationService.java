@@ -1,4 +1,4 @@
-package service;
+package email;
 
 import dao.CommissionDAO;
 import dao.DocumentDAO;
@@ -19,37 +19,28 @@ public class DocumentEmailNotificationService {
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
 
-    /**
-     * Šalje email za dokument - poziva se iz kontrolera kada korisnik klikne na dugme
-     * 
-     * @param document Document objekat (može biti proslijeđen direktno iz kartice)
-     * @return true ako je uspješno poslano
-     */
+
     public boolean sendDocumentEmail(Document document) {
         try {
-            // Validacija
             if (document == null) {
                 GlobalErrorHandler.error("Dokument nije pronađen.");
                 return false;
             }
 
-            // Provjeri status - mora biti READY
             if (document.getStatus() != DocumentStatus.READY) {
                 GlobalErrorHandler.warning("Dokument još nije spreman za slanje. Status mora biti READY.");
                 return false;
             }
 
-            // VAŽNO: Eksplicitno povuci PDF content iz baze
             String base64Content = documentDAO.getContentBase64(document.getId());
             if (base64Content == null || base64Content.isEmpty()) {
                 GlobalErrorHandler.error("Dokument nema sačuvan PDF sadržaj.");
                 return false;
             }
 
-            // Postavi content na document objekat
+
             document.setContentBase64(base64Content);
 
-            // Povuci thesis informacije sa svim detaljima
             ThesisDetailsDTO thesisDetails = thesisDAO.getThesisDetails(document.getThesisId());
 
             if (thesisDetails == null) {
@@ -57,7 +48,6 @@ public class DocumentEmailNotificationService {
                 return false;
             }
 
-            // Šalji email na osnovu tipa dokumenta
             boolean success = sendEmailByDocumentType(document, thesisDetails);
 
             if (success) {
@@ -76,9 +66,7 @@ public class DocumentEmailNotificationService {
         }
     }
 
-    /**
-     * Rutira slanje emaila na osnovu tipa dokumenta
-     */
+
     private boolean sendEmailByDocumentType(Document document, ThesisDetailsDTO thesisDetails) {
         if (document.getDocumentType() == null) {
             GlobalErrorHandler.error("Tip dokumenta nije definisan.");
@@ -121,13 +109,7 @@ public class DocumentEmailNotificationService {
         };
     }
 
-    /**
-     * Validira Commission objekat i članove
-     * 
-     * @param commission Commission objekat za validaciju
-     * @param requireMembers Da li se zahtijeva postojanje member1 i member2
-     * @return true ako je komisija validna, false inače
-     */
+
     private boolean validateCommission(Commission commission, boolean requireMembers) {
         if (commission == null) {
             GlobalErrorHandler.error("Komisija nije pronađena za ovaj rad.");

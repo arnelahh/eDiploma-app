@@ -15,7 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import model.*;
-import service.DocumentEmailNotificationService;
+import email.DocumentEmailNotificationService;
 import utils.*;
 
 import java.io.File;
@@ -320,11 +320,8 @@ public class ThesisDetailsController {
             fc.setTitle("Sačuvaj dokument");
             fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
 
-            DocumentType type = typeById.get(doc.getTypeId());
-            String fileName = (type != null && type.getName() != null)
-                    ? type.getName().replaceAll("[^a-zA-Z0-9čćđšžČĆĐŠŽ _-]", "").replace(" ", "_") + ".pdf"
-                    : "Dokument.pdf";
-
+            // Generate filename: {DocumentType}_{FirstName}_{LastName}.pdf
+            String fileName = generateDownloadFileName(doc);
             fc.setInitialFileName(fileName);
 
             File file = fc.showSaveDialog(documentsContainer.getScene().getWindow());
@@ -338,6 +335,43 @@ public class ThesisDetailsController {
 
         } catch (Exception e) {
             GlobalErrorHandler.error("Greška pri preuzimanju dokumenta.", e);
+        }
+    }
+
+    /**
+     * Generiše naziv fajla za download u formatu: {DocumentType}_{FirstName}_{LastName}.pdf
+     */
+    private String generateDownloadFileName(Document doc) {
+        if (doc == null) return "Dokument.pdf";
+
+        // Get document type name
+        String documentTypeName = "Dokument";
+        DocumentType type = typeById.get(doc.getTypeId());
+        if (type != null && type.getName() != null) {
+            documentTypeName = type.getName()
+                    .replaceAll("[^a-zA-ZčćđšžČĆĐŠŽ0-9 _-]", "")
+                    .replace(" ", "_");
+        }
+
+        // Get student name
+        String firstName = "";
+        String lastName = "";
+        
+        if (currentDetails != null && currentDetails.getStudent() != null) {
+            Student student = currentDetails.getStudent();
+            firstName = (student.getFirstName() != null) ? student.getFirstName() : "";
+            lastName = (student.getLastName() != null) ? student.getLastName() : "";
+            
+            // Sanitize names - remove special characters except Bosnian letters
+            firstName = firstName.replaceAll("[^a-zA-ZčćđšžČĆĐŠŽ]", "");
+            lastName = lastName.replaceAll("[^a-zA-ZčćđšžČĆĐŠŽ]", "");
+        }
+
+        // Build filename
+        if (!firstName.isEmpty() && !lastName.isEmpty()) {
+            return String.format("%s_%s_%s.pdf", documentTypeName, firstName, lastName);
+        } else {
+            return documentTypeName + ".pdf";
         }
     }
 

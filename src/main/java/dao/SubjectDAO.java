@@ -52,20 +52,4 @@ public class SubjectDAO {
         }
     }
 
-    public void DeleteSubject(int id) throws SQLException {
-        String sqlUpit = "DELETE FROM Subject WHERE Id = ?";
-        try(Connection conn = CloudDatabaseConnection.Konekcija();
-            PreparedStatement stmt = conn.prepareStatement(sqlUpit)){
-            stmt.setInt(1, id);
-            int rowsAffected = stmt.executeUpdate();
-            if(rowsAffected > 0){
-                System.out.println("Predmet je uspješno obrisan.");
-
-            } else {
-                System.out.println("Predmet sa ID "+id+" ne postoji");
-            }
-        }catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
