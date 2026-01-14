@@ -60,6 +60,100 @@ public class ThesisDAO {
     }
 
     /**
+     * NOVI METOD: Dohvata sve radove OSIM odbranenih (Diplomirao status)
+     * Koristi se za inicijalno učitavanje stranice
+     */
+    public List<ThesisDTO> getAllThesisExcludingGraduated() {
+        List<ThesisDTO> thesis = new ArrayList<>();
+        String sql = """
+                SELECT T.Id,
+                    T.Title,
+                    CONCAT(S.FirstName,' ',S.LastName) AS StudentFullName,
+                    CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName,
+                    S.Cycle,
+                    TS.Name AS Status,
+                    T.ApplicationDate
+                FROM Thesis T
+                JOIN Student S ON S.Id = T.StudentId
+                JOIN AcademicStaff A ON A.Id = T.MentorId
+                JOIN ThesisStatus TS ON TS.Id = T.StatusId
+                WHERE T.IsActive = 1 AND TS.Name <> 'Diplomirao'
+                ORDER BY T.Id DESC
+                """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija()) {
+            clearExpiredLocks(conn);
+
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+
+                while (rs.next()) {
+                    ThesisDTO thesisDTO = new ThesisDTO();
+                    thesisDTO.setId(rs.getInt("Id"));
+                    thesisDTO.setTitle(rs.getString("Title"));
+                    thesisDTO.setStudentFullName(rs.getString("StudentFullName"));
+                    thesisDTO.setMentorFullName(rs.getString("MentorFullName"));
+                    thesisDTO.setCycle(rs.getInt("Cycle"));
+                    thesisDTO.setStatus(rs.getString("Status"));
+                    thesisDTO.setApplicationDate(rs.getDate("ApplicationDate").toLocalDate());
+                    thesis.add(thesisDTO);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri dohvatanju aktivnih radova: " + e.getMessage(), e);
+        }
+        return thesis;
+    }
+
+    /**
+     * NOVI METOD: Dohvata samo odbranene radove (Diplomirao status)
+     * Koristi se za lazy loading kada korisnik klikne na filter
+     */
+    public List<ThesisDTO> getGraduatedTheses() {
+        List<ThesisDTO> thesis = new ArrayList<>();
+        String sql = """
+                SELECT T.Id,
+                    T.Title,
+                    CONCAT(S.FirstName,' ',S.LastName) AS StudentFullName,
+                    CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName,
+                    S.Cycle,
+                    TS.Name AS Status,
+                    T.ApplicationDate
+                FROM Thesis T
+                JOIN Student S ON S.Id = T.StudentId
+                JOIN AcademicStaff A ON A.Id = T.MentorId
+                JOIN ThesisStatus TS ON TS.Id = T.StatusId
+                WHERE T.IsActive = 1 AND TS.Name = 'Diplomirao'
+                ORDER BY T.Id DESC
+                """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija()) {
+            clearExpiredLocks(conn);
+
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+
+                while (rs.next()) {
+                    ThesisDTO thesisDTO = new ThesisDTO();
+                    thesisDTO.setId(rs.getInt("Id"));
+                    thesisDTO.setTitle(rs.getString("Title"));
+                    thesisDTO.setStudentFullName(rs.getString("StudentFullName"));
+                    thesisDTO.setMentorFullName(rs.getString("MentorFullName"));
+                    thesisDTO.setCycle(rs.getInt("Cycle"));
+                    thesisDTO.setStatus(rs.getString("Status"));
+                    thesisDTO.setApplicationDate(rs.getDate("ApplicationDate").toLocalDate());
+                    thesis.add(thesisDTO);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri dohvatanju odbranenih radova: " + e.getMessage(), e);
+        }
+        return thesis;
+    }
+
+    /**
      * Dohvata sve radove dodijeljene određenom sekretaru
      * @param secretaryUserId ID korisnika (AppUser.Id) sekretara
      * @return Lista ThesisDTO objekata koje pripadaju sekretaru
@@ -105,6 +199,100 @@ public class ThesisDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException("Greška pri dohvatanju radova sekretara: " + e.getMessage(), e);
+        }
+        return thesis;
+    }
+
+    /**
+     * NOVI METOD: Dohvata radove sekretara OSIM odbranenih
+     */
+    public List<ThesisDTO> getThesisBySecretaryIdExcludingGraduated(int secretaryUserId) {
+        List<ThesisDTO> thesis = new ArrayList<>();
+        String sql = """
+                SELECT T.Id,
+                    T.Title,
+                    CONCAT(S.FirstName,' ',S.LastName) AS StudentFullName,
+                    CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName,
+                    S.Cycle,
+                    TS.Name AS Status,
+                    T.ApplicationDate
+                FROM Thesis T
+                JOIN Student S ON S.Id = T.StudentId
+                JOIN AcademicStaff A ON A.Id = T.MentorId
+                JOIN ThesisStatus TS ON TS.Id = T.StatusId
+                WHERE T.IsActive = 1 AND T.SecretaryId = ? AND TS.Name <> 'Diplomirao'
+                ORDER BY T.Id DESC
+                """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija()) {
+            clearExpiredLocks(conn);
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, secretaryUserId);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    ThesisDTO thesisDTO = new ThesisDTO();
+                    thesisDTO.setId(rs.getInt("Id"));
+                    thesisDTO.setTitle(rs.getString("Title"));
+                    thesisDTO.setStudentFullName(rs.getString("StudentFullName"));
+                    thesisDTO.setMentorFullName(rs.getString("MentorFullName"));
+                    thesisDTO.setCycle(rs.getInt("Cycle"));
+                    thesisDTO.setStatus(rs.getString("Status"));
+                    thesisDTO.setApplicationDate(rs.getDate("ApplicationDate").toLocalDate());
+                    thesis.add(thesisDTO);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri dohvatanju aktivnih radova sekretara: " + e.getMessage(), e);
+        }
+        return thesis;
+    }
+
+    /**
+     * NOVI METOD: Dohvata samo odbranene radove sekretara
+     */
+    public List<ThesisDTO> getGraduatedThesisBySecretaryId(int secretaryUserId) {
+        List<ThesisDTO> thesis = new ArrayList<>();
+        String sql = """
+                SELECT T.Id,
+                    T.Title,
+                    CONCAT(S.FirstName,' ',S.LastName) AS StudentFullName,
+                    CONCAT(A.FirstName,' ',A.LastName) AS MentorFullName,
+                    S.Cycle,
+                    TS.Name AS Status,
+                    T.ApplicationDate
+                FROM Thesis T
+                JOIN Student S ON S.Id = T.StudentId
+                JOIN AcademicStaff A ON A.Id = T.MentorId
+                JOIN ThesisStatus TS ON TS.Id = T.StatusId
+                WHERE T.IsActive = 1 AND T.SecretaryId = ? AND TS.Name = 'Diplomirao'
+                ORDER BY T.Id DESC
+                """;
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija()) {
+            clearExpiredLocks(conn);
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, secretaryUserId);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    ThesisDTO thesisDTO = new ThesisDTO();
+                    thesisDTO.setId(rs.getInt("Id"));
+                    thesisDTO.setTitle(rs.getString("Title"));
+                    thesisDTO.setStudentFullName(rs.getString("StudentFullName"));
+                    thesisDTO.setMentorFullName(rs.getString("MentorFullName"));
+                    thesisDTO.setCycle(rs.getInt("Cycle"));
+                    thesisDTO.setStatus(rs.getString("Status"));
+                    thesisDTO.setApplicationDate(rs.getDate("ApplicationDate").toLocalDate());
+                    thesis.add(thesisDTO);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri dohvatanju odbranenih radova sekretara: " + e.getMessage(), e);
         }
         return thesis;
     }
@@ -742,7 +930,7 @@ public class ThesisDAO {
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
-            // Postavljanje parametara za datum ako su proslijeđeni
+            // Postavljanje parametara za datum ako su proslijedđeni
             if (startDate != null && endDate != null) {
                 ps.setDate(1, java.sql.Date.valueOf(startDate));
                 ps.setDate(2, java.sql.Date.valueOf(endDate));

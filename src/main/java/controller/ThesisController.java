@@ -29,7 +29,12 @@ public class ThesisController {
     private final ThesisCardFactory factory;
     private final ThesisStatusDAO statusDAO;
 
+    // Active theses (excluding graduated)
     private List<ThesisDTO> masterList = new ArrayList<>();
+    
+    // Graduated theses cache
+    private List<ThesisDTO> graduatedThesesCache = null;
+    private boolean graduatedLoaded = false;
 
     public ThesisController() {
         this.dao = new ThesisDAO();
@@ -91,7 +96,45 @@ public class ThesisController {
         new Thread(task, "load-thesis-statuses").start();
     }
 
+    /**
+     * Glavni filter metod sa lazy loading logikom
+     */
     private void filterThesis() {
+        String selectedStatus = statusFilter.getValue();
+        
+        // Ako je selektovan "Diplomirao" status
+        if (selectedStatus != null && selectedStatus.equalsIgnoreCase("Diplomirao")) {
+            if (!graduatedLoaded) {
+                // Učitaj odbranene radove prvi put
+                loadGraduatedTheses();
+                return;
+            } else {
+                // Koristi keširane odbranene radove
+                filterWithGraduated();
+                return;
+            }
+        }
+        
+        // Ako je "Svi statusi" i odbraneni nisu učitani, samo prikaži aktivne
+        if (selectedStatus != null && selectedStatus.equals("Svi statusi") && !graduatedLoaded) {
+            filterStandard();
+            return;
+        }
+        
+        // Ako je "Svi statusi" i odbraneni JESU učitani, prikaži sve
+        if (selectedStatus != null && selectedStatus.equals("Svi statusi") && graduatedLoaded) {
+            filterWithGraduated();
+            return;
+        }
+        
+        // Standardni filter bez odbranenih
+        filterStandard();
+    }
+
+    /**
+     * Standardni filter - samo aktivni radovi (bez odbranenih)
+     */
+    private void filterStandard() {
         if (masterList == null || masterList.isEmpty()) return;
 
         String searchText = searchField.getText().toLowerCase();
@@ -115,10 +158,79 @@ public class ThesisController {
         displayTheses(filtriraniRadovi);
     }
 
+    /**
+     * Filter koji uključuje i odbranene radove (kombinuje masterList + graduatedCache)
+     */
+    private void filterWithGraduated() {
+        // Kombinuj masterList sa graduatedThesesCache
+        List<ThesisDTO> combined = new ArrayList<>(masterList);
+        if (graduatedThesesCache != null) {
+            combined.addAll(graduatedThesesCache);
+        }
+        
+        String searchText = searchField.getText().toLowerCase();
+        String selectedStatus = statusFilter.getValue();
+        
+        List<ThesisDTO> filtered = combined.stream()
+            .filter(rad -> {
+                boolean matchesSearch = searchText.isEmpty() ||
+                    rad.getTitle().toLowerCase().contains(searchText) ||
+                    rad.getStudentFullName().toLowerCase().contains(searchText) ||
+                    rad.getMentorFullName().toLowerCase().contains(searchText);
+                
+                boolean matchesStatus = selectedStatus == null ||
+                    selectedStatus.equals("Svi statusi") ||
+                    rad.getStatus().equalsIgnoreCase(selectedStatus);
+                
+                return matchesSearch && matchesStatus;
+            })
+            .collect(Collectors.toList());
+        
+        displayTheses(filtered);
+    }
+
+    /**
+     * Lazy load odbranenih radova
+     */
+    private void loadGraduatedTheses() {
+        Task<List<ThesisDTO>> task = new Task<>() {
+            @Override
+            protected List<ThesisDTO> call() throws Exception {
+                AppUser currentUser = UserSession.getUser();
+                
+                if (currentUser != null && currentUser.getRole() != null) {
+                    String roleName = currentUser.getRole().getName();
+                    
+                    if ("SECRETARY".equalsIgnoreCase(roleName)) {
+                        return dao.getGraduatedThesisBySecretaryId(currentUser.getId());
+                    }
+                }
+                
+                return dao.getGraduatedTheses();
+            }
+        };
+        
+        task.setOnSucceeded(e -> {
+            graduatedThesesCache = task.getValue();
+            graduatedLoaded = true;
+            System.out.println("[ThesisController] Loaded " + graduatedThesesCache.size() + " graduated theses.");
+            filterWithGraduated();
+        });
+        
+        task.setOnFailed(e -> {
+            GlobalErrorHandler.error("Greška pri učitavanju odbranenih radova.", task.getException());
+        });
+        
+        new Thread(task, "load-graduated-theses").start();
+    }
+
     private void initSearchListener() {
         searchField.textProperty().addListener((obs, old, newVal) -> filterThesis());
     }
 
+    /**
+     * Inicijalno učitavanje - SVE OSIM ODBRANENIH
+     */
     public void loadThesises() {
         Task<List<ThesisDTO>> task = new Task<List<ThesisDTO>>() {
             @Override
@@ -130,18 +242,19 @@ public class ThesisController {
                 if (currentUser != null && currentUser.getRole() != null) {
                     String roleName = currentUser.getRole().getName();
                     
-                    // Ako je sekretar, dohvati samo njegove radove
+                    // Ako je sekretar, dohvati samo njegove radove (osim odbranenih)
                     if ("SECRETARY".equalsIgnoreCase(roleName)) {
-                        return dao.getThesisBySecretaryId(currentUser.getId());
+                        return dao.getThesisBySecretaryIdExcludingGraduated(currentUser.getId());
                     }
                 }
                 
-                // Za sve ostale korisnike (ADMINISTRATOR itd.), dohvati sve radove
-                return dao.getAllThesis();
+                // Za sve ostale korisnike (ADMINISTRATOR itd.), dohvati sve radove (osim odbranenih)
+                return dao.getAllThesisExcludingGraduated();
             }
         };
         task.setOnSucceeded(e -> {
             masterList = task.getValue();
+            System.out.println("[ThesisController] Loaded " + masterList.size() + " active theses (excluding graduated).");
             displayTheses(masterList);
         });
         task.setOnFailed(e -> {
