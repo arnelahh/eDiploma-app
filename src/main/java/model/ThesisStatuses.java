@@ -25,6 +25,6 @@ public final class ThesisStatuses {
     public static final String KREIRANJE_UVJERENJA =
             "Kreiraj uvjerenje o završenom ciklusu studija";
 
-    public static final String DIPLOMIRAN =
-            "Diplomirao";
+    public static final String ODBRANJEN =
+            "Odbranjen";
 }

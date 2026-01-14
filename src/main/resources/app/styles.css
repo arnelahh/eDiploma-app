@@ -853,3 +853,95 @@
     -fx-background-color: #6c5ce7;
     -fx-text-fill: white;
 }
+/* Stil za kartice (bijele kutije sa okvirom) */
+.stat-card {
+    -fx-background-color: white;
+    -fx-border-color: #888888;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+.card-title1 {
+    -fx-font-size: 16px;
+    -fx-text-fill: #333333;
+    -fx-padding: 10 0 10 0; /* razmak ispod teksta */
+    -fx-font-weight: bold;
+}
+
+/* Veliki broj unutar kartice */
+.card-value {
+    -fx-font-size: 90px;
+    -fx-font-weight: bold;
+    -fx-text-fill: black;
+}
+
+/* Labela ispod grafova */
+.chart-label {
+    -fx-font-size: 16px;
+    -fx-padding: 10 0 0 0;
+}
+
+/* Boje za Bar Chart (opcionalno - da bude tirkizno kao na slici) */
+.default-color0.chart-bar { -fx-bar-fill: #00cccc; }
+.default-color1.chart-bar { -fx-bar-fill: #00b3b3; }
+.default-color2.chart-bar { -fx-bar-fill: #009999; }
+
+.stat-card-warning {
+    -fx-background-color: #fff0f0; /* Svijetlo crvena pozadina */
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-border-color: #ffcccc;
+    -fx-border-radius: 10;
+}
+
+.card-value-warning {
+    -fx-font-size: 90px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #d32f2f; /* Crveni tekst */
+}
+
+/* --- STILOVI ZA RANG LISTU MENTORA --- */
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #555;
+    -fx-padding: 0 0 10 0;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #eee;
+}
+
+.mentor-row {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 15px;
+    -fx-border-color: #e9ecef;
+    -fx-border-radius: 8px;
+}
+
+.mentor-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+.mentor-count-badge {
+    -fx-background-color: #00cccc; /* Tvoja tirkizna boja */
+    -fx-background-radius: 12px;
+    -fx-padding: 4px 10px;
+    -fx-min-width: 35px;
+}
+
+.mentor-count-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+/* Uklanjanje sivog okvira sa ScrollPane-a */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}

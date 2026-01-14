@@ -186,7 +186,7 @@ public class CycleCompletionController {
 
                     thesisDAO.updateStatusByName(
                             thesisId,
-                            ThesisStatuses.DIPLOMIRAN
+                            ThesisStatuses.ODBRANJEN
                     );
                 }
             } else {
