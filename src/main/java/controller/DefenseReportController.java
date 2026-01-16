@@ -6,6 +6,7 @@ import dao.*;
 import dto.DefenseReportDTO;
 import dto.ThesisDetailsDTO;
 import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
 import javafx.scene.text.Text;
 import model.*;
 import utils.GlobalErrorHandler;
@@ -27,6 +28,7 @@ public class DefenseReportController {
     @FXML private Text member1Text;
     @FXML private Text member2Text;
     @FXML private Text secretaryText;
+    @FXML private DatePicker defenseReportDatePicker; // NOVO: DatePicker za datum zapisnika sa odbrane
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
@@ -70,6 +72,18 @@ public class DefenseReportController {
             }
 
             populateFields();
+
+            // NOVO: Postavi datum u DatePicker ako postoji u bazi
+            if (defenseReportDatePicker != null) {
+                if (thesisDetails.getDefenseReportDate() != null) {
+                    defenseReportDatePicker.setValue(thesisDetails.getDefenseReportDate());
+                } else {
+                    // Defaultno postavi na datum odbrane ako postoji
+                    if (thesisDetails.getDefenseDate() != null) {
+                        defenseReportDatePicker.setValue(LocalDate.now());
+                    }
+                }
+            }
 
         } catch (Exception e) {
             GlobalErrorHandler.error("Greška pri učitavanju podataka.", e);
@@ -124,7 +138,18 @@ public class DefenseReportController {
     @FXML
     private void handleSave() {
         try {
-            byte[] pdfBytes = generatePdfBytes();
+            // NOVO: Validacija i čuvanje datuma
+            LocalDate defenseReportDate = null;
+            if (defenseReportDatePicker != null && defenseReportDatePicker.getValue() != null) {
+                defenseReportDate = defenseReportDatePicker.getValue();
+                // Ažuriraj datum u bazi
+                thesisDAO.updateDefenseReportDate(thesisId, defenseReportDate);
+            } else {
+                GlobalErrorHandler.warning("Niste odabrali datum zapisnika. Molimo odaberite datum.");
+                return;
+            }
+
+            byte[] pdfBytes = generatePdfBytes(defenseReportDate);
             String base64 = Base64.getEncoder().encodeToString(pdfBytes);
 
             // Za Defense Report, dokument broj nije obavezan
@@ -166,7 +191,8 @@ public class DefenseReportController {
         }
     }
 
-    private byte[] generatePdfBytes() throws Exception {
+    // PROMIJENJENO: Dodao parametar defenseReportDate
+    private byte[] generatePdfBytes(LocalDate defenseReportDate) throws Exception {
         LocalDate defenseDate = thesisDetails.getDefenseDate();
 
         String[] titleParts = splitThesisTitle(thesisDetails.getTitle());
@@ -179,6 +205,7 @@ public class DefenseReportController {
                 .thesisTitleLine2(titleParts[1])
                 .mentorFullName(formatMemberName(thesisDetails.getMentor()))
                 .defenseDate(defenseDate)
+                .defenseReportDate(defenseReportDate) // NOVO: Koristi novi datum
                 .chairmanFullName(formatMemberName(commission.getMember1()))
                 .member1FullName(formatMemberName(commission.getMember2()))
                 .member2FullName(formatMemberName(thesisDetails.getMentor()))
@@ -186,16 +213,20 @@ public class DefenseReportController {
                 .build();
 
         String html = loadTemplate();
+        
+        // PROMIJENJENO: Koristi defenseReportDate umjesto defenseDate
         html = html.replace("{{studentFullName}}", dto.getStudentFullName())
                 .replace("{{thesisTitleLine1}}", dto.getThesisTitleLine1())
                 .replace("{{thesisTitleLine2}}", dto.getThesisTitleLine2())
                 .replace("{{mentorFullName}}", dto.getMentorFullName())
-                .replace("{{defenseDate}}", dto.getDefenseDate() != null ?
-                        dto.getDefenseDate().format(DATE_FORMAT) : "—")
+                .replace("{{defenseReportDate}}", dto.getDefenseReportDate() != null ?
+                        dto.getDefenseReportDate().format(DATE_FORMAT) : "—")
                 .replace("{{chairmanFullName}}", dto.getChairmanFullName())
                 .replace("{{member1FullName}}", dto.getMember1FullName())
                 .replace("{{member2FullName}}", dto.getMember2FullName())
-                .replace("{{secretaryFullName}}", dto.getSecretaryFullName());
+                .replace("{{secretaryFullName}}", dto.getSecretaryFullName())
+                .replace("{{defenseDate}}",dto.getDefenseDate() !=null ?
+                        dto.getDefenseDate().format(DATE_FORMAT):"-");
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();

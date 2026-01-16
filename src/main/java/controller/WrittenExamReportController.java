@@ -6,6 +6,7 @@ import dao.*;
 import dto.ThesisDetailsDTO;
 import dto.WrittenExamReportDTO;
 import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import model.*;
@@ -29,6 +30,7 @@ public class WrittenExamReportController {
     @FXML private Text member2Text;
     @FXML private Text secretaryText;
     @FXML private TextField facultyDecisionField;
+    @FXML private DatePicker writtenReportDatePicker; // NOVO: DatePicker za datum zapisnika
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
@@ -90,6 +92,14 @@ public class WrittenExamReportController {
             // Učitaj postojeći dokument ako postoji
             Document existing = documentDAO.getByThesisAndType(thesisId, thisDocType.getId());
 
+            // NOVO: Postavi datum u DatePicker ako postoji u bazi
+            if (writtenReportDatePicker != null) {
+                if (thesisDetails.getWrittenReportDate() != null) {
+                    writtenReportDatePicker.setValue(thesisDetails.getWrittenReportDate());
+                } else {
+                    writtenReportDatePicker.setValue(LocalDate.now());
+                }
+            }
 
         } catch (Exception e) {
             GlobalErrorHandler.error("Greška pri učitavanju podataka.", e);
@@ -148,7 +158,18 @@ public class WrittenExamReportController {
     private void handleSave() {
 
         try {
-            byte[] pdfBytes = generatePdfBytes();
+            // NOVO: Validacija i čuvanje datuma
+            LocalDate writtenReportDate = null;
+            if (writtenReportDatePicker != null && writtenReportDatePicker.getValue() != null) {
+                writtenReportDate = writtenReportDatePicker.getValue();
+                // Ažuriraj datum u bazi
+                thesisDAO.updateWrittenReportDate(thesisId, writtenReportDate);
+            } else {
+                GlobalErrorHandler.warning("Niste odabrali datum zapisnika. Molimo odaberite datum.");
+                return;
+            }
+
+            byte[] pdfBytes = generatePdfBytes(writtenReportDate);
             String base64 = Base64.getEncoder().encodeToString(pdfBytes);
 
             DocumentStatus status = DocumentStatus.READY;
@@ -173,7 +194,8 @@ public class WrittenExamReportController {
         }
     }
 
-    private byte[] generatePdfBytes() throws Exception {
+    // PROMIJENJENO: Dodao parametar writtenReportDate
+    private byte[] generatePdfBytes(LocalDate writtenReportDate) throws Exception {
         LocalDate dateToShow = thesisDetails.getApprovalDate() != null ?
                 thesisDetails.getApprovalDate() :
                 thesisDetails.getApplicationDate();
@@ -189,6 +211,7 @@ public class WrittenExamReportController {
                 .thesisTitleLine2(titleParts[1])
                 .mentorFullName(formatMemberName(thesisDetails.getMentor()))
                 .submissionDate(dateToShow)
+                .writtenReportDate(writtenReportDate) // NOVO: Koristi novi datum
                 .chairmanFullName(formatMemberName(commission.getMember1()))
                 .member1FullName(formatMemberName(commission.getMember2()))
                 .member2FullName(commission.getMember3() != null ?
@@ -202,14 +225,15 @@ public class WrittenExamReportController {
         String line1Class = useSmallFont ? "thesis-line-1 thesis-line-1-small" : "thesis-line-1";
         String line2Class = useSmallFont ? "thesis-line-2 thesis-line-2-small" : "thesis-line-2";
 
+        // PROMIJENJENO: Koristi writtenReportDate umjesto submissionDate
         html = html.replace("{{studentFullName}}", dto.getStudentFullName())
                 .replace("{{thesisTitleLine1}}", dto.getThesisTitleLine1())
                 .replace("{{thesisTitleLine2}}", dto.getThesisTitleLine2())
                 .replace("class=\"thesis-line-1\"", "class=\"" + line1Class + "\"")
                 .replace("class=\"thesis-line-2\"", "class=\"" + line2Class + "\"")
                 .replace("{{mentorFullName}}", dto.getMentorFullName())
-                .replace("{{submissionDate}}", dto.getSubmissionDate() != null ?
-                        dto.getSubmissionDate().format(DATE_FORMAT) : "—")
+                .replace("{{writtenReportDate}}", dto.getWrittenReportDate() != null ?
+                        dto.getWrittenReportDate().format(DATE_FORMAT) : "—")
                 .replace("{{chairmanFullName}}", dto.getChairmanFullName())
                 .replace("{{member1FullName}}", dto.getMember1FullName())
                 .replace("{{member2FullName}}", dto.getMember2FullName())

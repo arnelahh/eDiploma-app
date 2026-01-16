@@ -19,7 +19,8 @@ public class DefenseReportDTO {
     private String secretaryFullName;
 
     // Dates
-    private LocalDate defenseDate;
+    private LocalDate defenseDate; // Datum odbrane
+    private LocalDate defenseReportDate; // NOVO: Datum zapisnika sa odbrane
 
     // Student
     private String studentFullName;
