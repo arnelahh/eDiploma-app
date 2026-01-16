@@ -2,6 +2,7 @@ package app;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import controller.LoginController;
 import dao.AppUserDAO;
@@ -12,6 +13,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        Image icon = new Image(getClass().getResourceAsStream("/templates/icon.png"));
+        stage.getIcons().add(icon);
         SceneManager.init(stage);
 
         SceneManager.show("/app/login.fxml", "eDiploma");
