@@ -27,6 +27,7 @@ public class Thesis {
     private LocalDate approvalDate;
     private LocalDate defenseDate;
     private LocalDate finalThesisApprovalDate; // Mapira se na FinalThesisApprovalDate u bazi
+    private LocalDate commisionDate; // NOVO: Datum komisije - mapira se na CommisionDate u bazi
     private Integer grade;
     private boolean isActive;
     private boolean passedSubjects; // Da li je student položio sve ispite - mapira se na PassedSubjects u bazi
