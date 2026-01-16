@@ -6,6 +6,7 @@ import dao.*;
 import dto.CommissionReportDTO;
 import dto.ThesisDetailsDTO;
 import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import model.Commission;
@@ -23,7 +24,7 @@ import java.util.Base64;
 public class CommissionReportController {
 
     @FXML private Text studentNameText;
-    @FXML private Text decisionDateText;
+    @FXML private DatePicker commisionDatePicker;
     @FXML private Text chairmanText;
     @FXML private Text member1Text;
     @FXML private Text mentorText;
@@ -96,8 +97,12 @@ public class CommissionReportController {
             studentNameText.setText(fullName.toUpperCase());
         }
 
-        // Date
-        decisionDateText.setText(LocalDate.now().format(DATE_FORMAT));
+        // Commission Date - load from DB or default to today
+        if (thesisDetails.getCommisionDate() != null) {
+            commisionDatePicker.setValue(thesisDetails.getCommisionDate());
+        } else {
+            commisionDatePicker.setValue(LocalDate.now());
+        }
 
         // Commission
         if (commission.getMember1() != null) {
@@ -128,7 +133,17 @@ public class CommissionReportController {
         if (!validateInput()) return;
 
         try {
-            byte[] pdfBytes = generatePdfBytes();
+            // Get commision date from DatePicker
+            LocalDate commisionDate = commisionDatePicker.getValue();
+            if (commisionDate == null) {
+                GlobalErrorHandler.error("Datum komisije je obavezan.");
+                return;
+            }
+
+            // Save commisionDate to database FIRST
+            thesisDAO.updateCommisionDate(thesisId, commisionDate);
+
+            byte[] pdfBytes = generatePdfBytes(commisionDate);
             String base64 = Base64.getEncoder().encodeToString(pdfBytes);
 
             String docNumber = buildFullDocumentNumber();
@@ -203,7 +218,7 @@ public class CommissionReportController {
         return s.trim();
     }
 
-    private byte[] generatePdfBytes() throws Exception {
+    private byte[] generatePdfBytes(LocalDate commisionDate) throws Exception {
         String chairmanName = commission.getMember1() != null
                 ? formatMemberName(commission.getMember1()) : "—";
         String member1Name = commission.getMember2() != null
@@ -232,7 +247,7 @@ public class CommissionReportController {
         }
 
         CommissionReportDTO dto = CommissionReportDTO.builder()
-                .decisionDate(LocalDate.now())
+                .decisionDate(commisionDate) // USE commisionDate from parameter
                 .studentFullName(studentNameText.getText())
                 .chairmanFullName(chairmanName)
                 .member1FullName(member1Name)
