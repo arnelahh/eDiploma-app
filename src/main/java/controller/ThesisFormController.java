@@ -47,6 +47,7 @@ public class ThesisFormController {
     @FXML private TextArea descriptionArea;
     @FXML private TextArea structureArea;
     @FXML private TextArea literatureArea;
+    @FXML private CheckBox passedSubjectsCheckBox;
     
     // Edit-only fields
     @FXML private VBox approvalDateContainer;
@@ -223,6 +224,11 @@ public class ThesisFormController {
         if (formSubtitle != null) formSubtitle.setText("Unesite podatke o novom završnom radu");
         toggleDeleteButton(false);
         toggleEditOnlyFields(false);
+        
+        // Postavi checkbox na true po defaultu
+        if (passedSubjectsCheckBox != null) {
+            passedSubjectsCheckBox.setSelected(true);
+        }
     }
 
     public void initEdit(Thesis thesis, Integer returnToThesisId) {
@@ -287,6 +293,11 @@ public class ThesisFormController {
         }
         if (applicationDatePicker != null) {
             applicationDatePicker.setValue(thesis.getApplicationDate());
+        }
+        
+        // NOVO: Postavi checkbox
+        if (passedSubjectsCheckBox != null) {
+            passedSubjectsCheckBox.setSelected(thesis.isPassedSubjects());
         }
 
         // Edit-only fields
@@ -452,6 +463,7 @@ public class ThesisFormController {
                 .description(descriptionArea != null ? descriptionArea.getText() : null)
                 .structure(structureArea != null ? structureArea.getText() : null)
                 .literature(literatureArea != null ? literatureArea.getText() : null)
+                .passedSubjects(passedSubjectsCheckBox != null && passedSubjectsCheckBox.isSelected())
                 .build();
     }
 
@@ -469,6 +481,9 @@ public class ThesisFormController {
     private void fillThesisData(Thesis t) {
         t.setTitle(titleField.getText().trim());
         t.setApplicationDate(applicationDatePicker.getValue());
+        
+        // NOVO: Postavi passedSubjects iz checkbox-a
+        t.setPassedSubjects(passedSubjectsCheckBox != null && passedSubjectsCheckBox.isSelected());
         
         if (mode == Mode.EDIT) {
             if (approvalDatePicker != null) {

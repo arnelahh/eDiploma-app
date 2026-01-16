@@ -19,11 +19,13 @@ public class ThesisDetailsDTO {
     private LocalDate applicationDate;
     private LocalDate approvalDate;
     private LocalDate defenseDate;
+    private LocalDate finalThesisApprovalDate;
     private Integer grade;
     private String status;
     private String description;
     private String literature;
     private String structure;
+    private boolean passedSubjects; // Da li je student položio sve ispite
 
     // Student info
     private Student student;
