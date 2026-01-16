@@ -20,6 +20,7 @@ public class ThesisDetailsDTO {
     private LocalDate approvalDate;
     private LocalDate defenseDate;
     private LocalDate finalThesisApprovalDate;
+    private LocalDate commisionDate; // NOVO: Datum komisije
     private Integer grade;
     private String status;
     private String description;
