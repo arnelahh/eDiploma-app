@@ -39,6 +39,7 @@ public class WrittenExamReportController {
     private int thesisId;
     private ThesisDetailsDTO thesisDetails;
     private Commission commission;
+    private String approvalDecisionNumber; // From first document
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy.");
 
@@ -69,6 +70,19 @@ public class WrittenExamReportController {
                 GlobalErrorHandler.error("DocumentType nije pronađen.");
                 back();
                 return;
+            }
+
+            // Load approval decision number from first document
+            DocumentType approvalDocType = documentTypeDAO.getByName("Rješenje o izradi završnog rada");
+            if (approvalDocType != null) {
+                Document approvalDoc = documentDAO.getByThesisAndType(thesisId, approvalDocType.getId());
+                if (approvalDoc != null && approvalDoc.getDocumentNumber() != null) {
+                    approvalDecisionNumber = approvalDoc.getDocumentNumber();
+                } else {
+                    approvalDecisionNumber = "";
+                }
+            } else {
+                approvalDecisionNumber = "";
             }
 
             populateFields();
@@ -180,6 +194,7 @@ public class WrittenExamReportController {
                 .member2FullName(commission.getMember3() != null ?
                         formatMemberName(commission.getMember3()) : "—")
                 .secretaryFullName(formatMemberName(thesisDetails.getSecretary()))
+                .facultyDecisionNumber(approvalDecisionNumber != null ? approvalDecisionNumber : "")
                 .build();
 
         String html = loadTemplate();
@@ -198,7 +213,8 @@ public class WrittenExamReportController {
                 .replace("{{chairmanFullName}}", dto.getChairmanFullName())
                 .replace("{{member1FullName}}", dto.getMember1FullName())
                 .replace("{{member2FullName}}", dto.getMember2FullName())
-                .replace("{{secretaryFullName}}", dto.getSecretaryFullName());
+                .replace("{{secretaryFullName}}", dto.getSecretaryFullName())
+                .replace("{{facultyDecisionNumber}}", dto.getFacultyDecisionNumber());
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();

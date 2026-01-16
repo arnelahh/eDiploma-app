@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
@@ -148,7 +149,7 @@
                         <VBox spacing="3">
                             <Text styleClass="section-title" text="Administrativni podaci" />
                             <Text styleClass="page-subtitle"
-                                  text="Unesite broj uvjerenja, ime studenta u genitivu i akademsku titulu" />
+                                  text="Unesite broj uvjerenja, datum izdavanja i ime studenta u genitivu" />
                         </VBox>
 
                         <GridPane hgap="20" vgap="15">
@@ -160,6 +161,15 @@
                                                promptText="1295"
                                                styleClass="form-field" />
                                 </HBox>
+                            </VBox>
+
+                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label styleClass="field-label" text="Datum izdavanja uvjerenja *" />
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: gray;"
+                                       text="Prikazuje se u headeru dokumenta" />
+                                <DatePicker fx:id="cycleCompletionDatePicker"
+                                            promptText="Odaberite datum"
+                                            styleClass="form-field" />
                             </VBox>
 
                             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">

@@ -23,6 +23,7 @@ public class ThesisDetailsDTO {
     private LocalDate commisionDate; // Datum komisije
     private LocalDate noticeDate; // NOVO: Datum rješenja obavijesti
     private String commisionTime; // NOVO: Vrijeme sjednice komisije
+    private LocalDate cycleCompletionDate;
     private Integer grade;
     private String status;
     private String description;
