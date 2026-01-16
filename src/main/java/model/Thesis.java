@@ -24,10 +24,12 @@ public class Thesis {
 
     private String title;
     private LocalDate applicationDate;
-    private LocalDate approvalDate;
+    private LocalDate approvalDate; // Datum sjednice komisije (commission meeting date)
     private LocalDate defenseDate;
     private LocalDate finalThesisApprovalDate; // Mapira se na FinalThesisApprovalDate u bazi
-    private LocalDate commisionDate; // NOVO: Datum komisije - mapira se na CommisionDate u bazi
+    private LocalDate commisionDate; // Datum komisije - mapira se na CommisionDate u bazi
+    private LocalDate noticeDate; // NOVO: Datum rješenja obavijesti - mapira se na NoticeDate u bazi
+    private String commisionTime; // NOVO: Vrijeme sjednice komisije - mapira se na CommisionTime u bazi
     private Integer grade;
     private boolean isActive;
     private boolean passedSubjects; // Da li je student položio sve ispite - mapira se na PassedSubjects u bazi
