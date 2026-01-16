@@ -17,9 +17,12 @@ public class ThesisDetailsDTO {
     private int id;
     private String title;
     private LocalDate applicationDate;
-    private LocalDate approvalDate;
+    private LocalDate approvalDate; // Datum sjednice komisije (commission meeting date)
     private LocalDate defenseDate;
     private LocalDate finalThesisApprovalDate;
+    private LocalDate commisionDate; // Datum komisije
+    private LocalDate noticeDate; // NOVO: Datum rješenja obavijesti
+    private String commisionTime; // NOVO: Vrijeme sjednice komisije
     private Integer grade;
     private String status;
     private String description;

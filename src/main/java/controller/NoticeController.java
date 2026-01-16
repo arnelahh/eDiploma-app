@@ -26,10 +26,10 @@ public class NoticeController {
     @FXML private Text thesisTitleText;
     @FXML private Text commissionDecisionNumberText;
 
-    @FXML private DatePicker commissionDecisionDatePicker;
-    @FXML private DatePicker commissionMeetingDatePicker;
-    @FXML private DatePicker defenseDatePicker;
-    @FXML private TextField defenseTimeField;
+    @FXML private DatePicker commissionDecisionDatePicker; // NoticeDate
+    @FXML private DatePicker commissionMeetingDatePicker; // ApprovalDate (commission meeting)
+    @FXML private DatePicker defenseDatePicker; // DefenseDate
+    @FXML private TextField defenseTimeField; // Vrijeme odbrane
     @FXML private TextField documentNumberField;
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
@@ -136,26 +136,61 @@ public class NoticeController {
             thesisTitleText.setText(thesisDetails.getTitle().toUpperCase());
         }
 
-        // Set default dates if not set
-        if (commissionDecisionDatePicker != null && commissionDecisionDatePicker.getValue() == null) {
-            commissionDecisionDatePicker.setValue(LocalDate.now());
+        // Commission decision date (NoticeDate from DB)
+        if (commissionDecisionDatePicker != null) {
+            if (thesisDetails.getNoticeDate() != null) {
+                commissionDecisionDatePicker.setValue(thesisDetails.getNoticeDate());
+            } else {
+                commissionDecisionDatePicker.setValue(LocalDate.now());
+            }
         }
 
-        if (commissionMeetingDatePicker != null && commissionMeetingDatePicker.getValue() == null) {
-            commissionMeetingDatePicker.setValue(LocalDate.now());
+        // Commission meeting date (ApprovalDate from DB)
+        if (commissionMeetingDatePicker != null) {
+            if (thesisDetails.getApprovalDate() != null) {
+                commissionMeetingDatePicker.setValue(thesisDetails.getApprovalDate());
+            } else {
+                commissionMeetingDatePicker.setValue(LocalDate.now());
+            }
         }
 
         // If defense date exists in thesis, pre-fill it
-        if (thesisDetails.getDefenseDate() != null && defenseDatePicker != null) {
-            defenseDatePicker.setValue(thesisDetails.getDefenseDate());
-        } else if (defenseDatePicker != null && defenseDatePicker.getValue() == null) {
-            defenseDatePicker.setValue(LocalDate.now().plusDays(7)); // Default to one week from now
+        if (defenseDatePicker != null) {
+            if (thesisDetails.getDefenseDate() != null) {
+                defenseDatePicker.setValue(thesisDetails.getDefenseDate());
+            } else {
+                defenseDatePicker.setValue(LocalDate.now().plusDays(7)); // Default to one week from now
+            }
         }
 
-        // Default defense time
-        if (defenseTimeField != null && (defenseTimeField.getText() == null || defenseTimeField.getText().isBlank())) {
-            defenseTimeField.setText("9:00");
+        // Defense time - load from CommisionTime if exists and normalize format
+        if (defenseTimeField != null) {
+            if (thesisDetails.getCommisionTime() != null && !thesisDetails.getCommisionTime().isBlank()) {
+                // Normalize time: remove seconds if present (9:00:00 -> 9:00)
+                String normalizedTime = normalizeTimeFormat(thesisDetails.getCommisionTime());
+                defenseTimeField.setText(normalizedTime);
+            } else {
+                defenseTimeField.setText("9:00"); // Default
+            }
         }
+    }
+
+    /**
+     * Normalize time format by removing seconds if present
+     * Examples: "9:00:00" -> "9:00", "14:30:00" -> "14:30", "9:00" -> "9:00"
+     */
+    private String normalizeTimeFormat(String time) {
+        if (time == null || time.isBlank()) return "9:00";
+        
+        String trimmed = time.trim();
+        
+        // If format is HH:mm:ss, remove :ss part
+        if (trimmed.matches("\\d{1,2}:\\d{2}:\\d{2}")) {
+            return trimmed.substring(0, trimmed.lastIndexOf(':'));
+        }
+        
+        // Already in HH:mm format or other format, return as-is
+        return trimmed;
     }
 
     @FXML
@@ -163,10 +198,19 @@ public class NoticeController {
         if (!validateInput()) return;
 
         try {
-            // Update thesis defense date
-            LocalDate defenseDate = defenseDatePicker.getValue();
-            thesisDAO.updateDefenseDate(thesisId, defenseDate);
+            // Get values from UI
+            LocalDate noticeDate = commissionDecisionDatePicker.getValue(); // NoticeDate
+            LocalDate meetingDate = commissionMeetingDatePicker.getValue(); // ApprovalDate
+            LocalDate defenseDate = defenseDatePicker.getValue(); // DefenseDate
+            String commisionTime = defenseTimeField.getText().trim(); // CommisionTime
 
+            // Save to database FIRST
+            thesisDAO.updateNoticeDate(thesisId, noticeDate);
+            thesisDAO.updateCommissionMeetingDate(thesisId, meetingDate);
+            thesisDAO.updateDefenseDate(thesisId, defenseDate);
+            thesisDAO.updateCommisionTime(thesisId, commisionTime);
+
+            // Generate PDF
             byte[] pdfBytes = generatePdfBytes();
             String base64 = Base64.getEncoder().encodeToString(pdfBytes);
 
@@ -204,7 +248,6 @@ public class NoticeController {
                 }
             }
 
-
             GlobalErrorHandler.info("Dokument je uspješno sačuvan.");
             back();
 
@@ -235,8 +278,8 @@ public class NoticeController {
             return false;
         }
 
-        // Validate time format (HH:mm)
-        if (!timeInput.matches("\\d{1,2}:\\d{2}")) {
+        // Validate time format - accept both HH:mm and HH:mm:ss
+        if (!timeInput.matches("\\d{1,2}:\\d{2}(:\\d{2})?")) {
             GlobalErrorHandler.error("Vrijeme mora biti u formatu HH:mm (npr. 9:00).");
             return false;
         }
@@ -292,7 +335,7 @@ public class NoticeController {
         }
 
         NoticeDTO dto = NoticeDTO.builder()
-                .documentDate(LocalDate.now())
+                .documentDate(commissionDecisionDatePicker.getValue()) // Use NoticeDate
                 .studentFullName(studentNameText.getText())
                 .thesisTitle(thesisTitleText.getText())
                 .commissionDecisionNumber(commissionDecisionNumberText.getText())

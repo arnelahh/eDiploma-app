@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
@@ -75,8 +76,8 @@
                             </VBox>
 
                             <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label styleClass="field-label" text="Datum rješenja" />
-                                <Text fx:id="decisionDateText" styleClass="field-value" text="DD.MM.GGGG." />
+                                <Label styleClass="field-label" text="Datum komisije" />
+                                <DatePicker fx:id="commisionDatePicker" styleClass="form-field" />
                             </VBox>
 
                             <columnConstraints>
