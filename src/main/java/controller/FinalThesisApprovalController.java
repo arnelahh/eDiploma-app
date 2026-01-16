@@ -74,8 +74,15 @@ public class FinalThesisApprovalController {
 
             populateReadOnlyFields();
 
-            if (decisionDatePicker != null && decisionDatePicker.getValue() == null) {
-                decisionDatePicker.setValue(LocalDate.now());
+            // IZMJENA: Prvo provjeri da li postoji finalThesisApprovalDate u bazi
+            if (decisionDatePicker != null) {
+                if (thesisDetails.getFinalThesisApprovalDate() != null) {
+                    // Ako postoji u bazi, učitaj ga
+                    decisionDatePicker.setValue(thesisDetails.getFinalThesisApprovalDate());
+                } else if (decisionDatePicker.getValue() == null) {
+                    // Ako ne postoji u bazi i picker je prazan, postavi današnji datum
+                    decisionDatePicker.setValue(LocalDate.now());
+                }
             }
 
             if (thesisDetails.getStudent() != null && (studentGenitiveField.getText() == null || studentGenitiveField.getText().isBlank())) {
@@ -134,6 +141,12 @@ public class FinalThesisApprovalController {
         if (!validateInputSmart()) return;
 
         try {
+            // IZMJENA: Spremi datum u bazu PRIJE generiranja PDF-a
+            LocalDate decisionDate = decisionDatePicker != null ? decisionDatePicker.getValue() : null;
+            if (decisionDate != null) {
+                thesisDAO.updateFinalThesisApprovalDate(thesisId, decisionDate);
+            }
+
             byte[] pdfBytes = generatePdfBytes();
             String base64 = Base64.getEncoder().encodeToString(pdfBytes);
 
@@ -269,6 +282,14 @@ public class FinalThesisApprovalController {
             decisionNumberForTemplate = (full != null) ? full : "";
         }
 
+        // NOVO: Kreiraj examRequirement tekst na osnovu passedSubjects
+        String examRequirement;
+        if (thesisDetails.isPassedSubjects()) {
+            examRequirement = "položio/la sve ispite i ispunio/la sve obaveze";
+        } else {
+            examRequirement = "ispunio/la sve obaveze";
+        }
+
         FinalThesisApprovalDTO dto = FinalThesisApprovalDTO.builder()
                 .decisionNumber(decisionNumberForTemplate)
                 .decisionDate(decisionDatePicker.getValue())
@@ -311,6 +332,7 @@ public class FinalThesisApprovalController {
                 .replace("{{studentFirstName}}", escapeXml(dto.getStudentFirstName()))
                 .replace("{{studentLastName}}", escapeXml(dto.getStudentLastName()))
                 .replace("{{applicationDate}}", dto.getApplicationDate().format(DATE_FORMAT))
+                .replace("{{examRequirement}}", examRequirement)
                 .replace("{{deanName}}", deanName);
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {

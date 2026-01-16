@@ -89,19 +89,25 @@
                                 <DatePicker fx:id="applicationDatePicker" prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
-                            <VBox fx:id="approvalDateContainer" spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="4"
+                            <!-- NOVI CHECKBOX: Položio sve ispite -->
+                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                <Label text="Status ispita" styleClass="field-label"/>
+                                <CheckBox fx:id="passedSubjectsCheckBox" text="Student je položio sve ispite" selected="true" styleClass="form-checkbox"/>
+                            </VBox>
+
+                            <VBox fx:id="approvalDateContainer" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="5"
                                   visible="false" managed="false">
                                 <Label text="Datum sjednice komisije" styleClass="field-label"/>
                                 <DatePicker fx:id="approvalDatePicker" prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
-                            <VBox fx:id="defenseDateContainer" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="5"
+                            <VBox fx:id="defenseDateContainer" spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="5"
                                   visible="false" managed="false">
                                 <Label text="Datum odbrane" styleClass="field-label"/>
                                 <DatePicker fx:id="defenseDatePicker" prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
-                            <VBox fx:id="gradeContainer" spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="5"
+                            <VBox fx:id="gradeContainer" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="6"
                                   visible="false" managed="false">
                                 <Label text="Ocjena" styleClass="field-label"/>
                                 <TextField fx:id="gradeField" promptText="6-10" styleClass="form-field"/>

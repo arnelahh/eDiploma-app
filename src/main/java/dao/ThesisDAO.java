@@ -299,8 +299,8 @@ public class ThesisDAO {
 
     public int insertThesis(Thesis thesis) {
         String sql = """
-        INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId, Description, Structure, Literature)
-        VALUES(?,?,?,?,?,?,?,?,?, ?)
+        INSERT INTO Thesis(Title,ApplicationDate,DepartmentId,StudentId,MentorId,SecretaryId,SubjectId, Description, Structure, Literature, PassedSubjects)
+        VALUES(?,?,?,?,?,?,?,?,?, ?, ?)
         """;
 
         try (Connection connection = CloudDatabaseConnection.Konekcija()) {
@@ -322,6 +322,7 @@ public class ThesisDAO {
                 stmt.setString(8, thesis.getDescription());
                 stmt.setString(9, thesis.getStructure());
                 stmt.setString(10, thesis.getLiterature());
+                stmt.setBoolean(11, thesis.isPassedSubjects());
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {
@@ -367,6 +368,7 @@ public class ThesisDAO {
             ApplicationDate = ?,
             ApprovalDate = ?,
             DefenseDate = ?,
+            FinalThesisApprovalDate = ?,
             Grade = ?,
             StudentId = ?,
             MentorId = ?,
@@ -377,7 +379,8 @@ public class ThesisDAO {
             UpdatedAt = ?,
             Description = ?,
             Literature = ?,
-            Structure = ?
+            Structure = ?,
+            PassedSubjects = ?
         WHERE Id = ?
         """;
 
@@ -391,23 +394,26 @@ public class ThesisDAO {
                     java.sql.Date.valueOf(thesis.getApprovalDate()) : null);
             ps.setDate(4, thesis.getDefenseDate() != null ?
                     java.sql.Date.valueOf(thesis.getDefenseDate()) : null);
+            ps.setDate(5, thesis.getFinalThesisApprovalDate() != null ?
+                    java.sql.Date.valueOf(thesis.getFinalThesisApprovalDate()) : null);
             if (thesis.getGrade() != null) {
-                ps.setInt(5, thesis.getGrade());
+                ps.setInt(6, thesis.getGrade());
             } else {
                 // Ako je null, moramo eksplicitno reći bazi da je NULL
-                ps.setNull(5, java.sql.Types.INTEGER);
+                ps.setNull(6, java.sql.Types.INTEGER);
             }
-            ps.setInt(6, thesis.getStudentId());
-            ps.setInt(7, thesis.getAcademicStaffId());
-            ps.setInt(8, thesis.getDepartmentId());
-            ps.setInt(9, thesis.getSubjectId());
-            ps.setInt(10, thesis.getStatusId());
-            ps.setInt(11, thesis.getSecretaryId());
-            ps.setTimestamp(12, Timestamp.valueOf(java.time.LocalDateTime.now()));
-            ps.setString(13, thesis.getDescription());
-            ps.setString(14, thesis.getLiterature());
-            ps.setString(15, thesis.getStructure());
-            ps.setInt(16, thesis.getId());
+            ps.setInt(7, thesis.getStudentId());
+            ps.setInt(8, thesis.getAcademicStaffId());
+            ps.setInt(9, thesis.getDepartmentId());
+            ps.setInt(10, thesis.getSubjectId());
+            ps.setInt(11, thesis.getStatusId());
+            ps.setInt(12, thesis.getSecretaryId());
+            ps.setTimestamp(13, Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setString(14, thesis.getDescription());
+            ps.setString(15, thesis.getLiterature());
+            ps.setString(16, thesis.getStructure());
+            ps.setBoolean(17, thesis.isPassedSubjects());
+            ps.setInt(18, thesis.getId());
             ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -439,6 +445,7 @@ public class ThesisDAO {
             T.ApplicationDate,
             T.ApprovalDate,
             T.DefenseDate,
+            T.FinalThesisApprovalDate,
             T.Grade,
             T.SubjectId,
             T.StatusId,
@@ -451,7 +458,8 @@ public class ThesisDAO {
             T.SecretaryId,
             T.Description,
             T.Literature,
-            T.Structure
+            T.Structure,
+            T.PassedSubjects
         FROM Thesis T 
         WHERE T.Id = ? AND T.IsActive = 1
         """;
@@ -472,6 +480,8 @@ public class ThesisDAO {
                         rs.getDate("ApprovalDate").toLocalDate() : null);
                 thesis.setDefenseDate(rs.getDate("DefenseDate") != null ?
                         rs.getDate("DefenseDate").toLocalDate() : null);
+                thesis.setFinalThesisApprovalDate(rs.getDate("FinalThesisApprovalDate") != null ?
+                        rs.getDate("FinalThesisApprovalDate").toLocalDate() : null);
 
                 // Handling Grade correctly (checking for NULL)
                 int grade = rs.getInt("Grade");
@@ -494,6 +504,7 @@ public class ThesisDAO {
                 thesis.setDescription(rs.getString("Description"));
                 thesis.setLiterature(rs.getString("Literature"));
                 thesis.setStructure(rs.getString("Structure"));
+                thesis.setPassedSubjects(rs.getBoolean("PassedSubjects"));
 
                 if (rs.getTimestamp("CreatedAt") != null) {
                     thesis.setCreatedAt(rs.getTimestamp("CreatedAt").toLocalDateTime());
@@ -512,11 +523,11 @@ public class ThesisDAO {
     }
 
     public ThesisDetailsDTO getThesisDetails(int thesisId) {
-        // UPDATED SQL to select Description and Literature
+        // UPDATED SQL to select Description, Literature, FinalThesisApprovalDate and PassedSubjects
         String sql = """
         SELECT 
-            T.Id, T.Title, T.ApplicationDate, T.ApprovalDate, T.DefenseDate, T.Grade,
-            T.Description, T.Literature, T.Structure,
+            T.Id, T.Title, T.ApplicationDate, T.ApprovalDate, T.DefenseDate, T.FinalThesisApprovalDate, T.Grade,
+            T.Description, T.Literature, T.Structure, T.PassedSubjects,
             TS.Name AS StatusName,
             U.AcademicStaffId as SecretaryAcademicStaffId, 
             S.Id AS StudentId, S.FirstName AS StudentFirstName, S.LastName AS StudentLastName,
@@ -608,11 +619,14 @@ public class ThesisDAO {
                                 rs.getDate("ApprovalDate").toLocalDate() : null)
                         .defenseDate(rs.getDate("DefenseDate") != null ?
                                 rs.getDate("DefenseDate").toLocalDate() : null)
+                        .finalThesisApprovalDate(rs.getDate("FinalThesisApprovalDate") != null ?
+                                rs.getDate("FinalThesisApprovalDate").toLocalDate() : null)
                         .grade(rs.getInt("Grade"))
                         // NEW FIELDS MAPPED HERE
                         .description(rs.getString("Description"))
                         .literature(rs.getString("Literature"))
                         .structure(rs.getString("Structure"))
+                        .passedSubjects(rs.getBoolean("PassedSubjects"))
                         .status(rs.getString("StatusName"))
                         .student(student)
                         .mentor(mentor)
@@ -762,6 +776,32 @@ public class ThesisDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException("Greška pri ažuriranju datuma odbrane.", e);
+        }
+    }
+
+    /**
+     * NOVI METOD: Ažurira datum final thesis approval za specifičan rad
+     */
+    public void updateFinalThesisApprovalDate(int thesisId, LocalDate finalThesisApprovalDate) {
+        String sql = "UPDATE Thesis SET FinalThesisApprovalDate = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            if (finalThesisApprovalDate != null) {
+                ps.setDate(1, java.sql.Date.valueOf(finalThesisApprovalDate));
+            } else {
+                ps.setNull(1, java.sql.Types.DATE);
+            }
+            ps.setInt(2, thesisId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("Thesis sa ID " + thesisId + " nije pronađen.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri ažuriranju datuma odobrenja završnog rada.", e);
         }
     }
 
