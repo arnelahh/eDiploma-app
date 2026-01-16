@@ -24,6 +24,7 @@ public class CycleCompletionDTO {
     private String cycleDuration;
     private String ects;
     private String academicTitle;
-    private LocalDate issueDate;
+    private LocalDate cycleCompletionDate; // CycleCompletionDate - header datum
+    private LocalDate defenseDate; // DefenseDate - datum u tekstu
     private String deanFullName;
 }

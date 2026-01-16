@@ -6,6 +6,7 @@ import dao.*;
 import dto.CycleCompletionDTO;
 import dto.ThesisDetailsDTO;
 import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import model.*;
@@ -35,6 +36,7 @@ public class CycleCompletionController {
     @FXML private TextField documentNumberField;
     @FXML private TextField studentGenitiveField;
     @FXML private TextField academicTitleField;
+    @FXML private DatePicker cycleCompletionDatePicker;
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final DocumentDAO documentDAO = new DocumentDAO();
@@ -130,20 +132,14 @@ public class CycleCompletionController {
                 String genitiveProposal = student.getLastName() + " " + student.getFirstName() + "a";
                 studentGenitiveField.setText(genitiveProposal);
             }
-            // Automatsko postavljanje akademske titule na osnovu odsjeka
-            if (academicTitleField != null) {
-                // Provjeravamo da li je polje prazno prije nego ga automatski popunimo
-                // (kako ne bismo pregazili nešto ako korisnik kasnije uđe u edit mode,
-                // mada kod prvog učitavanja će biti prazno)
-                if (academicTitleField.getText() == null || academicTitleField.getText().isBlank()) {
+        }
 
-                    // Pretpostavka: Naziv odsjeka se nalazi u getStudyProgram()
-                    // Ako imaš posebno polje student.getDepartment(), koristi njega umjesto getStudyProgram()
-                    String department = thesisDetails.getDepartment().getName();
-
-                    String title = getAcademicTitleByDepartment(department);
-                    academicTitleField.setText(title);
-                }
+        // Load CycleCompletionDate from DB if exists
+        if (cycleCompletionDatePicker != null) {
+            if (thesisDetails.getCycleCompletionDate() != null) {
+                cycleCompletionDatePicker.setValue(thesisDetails.getCycleCompletionDate());
+            } else {
+                cycleCompletionDatePicker.setValue(LocalDate.now());
             }
         }
     }
@@ -162,6 +158,10 @@ public class CycleCompletionController {
         if (!validateInput()) return;
 
         try {
+            // Save CycleCompletionDate to database
+            LocalDate cycleCompletionDate = cycleCompletionDatePicker.getValue();
+            thesisDAO.updateCycleCompletionDate(thesisId, cycleCompletionDate);
+
             byte[] pdfBytes = generatePdfBytes();
             String base64 = Base64.getEncoder().encodeToString(pdfBytes);
 
@@ -213,6 +213,11 @@ public class CycleCompletionController {
     }
 
     private boolean validateInput() {
+        if (cycleCompletionDatePicker == null || cycleCompletionDatePicker.getValue() == null) {
+            GlobalErrorHandler.error("Molimo odaberite datum izdavanja uvjerenja.");
+            return false;
+        }
+
         String input = documentNumberField != null ? documentNumberField.getText().trim() : "";
         if (!input.isBlank() && !input.matches("\\d{4}")) {
             GlobalErrorHandler.error("Broj uvjerenja mora biti tačno 4 cifre (npr. 1295).");
@@ -287,6 +292,13 @@ public class CycleCompletionController {
         // Get dean name dynamically from database
         String deanName = DeanService.getCurrentDeanFullName();
 
+        // Get dates
+        LocalDate cycleCompletionDate = cycleCompletionDatePicker.getValue(); // For header
+        LocalDate defenseDate = thesisDetails.getDefenseDate(); // For text "dana ... godine"
+        if (defenseDate == null) {
+            defenseDate = LocalDate.now(); // Fallback if not set
+        }
+
         CycleCompletionDTO dto = CycleCompletionDTO.builder()
                 .studentFullName(student.getFirstName() + " (" +student.getFatherName() +") " + student.getLastName())
                 .studentGenitiveForm(studentGenitiveForm)
@@ -299,13 +311,15 @@ public class CycleCompletionController {
                 .cycleDuration(cycleDurationText)
                 .ects(String.valueOf(student.getECTS()))
                 .academicTitle(academicTitle)
-                .issueDate(LocalDate.now())
+                .cycleCompletionDate(cycleCompletionDate)
+                .defenseDate(defenseDate)
                 .deanFullName(deanName)
                 .build();
 
         String html = loadTemplate();
 
-        html = html.replace("{{issueDate}}", dto.getIssueDate().format(DATE_FORMAT))
+        html = html.replace("{{cycleCompletionDate}}", dto.getCycleCompletionDate().format(DATE_FORMAT))
+                .replace("{{defenseDate}}", dto.getDefenseDate().format(DATE_FORMAT))
                 .replace("{{studentFullName}}", dto.getStudentFullName())
                 .replace("{{studentGenitiveForm}}", dto.getStudentGenitiveForm())
                 .replace("{{birthDate}}", formatBirthDate(dto.getBirthDate()))

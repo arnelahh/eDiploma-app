@@ -523,11 +523,11 @@ public class ThesisDAO {
     }
 
     public ThesisDetailsDTO getThesisDetails(int thesisId) {
-        // UPDATED SQL to select NoticeDate, CommisionTime, and ApprovalDate (commission meeting date)
+        // UPDATED SQL to select NoticeDate, CommisionTime, CycleCompletionDate, and ApprovalDate (commission meeting date)
         String sql = """
         SELECT 
             T.Id, T.Title, T.ApplicationDate, T.ApprovalDate, T.DefenseDate, T.FinalThesisApprovalDate, 
-            T.CommisionDate, T.NoticeDate, T.CommisionTime, T.Grade,
+            T.CommisionDate, T.NoticeDate, T.CommisionTime, T.CycleCompletionDate, T.Grade,
             T.Description, T.Literature, T.Structure, T.PassedSubjects,
             TS.Name AS StatusName,
             U.AcademicStaffId as SecretaryAcademicStaffId, 
@@ -626,6 +626,8 @@ public class ThesisDAO {
                         .noticeDate(rs.getDate("NoticeDate") != null ?
                                 rs.getDate("NoticeDate").toLocalDate() : null)
                         .commisionTime(rs.getString("CommisionTime"))
+                        .cycleCompletionDate(rs.getDate("CycleCompletionDate") != null ?
+                                rs.getDate("CycleCompletionDate").toLocalDate() : null)
                         .grade(rs.getInt("Grade"))
                         .description(rs.getString("Description"))
                         .literature(rs.getString("Literature"))
@@ -915,6 +917,32 @@ public class ThesisDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException("Greška pri ažuriranju vremena sjednice.", e);
+        }
+    }
+
+    /**
+     * NOVI METOD: Ažurira datum završetka ciklusa (CycleCompletionDate)
+     */
+    public void updateCycleCompletionDate(int thesisId, LocalDate cycleCompletionDate) {
+        String sql = "UPDATE Thesis SET CycleCompletionDate = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            if (cycleCompletionDate != null) {
+                ps.setDate(1, java.sql.Date.valueOf(cycleCompletionDate));
+            } else {
+                ps.setNull(1, java.sql.Types.DATE);
+            }
+            ps.setInt(2, thesisId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("Thesis sa ID " + thesisId + " nije pronađen.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri ažuriranju datuma završetka ciklusa.", e);
         }
     }
 
