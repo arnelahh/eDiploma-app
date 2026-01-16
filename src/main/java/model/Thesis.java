@@ -29,6 +29,8 @@ public class Thesis {
     private LocalDate finalThesisApprovalDate; // Mapira se na FinalThesisApprovalDate u bazi
     private LocalDate commisionDate; // Datum komisije - mapira se na CommisionDate u bazi
     private LocalDate noticeDate; // NOVO: Datum rješenja obavijesti - mapira se na NoticeDate u bazi
+    private LocalDate writtenReportDate; // NOVO: Datum zapisnika sa pismenog dijela - mapira se na WrittenReportDate u bazi
+    private LocalDate defenseReportDate; // NOVO: Datum zapisnika sa odbrane - mapira se na DefenseReportDate u bazi
     private String commisionTime; // NOVO: Vrijeme sjednice komisije - mapira se na CommisionTime u bazi
     private Integer grade;
     private boolean isActive;

@@ -19,7 +19,8 @@ public class WrittenExamReportDTO {
     private String secretaryFullName;
 
     // Dates
-    private LocalDate submissionDate;
+    private LocalDate submissionDate; // Datum odbrane/odobrenja
+    private LocalDate writtenReportDate; // NOVO: Datum zapisnika sa pismenog dijela
 
     // Student
     private String studentFullName;
