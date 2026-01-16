@@ -646,21 +646,26 @@ public class ThesisDAO {
         UPDATE Thesis
         SET LockedBy = ?, LockedAt = CURRENT_TIMESTAMP
         WHERE Id = ?
-          AND LockedBy IS NULL
           AND IsActive = 1
+          AND (LockedBy IS NULL OR LockedBy = ?)
     """;
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             clearExpiredLocks(conn);
+
             ps.setInt(1, userId);
             ps.setInt(2, thesisId);
+            ps.setInt(3, userId);
+
             return ps.executeUpdate() == 1;
 
         } catch (SQLException e) {
             throw new RuntimeException("Greška pri zaključavanju rada", e);
         }
     }
+
 
     public void unlockThesis(int thesisId, int userId) {
         String sql = """

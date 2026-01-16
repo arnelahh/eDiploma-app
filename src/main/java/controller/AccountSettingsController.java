@@ -250,14 +250,4 @@ public class AccountSettingsController {
         SceneManager.show("/app/secretary-dashboard.fxml", "eDiploma");
     }
 
-    @FXML
-    private void handleAccountSettings() {
-        // Already here
-    }
-
-    @FXML
-    private void handleLogout() {
-        UserSession.clear();
-        SceneManager.show("/app/login.fxml", "Prijava");
-    }
 }
