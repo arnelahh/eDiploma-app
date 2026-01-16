@@ -31,7 +31,7 @@ public class StudentValidator {
 
         // Academic info
         requireText(vr, student.getStudyProgram(), "Potrebno je unijeti Studijski Program");
-        requirePositive(vr, student.getCycle(), "Ciklus mora biti 1 ili više");
+        //requirePositive(vr, student.getCycle(), "Ciklus mora biti 1 ili više");
         requirePositive(vr, student.getCycleDuration(), "Trajanje mora biti pozitivno");
         requireNonNegative(vr, student.getECTS(), "ECTS bodovi moraju biti pozitivni");
 

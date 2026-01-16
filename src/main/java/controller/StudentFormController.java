@@ -37,7 +37,6 @@ public class StudentFormController {
     @FXML private TextField indexNumberField;
     @FXML private ComboBox<String> studyProgramComboBox;
     @FXML private TextField ectsField;
-    @FXML private ComboBox<String> cycleComboBox;
     @FXML private TextField cycleDurationField;
     @FXML private ComboBox<StudentStatus> statusComboBox;
     @FXML private Button deleteButton;
@@ -51,11 +50,6 @@ public class StudentFormController {
                 "Građevinarstvo"
         );
 
-        cycleComboBox.getItems().addAll(
-                "Prvi ciklus",
-                "Drugi ciklus",
-                "Treći ciklus"
-        );
 
         List<StudentStatus> statuses = statusDAO.getAllStatuses();
         statusComboBox.getItems().addAll(statuses);
@@ -97,9 +91,6 @@ public class StudentFormController {
         indexNumberField.setText(String.valueOf(student.getIndexNumber()));
         studyProgramComboBox.setValue(student.getStudyProgram());
         ectsField.setText(String.valueOf(student.getECTS()));
-        String cycleStr = student.getCycle() == 1 ? "Prvi ciklus" :
-                student.getCycle() == 2 ? "Drugi ciklus" : "Treći ciklus";
-        cycleComboBox.setValue(cycleStr);
         cycleDurationField.setText(String.valueOf(student.getCycleDuration()));
         statusComboBox.setValue(student.getStatus());
     }
@@ -190,15 +181,6 @@ public class StudentFormController {
         }
     }
 
-    private int getCycleFromComboBox() {
-        String selected = cycleComboBox.getValue();
-        if (selected == null) return 1;
-        return switch (selected) {
-            case "Drugi ciklus" -> 2;
-            case "Treći ciklus" -> 3;
-            default -> 1;
-        };
-    }
 
     private Student buildStudent() {
         return new Student(
@@ -213,7 +195,7 @@ public class StudentFormController {
                 countryField.getText(),
                 studyProgramComboBox.getValue(),
                 Integer.parseInt(ectsField.getText()),
-                getCycleFromComboBox(),
+                1,
                 Integer.parseInt(cycleDurationField.getText()),
                 statusComboBox.getValue(),
                 emailField.getText(),
@@ -234,7 +216,7 @@ public class StudentFormController {
         student.setIndexNumber(Integer.parseInt(indexNumberField.getText()));
         student.setStudyProgram(studyProgramComboBox.getValue());
         student.setECTS(Integer.parseInt(ectsField.getText()));
-        student.setCycle(getCycleFromComboBox());
+        student.setCycle(1);
         student.setCycleDuration(Integer.parseInt(cycleDurationField.getText()));
         student.setStatus(statusComboBox.getValue());
     }

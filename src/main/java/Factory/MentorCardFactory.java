@@ -107,11 +107,11 @@ public class MentorCardFactory {
 
     private String getStudentLabel(int count) {
         if (count == 1) {
-            return "student";
+            return "rad";
         } else if (count >= 2 && count <= 4) {
-            return "studenta";
+            return "rada";
         } else {
-            return "studenata";
+            return "radova";
         }
     }
     private String getThesisLabel(int count) {

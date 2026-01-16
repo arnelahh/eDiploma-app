@@ -108,16 +108,11 @@
                                 </VBox>
 
                                 <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="5">
-                                    <Label text="Ciklus studija" styleClass="field-label"/>
-                                    <ComboBox fx:id="cycleComboBox" promptText="Izaberite ciklus" maxWidth="Infinity" styleClass="form-field"/>
-                                </VBox>
-
-                                <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="6">
                                     <Label text="Trajanje ciklusa" styleClass="field-label"/>
                                     <TextField fx:id="cycleDurationField" promptText="Unesite trajanje" maxWidth="Infinity" styleClass="form-field"/>
                                 </VBox>
 
-                                <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                                <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="6">
                                     <Label text="Status" styleClass="field-label"/>
                                     <ComboBox fx:id="statusComboBox" promptText="Izaberite status" maxWidth="Infinity" styleClass="form-field"/>
                                 </VBox>

@@ -21,6 +21,7 @@ import java.util.Base64;
 
 public class CycleCompletionController {
 
+    @FXML private Text fatherNameText;
     @FXML private Text firstNameText;
     @FXML private Text lastNameText;
     @FXML private Text birthDateText;
@@ -93,6 +94,9 @@ public class CycleCompletionController {
 
             // Prezime
             lastNameText.setText(student.getLastName());
+
+            //Ime oca
+            fatherNameText.setText(student.getFatherName());
 
             // Datum rođenja
             birthDateText.setText(student.getBirthDate() != null ?

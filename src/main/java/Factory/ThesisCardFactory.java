@@ -50,15 +50,13 @@ public class ThesisCardFactory {
 
         HBox studentInfo = createInfoItem("user-icon", rad.getStudentFullName());
         HBox mentorInfo = createInfoItem("doc-icon", rad.getMentorFullName());
-        String ciklusTekst = (rad.getCycle() == 1) ? "Prvi ciklus" : "Drugi ciklus";
-        HBox cycleInfo = createInfoItem("cycle-icon", ciklusTekst);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         HBox statusBadge = createStatusBadge(rad.getStatus());
 
-        infoRow.getChildren().addAll(studentInfo, mentorInfo, cycleInfo, spacer, statusBadge);
+        infoRow.getChildren().addAll(studentInfo, mentorInfo, spacer, statusBadge);
         contentBox.getChildren().addAll(title, infoRow);
         card.getChildren().add(contentBox);
 
