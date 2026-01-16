@@ -523,10 +523,11 @@ public class ThesisDAO {
     }
 
     public ThesisDetailsDTO getThesisDetails(int thesisId) {
-        // UPDATED SQL to select Description, Literature, FinalThesisApprovalDate, PassedSubjects, and CommisionDate
+        // UPDATED SQL to select NoticeDate, CommisionTime, and ApprovalDate (commission meeting date)
         String sql = """
         SELECT 
-            T.Id, T.Title, T.ApplicationDate, T.ApprovalDate, T.DefenseDate, T.FinalThesisApprovalDate, T.CommisionDate, T.Grade,
+            T.Id, T.Title, T.ApplicationDate, T.ApprovalDate, T.DefenseDate, T.FinalThesisApprovalDate, 
+            T.CommisionDate, T.NoticeDate, T.CommisionTime, T.Grade,
             T.Description, T.Literature, T.Structure, T.PassedSubjects,
             TS.Name AS StatusName,
             U.AcademicStaffId as SecretaryAcademicStaffId, 
@@ -561,7 +562,6 @@ public class ThesisDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                // ... (Student, AcademicStaff, etc. mappings remain same) ...
                 StudentStatus studentStatus = StudentStatus.builder()
                         .Id(rs.getInt("StudentStatusId"))
                         .Name(rs.getString("StudentStatusName"))
@@ -616,15 +616,17 @@ public class ThesisDAO {
                         .applicationDate(rs.getDate("ApplicationDate") != null ?
                                 rs.getDate("ApplicationDate").toLocalDate() : null)
                         .approvalDate(rs.getDate("ApprovalDate") != null ?
-                                rs.getDate("ApprovalDate").toLocalDate() : null)
+                                rs.getDate("ApprovalDate").toLocalDate() : null) // Commission meeting date
                         .defenseDate(rs.getDate("DefenseDate") != null ?
                                 rs.getDate("DefenseDate").toLocalDate() : null)
                         .finalThesisApprovalDate(rs.getDate("FinalThesisApprovalDate") != null ?
                                 rs.getDate("FinalThesisApprovalDate").toLocalDate() : null)
                         .commisionDate(rs.getDate("CommisionDate") != null ?
                                 rs.getDate("CommisionDate").toLocalDate() : null)
+                        .noticeDate(rs.getDate("NoticeDate") != null ?
+                                rs.getDate("NoticeDate").toLocalDate() : null)
+                        .commisionTime(rs.getString("CommisionTime"))
                         .grade(rs.getInt("Grade"))
-                        // NEW FIELDS MAPPED HERE
                         .description(rs.getString("Description"))
                         .literature(rs.getString("Literature"))
                         .structure(rs.getString("Structure"))
@@ -835,6 +837,84 @@ public class ThesisDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException("Greška pri ažuriranju datuma komisije.", e);
+        }
+    }
+
+    /**
+     * NOVI METOD: Ažurira datum rješenja obavijesti (NoticeDate)
+     */
+    public void updateNoticeDate(int thesisId, LocalDate noticeDate) {
+        String sql = "UPDATE Thesis SET NoticeDate = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            if (noticeDate != null) {
+                ps.setDate(1, java.sql.Date.valueOf(noticeDate));
+            } else {
+                ps.setNull(1, java.sql.Types.DATE);
+            }
+            ps.setInt(2, thesisId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("Thesis sa ID " + thesisId + " nije pronađen.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri ažuriranju datuma obavijesti.", e);
+        }
+    }
+
+    /**
+     * NOVI METOD: Ažurira datum sjednice komisije (ApprovalDate)
+     */
+    public void updateCommissionMeetingDate(int thesisId, LocalDate meetingDate) {
+        String sql = "UPDATE Thesis SET ApprovalDate = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            if (meetingDate != null) {
+                ps.setDate(1, java.sql.Date.valueOf(meetingDate));
+            } else {
+                ps.setNull(1, java.sql.Types.DATE);
+            }
+            ps.setInt(2, thesisId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("Thesis sa ID " + thesisId + " nije pronađen.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri ažuriranju datuma sjednice.", e);
+        }
+    }
+
+    /**
+     * NOVI METOD: Ažurira vrijeme sjednice komisije (CommisionTime)
+     */
+    public void updateCommisionTime(int thesisId, String commisionTime) {
+        String sql = "UPDATE Thesis SET CommisionTime = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE Id = ?";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            if (commisionTime != null && !commisionTime.isBlank()) {
+                ps.setString(1, commisionTime);
+            } else {
+                ps.setNull(1, java.sql.Types.VARCHAR);
+            }
+            ps.setInt(2, thesisId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("Thesis sa ID " + thesisId + " nije pronađen.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri ažuriranju vremena sjednice.", e);
         }
     }
 
