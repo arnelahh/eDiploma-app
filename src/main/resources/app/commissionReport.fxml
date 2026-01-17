@@ -76,7 +76,7 @@
                             </VBox>
 
                             <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label styleClass="field-label" text="Datum komisije" />
+                                <Label styleClass="field-label" text="Datum komisije (datum u headeru)" />
                                 <DatePicker fx:id="commisionDatePicker" styleClass="form-field" />
                             </VBox>
 

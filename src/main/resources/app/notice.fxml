@@ -113,7 +113,7 @@
                             </columnConstraints>
 
                             <!-- Datum rješenja komisije -->
-                            <Label text="Datum rješenja komisije:" styleClass="field-label" GridPane.rowIndex="0"/>
+                            <Label text="Datum rješenja komisije (datum u headeru):" styleClass="field-label" GridPane.rowIndex="0"/>
                             <DatePicker fx:id="commissionDecisionDatePicker"
                                         promptText="Odaberite datum"
                                         maxWidth="Infinity"
@@ -121,7 +121,7 @@
                                         GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
                             <!-- Datum sjednice komisije -->
-                            <Label text="Datum sjednice komisije:" styleClass="field-label" GridPane.rowIndex="1"/>
+                            <Label text="Datum sjednice komisije (datum 1. linija):" styleClass="field-label" GridPane.rowIndex="1"/>
                             <DatePicker fx:id="commissionMeetingDatePicker"
                                         promptText="Odaberite datum"
                                         maxWidth="Infinity"
@@ -129,7 +129,7 @@
                                         GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
                             <!-- Datum odbrane -->
-                            <Label text="Datum odbrane:" styleClass="field-label" GridPane.rowIndex="2"/>
+                            <Label text="Datum odbrane (datum 2. linija):" styleClass="field-label" GridPane.rowIndex="2"/>
                             <DatePicker fx:id="defenseDatePicker"
                                         promptText="Odaberite datum odbrane"
                                         maxWidth="Infinity"

@@ -131,7 +131,7 @@
                             </VBox>
 
                             <VBox spacing="5">
-                                <Label styleClass="field-label" text="Datum rješenja *" />
+                                <Label styleClass="field-label" text="Datum rješenja (datum u headeru) *" />
                                 <DatePicker fx:id="decisionDatePicker" maxWidth="Infinity" styleClass="form-field" />
                             </VBox>
 
