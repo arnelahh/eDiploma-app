@@ -62,7 +62,7 @@ public class SecretaryDashboardController {
         ButtonType buttonTypeYes = new ButtonType("Da");
 
         // Set buttons
-        alert.getButtonTypes().setAll(buttonTypeNo, buttonTypeYes);
+        alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
 
         // Show and wait for response
         Optional<ButtonType> result = alert.showAndWait();
