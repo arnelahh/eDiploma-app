@@ -165,7 +165,6 @@
 
                             <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                 <Label styleClass="field-label" text="Datum izdavanja uvjerenja (datum u headeru)*" />
-                                <Label style="-fx-font-size: 11px; -fx-text-fill: gray;"/>
                                 <DatePicker fx:id="cycleCompletionDatePicker"
                                             promptText="Odaberite datum"
                                             styleClass="form-field" />

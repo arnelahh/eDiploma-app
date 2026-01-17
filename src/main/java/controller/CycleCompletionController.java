@@ -129,7 +129,7 @@ public class CycleCompletionController {
             // Predlog za genitiv (može se urediti)
             if (studentGenitiveField != null &&
                     (studentGenitiveField.getText() == null || studentGenitiveField.getText().isBlank())) {
-                String genitiveProposal = student.getLastName() + " " + student.getFirstName() + "a";
+                String genitiveProposal = student.getLastName() + " " + student.getFirstName();
                 studentGenitiveField.setText(genitiveProposal);
             }
         }
