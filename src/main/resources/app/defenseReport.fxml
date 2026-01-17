@@ -136,7 +136,7 @@
                         <VBox spacing="10">
                             <Text styleClass="section-title" text="Datum zapisnika" />
                             <VBox spacing="5">
-                                <Label styleClass="field-label" text="Datum zapisnika sa odbrane *" />
+                                <Label styleClass="field-label" text="Datum zapisnika sa odbrane (datum u headeru) *" />
                                 <DatePicker fx:id="defenseReportDatePicker" promptText="Odaberite datum" styleClass="date-picker" />
                             </VBox>
                         </VBox>

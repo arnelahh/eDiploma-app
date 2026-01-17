@@ -135,7 +135,7 @@
                         <VBox spacing="10">
                             <Text styleClass="section-title" text="Datum zapisnika" />
                             <VBox spacing="5">
-                                <Label styleClass="field-label" text="Datum zapisnika sa pismenog dijela *" />
+                                <Label styleClass="field-label" text="Datum zapisnika sa pismenog dijela (datum u headeru) *" />
                                 <DatePicker fx:id="writtenReportDatePicker" promptText="Odaberite datum" styleClass="date-picker" />
                             </VBox>
                         </VBox>
