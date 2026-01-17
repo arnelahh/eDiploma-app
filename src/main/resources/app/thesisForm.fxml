@@ -53,46 +53,70 @@
 
                         <VBox spacing="3">
                             <Text text="Osnovni podaci" styleClass="section-title"/>
-                            <Text text="Osnovne informacije o završnom radu" styleClass="page-subtitle"/>
+                            <Text text="Osnovne informacije o završnom radu"
+                                  styleClass="page-subtitle"/>
                         </VBox>
 
                         <GridPane hgap="20" vgap="15">
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2">
-                                <Label text="Naslov rada *" styleClass="field-label"/>
-                                <TextField fx:id="titleField" promptText="Unesite naslov završnog rada"
+                            <VBox spacing="5"
+                                  GridPane.columnIndex="0"
+                                  GridPane.rowIndex="0"
+                                  GridPane.columnSpan="2">
+                                <Label text="Naslov rada *"
+                                       styleClass="field-label"/>
+                                <TextField fx:id="titleField"
+                                           promptText="Unesite naslov završnog rada"
                                            styleClass="form-field"/>
                             </VBox>
 
                             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">
                                 <Label text="Cilj rada:" styleClass="field-label"/>
-                                <TextArea fx:id="descriptionArea" prefHeight="100" wrapText="true"
+                                <TextArea fx:id="descriptionArea"
+                                          prefHeight="100"
+                                          wrapText="true"
                                           promptText="Unesite kratak opis..."
                                           styleClass="form-field"/>
                             </VBox>
 
                             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
                                 <Label text="Predložena struktura rada (poglavlja):" styleClass="field-label"/>
-                                <TextArea fx:id="structureArea" prefHeight="200" wrapText="true"
+                                <TextArea fx:id="structureArea"
+                                          prefHeight="200"
+                                          wrapText="true"
                                           promptText="Unesite predloženu strukturu rada..."
                                           styleClass="form-field"/>
                             </VBox>
 
                             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
                                 <Label text="Literatura:" styleClass="field-label"/>
-                                <TextArea fx:id="literatureArea" prefHeight="200" wrapText="true"
+                                <TextArea fx:id="literatureArea"
+                                          prefHeight="200"
+                                          wrapText="true"
                                           promptText="Unesite reference..."
                                           styleClass="form-field"/>
                             </VBox>
 
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="4">
-                                <Label text="Datum prijave *" styleClass="field-label"/>
-                                <DatePicker fx:id="applicationDatePicker" prefWidth="9999" styleClass="form-field"/>
+                            <VBox spacing="5"
+                                  GridPane.columnIndex="0"
+                                  GridPane.rowIndex="4">
+                                <Label text="Datum prijave *"
+                                       styleClass="field-label"/>
+                                <DatePicker fx:id="applicationDatePicker"
+                                            prefWidth="9999"
+                                            styleClass="form-field"/>
                             </VBox>
 
                             <!-- NOVI CHECKBOX: Položio sve ispite -->
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                <Label text="Status ispita" styleClass="field-label"/>
-                                <CheckBox fx:id="passedSubjectsCheckBox" text="Student je položio sve ispite" selected="true" styleClass="form-checkbox"/>
+                            <VBox spacing="5"
+                                  GridPane.columnIndex="1"
+                                  GridPane.rowIndex="4">
+                                <Label text="Status ispita"
+                                       styleClass="field-label"/>
+                                <CheckBox fx:id="passedSubjectsCheckBox"
+                                          text="Student je položio sve ispite"
+                                          selected="true"
+                                          maxWidth="Infinity"
+                                          styleClass="status-checkbox"/>
                             </VBox>
 
                             <VBox fx:id="approvalDateContainer" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="5"
@@ -101,17 +125,18 @@
                                 <DatePicker fx:id="approvalDatePicker" prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
-                            <VBox fx:id="defenseDateContainer" spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="5"
+                            <VBox fx:id="gradeContainer" spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="5"
+                                  visible="false" managed="false">
+                                <Label text="Ocjena" styleClass="field-label"/>
+                                <TextField fx:id="gradeField" promptText="6-10" styleClass="form-field"/>
+                            </VBox>
+
+                            <VBox fx:id="defenseDateContainer" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="6"
                                   visible="false" managed="false">
                                 <Label text="Datum odbrane" styleClass="field-label"/>
                                 <DatePicker fx:id="defenseDatePicker" prefWidth="9999" styleClass="form-field"/>
                             </VBox>
 
-                            <VBox fx:id="gradeContainer" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="6"
-                                  visible="false" managed="false">
-                                <Label text="Ocjena" styleClass="field-label"/>
-                                <TextField fx:id="gradeField" promptText="6-10" styleClass="form-field"/>
-                            </VBox>
 
                             <columnConstraints>
                                 <ColumnConstraints percentWidth="50"/>
@@ -168,7 +193,7 @@
 
                         <VBox spacing="3">
                             <Text text="Administrativni podaci" styleClass="section-title"/>
-                            <Text text="Katedra, predmet i status rada" styleClass="page-subtitle"/>
+                            <Text text="Katedra i predmet" styleClass="page-subtitle"/>
                         </VBox>
 
                         <GridPane hgap="20" vgap="15">
