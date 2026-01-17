@@ -25,7 +25,7 @@ public class ThesisFormController {
     private Thesis thesis;
 
     private final AtomicInteger loadedCount = new AtomicInteger(0);
-    private static final int TOTAL_LOADERS = 6;
+    private static final int TOTAL_LOADERS = 5;
     private Integer returnToThesisId = null;
     private boolean fieldsAlreadyFilled = false;
 
@@ -37,7 +37,6 @@ public class ThesisFormController {
     private final DepartmentDAO departmentDAO = new DepartmentDAO();
     private final SubjectDAO subjectDAO = new SubjectDAO();
     private final AppUserDAO secretaryDAO = new AppUserDAO();
-    private final ThesisStatusDAO statusDAO = new ThesisStatusDAO();
 
 
     @FXML private Text formTitle;
@@ -56,8 +55,6 @@ public class ThesisFormController {
     @FXML private DatePicker defenseDatePicker;
     @FXML private VBox gradeContainer;
     @FXML private TextField gradeField;
-    @FXML private VBox statusContainer;
-    @FXML private ComboBox<ThesisStatus> statusComboBox;
     
     @FXML private SearchableComboBox<Student> studentComboBox;
     @FXML private SearchableComboBox<AcademicStaff> mentorComboBox;
@@ -80,7 +77,6 @@ public class ThesisFormController {
         loadDepartments();
         loadSubjects();
         loadSecretaries();
-        loadStatuses();
     }
 
     private void loadStudents() {
@@ -153,22 +149,6 @@ public class ThesisFormController {
         );
     }
 
-    private void loadStatuses() {
-        AsyncHelper.executeAsync(
-            () -> statusDAO.getAllThesisStatuses(),
-            statuses -> {
-                if (statusComboBox != null) {
-                    statusComboBox.getItems().setAll(statuses);
-                }
-                onDataLoaded();
-            },
-            error -> {
-                GlobalErrorHandler.error("Greška pri učitavanju statusa", error);
-                onDataLoaded();
-            }
-        );
-    }
-
     private void onDataLoaded() {
         int count = loadedCount.incrementAndGet();
         if (count >= TOTAL_LOADERS && mode == Mode.EDIT && thesis != null && !fieldsAlreadyFilled) {
@@ -207,13 +187,6 @@ public class ThesisFormController {
             }
             public AcademicStaff fromString(String s) { return null; }
         });
-
-        if (statusComboBox != null) {
-            statusComboBox.setConverter(new javafx.util.StringConverter<>() {
-                public String toString(ThesisStatus s) { return s != null ? s.getName() : ""; }
-                public ThesisStatus fromString(String s) { return null; }
-            });
-        }
     }
 
     public void initCreate() {
@@ -274,10 +247,6 @@ public class ThesisFormController {
             gradeContainer.setVisible(visible);
             gradeContainer.setManaged(visible);
         }
-        if (statusContainer != null) {
-            statusContainer.setVisible(visible);
-            statusContainer.setManaged(visible);
-        }
     }
 
     private void fillFields() {
@@ -309,17 +278,6 @@ public class ThesisFormController {
         }
         if (gradeField != null && thesis.getGrade() != null && thesis.getGrade() > 0) {
             gradeField.setText(String.valueOf(thesis.getGrade()));
-        }
-        
-        // Status selection
-        if (statusComboBox != null && thesis.getStatusId() > 0) {
-            int thesisStatusId = thesis.getStatusId();
-            for (ThesisStatus status : statusComboBox.getItems()) {
-                if (status.getId() == thesisStatusId) {
-                    statusComboBox.setValue(status);
-                    break;
-                }
-            }
         }
         
         // Description and Literature
@@ -501,9 +459,6 @@ public class ThesisFormController {
                 }
             } else {
                 t.setGrade(0);
-            }
-            if (statusComboBox != null && statusComboBox.getValue() != null) {
-                t.setStatusId(statusComboBox.getValue().getId());
             }
         }
 

@@ -124,16 +124,6 @@ public class WrittenExamReportController {
             member2Text.setText(mentorName);
         }
 
-        LocalDate dateToShow = thesisDetails.getApprovalDate() != null ?
-                thesisDetails.getApprovalDate() :
-                thesisDetails.getApplicationDate();
-
-        if (dateToShow != null) {
-            submissionDateText.setText(dateToShow.format(DATE_FORMAT));
-        } else {
-            submissionDateText.setText("—");
-        }
-
         if (commission.getMember1() != null) {
             chairmanText.setText(formatMemberName(commission.getMember1()));
         }

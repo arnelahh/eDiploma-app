@@ -1050,3 +1050,22 @@
 .add-subject-dialog-cancel:hover {
     -fx-background-color: #f8f9fa;
 }
+.status-checkbox {
+    -fx-font-size: 13px;
+    -fx-text-fill: #166534;
+    -fx-background-color: #f0fdf4; /* Vrlo svijetlo zelena */
+    -fx-border-color: #bbf7d0;     /* Svijetlo zelena granica */
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 8 12 8 12;        /* Unutrašnji razmak da izgleda kao input polje */
+    -fx-cursor: hand;
+}
+
+.status-checkbox:selected .box {
+    -fx-background-color: #166534;
+    -fx-border-color: #166534;
+}
+
+.status-checkbox:selected .mark {
+    -fx-background-color: white;
+}
