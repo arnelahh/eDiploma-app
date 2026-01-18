@@ -29,10 +29,6 @@ public class ThesisValidator {
         if (isNull(dto.getSecretary()))
             vr.add("Potrebno je unijeti Sekretara.");
 
-        // Status je String u DTO-u
-//        if (isBlank(dto.getStatus()))
-//            vr.add("Potrebno je unijeti Status.");
-
         return vr;
     }
 

@@ -9,9 +9,6 @@ import java.util.List;
 
 public class EmailLogDAO {
 
-    /**
-     * Loguje poslat email u bazu
-     */
     public void logEmail(EmailLog emailLog) throws SQLException {
         String sql = """
             INSERT INTO EmailLog (SentBy, SentTo, Subject, Status, ErrorMessage, SentAt, DocumentId)

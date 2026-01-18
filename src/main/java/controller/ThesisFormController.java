@@ -521,9 +521,6 @@ public class ThesisFormController {
         }
     }
 
-    /**
-     * Pomocna metoda koja vraća korisnika na odgovarajući dashboard na osnovu uloge
-     */
     private void returnToDashboard() {
         AppUser currentUser = UserSession.getUser();
         

@@ -152,8 +152,6 @@ public class AppUserDAO {
         }
     }
 
-    // ========== NEW METHODS FOR ACCOUNT SETTINGS ==========
-
     public void updatePassword(int userId, String newPasswordHash) throws SQLException {
         String sql = "UPDATE AppUser SET PasswordHash = ?, UpdatedAt = ? WHERE Id = ?";
 

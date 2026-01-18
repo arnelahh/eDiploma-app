@@ -28,9 +28,4 @@ public class SessionManager {
             }
         }, SESSION_TIMEOUT);
     }
-
-    public static void stopSession() {
-        if(timer != null) timer.cancel();
-        UserSession.clear();
-    }
 }

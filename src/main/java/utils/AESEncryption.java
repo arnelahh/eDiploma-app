@@ -8,7 +8,6 @@ import java.util.Base64;
 
 public class AESEncryption {
 
-    // VAŽNO: Secret key treba biti sigurno čuvan - kasnije možeš premjestiti u config fajl ili environment variable
     private static final String SECRET_KEY = "eDiploma2026Key!"; // 16 karaktera za AES-128
     private static final String ALGORITHM = "AES";
 
@@ -45,19 +44,5 @@ public class AESEncryption {
         } catch (Exception e) {
             throw new RuntimeException("Failed to decrypt data", e);
         }
-    }
-
-    /**
-     * Test metoda za provjeru enkripcije
-     */
-    public static void main(String[] args) {
-        String original = "test1234567890ab";
-        String encrypted = encrypt(original);
-        String decrypted = decrypt(encrypted);
-
-        System.out.println("Original: " + original);
-        System.out.println("Encrypted: " + encrypted);
-        System.out.println("Decrypted: " + decrypted);
-        System.out.println("Match: " + original.equals(decrypted));
     }
 }

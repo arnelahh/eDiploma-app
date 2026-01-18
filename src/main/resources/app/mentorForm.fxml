@@ -53,9 +53,6 @@
                     <!-- FORM CARD -->
                     <VBox spacing="20" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 30;">
 
-
-                        <!-- Form Fields -->
-                        <!-- Form Fields -->
                         <VBox spacing="15">
                             <!-- Ime -->
                             <VBox spacing="5">

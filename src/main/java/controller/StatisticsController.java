@@ -150,7 +150,6 @@ public class StatisticsController implements Initializable {
 
         pieChartSekretari.setData(pieData);
 
-        // Opcionalno: Dodavanje tooltipa kad se pređe mišem preko isječka
         pieData.forEach(data -> {
             String tooltipText = String.format("%s: %d radova", data.getName(), (int) data.getPieValue());
             Tooltip tooltip = new Tooltip(tooltipText);
