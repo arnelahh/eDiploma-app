@@ -221,11 +221,6 @@ public class AsyncHelper {
 
         EXECUTOR.submit(javaFXTask);
     }
-
-    /**
-     * Shutdown executor service. Poziva se pri gasenju aplikacije.
-     * Ova metoda bi trebalo biti pozvana u Application.stop() metodi.
-     */
     public static void shutdown() {
         EXECUTOR.shutdown();
     }

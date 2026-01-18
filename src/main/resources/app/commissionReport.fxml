@@ -75,11 +75,6 @@
                                 <Text fx:id="studentNameText" styleClass="field-value" text="IME PREZIME" />
                             </VBox>
 
-                            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label styleClass="field-label" text="Datum komisije (datum u headeru)" />
-                                <DatePicker fx:id="commisionDatePicker" styleClass="form-field" />
-                            </VBox>
-
                             <columnConstraints>
                                 <ColumnConstraints percentWidth="50.0" />
                                 <ColumnConstraints percentWidth="50.0" />
@@ -132,6 +127,11 @@
                             <Text styleClass="section-title" text="Administrativni podaci" />
                             <Text styleClass="page-subtitle"
                                   text="Unesite 4 cifre za broj rješenja (npr. 1295)" />
+                        </VBox>
+
+                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label styleClass="field-label" text="Datum komisije (datum u headeru)" />
+                            <DatePicker fx:id="commisionDatePicker" styleClass="form-field" />
                         </VBox>
 
                         <HBox alignment="CENTER_LEFT" spacing="20">

@@ -29,11 +29,6 @@ public final class GlobalErrorHandler {
         show(Alert.AlertType.INFORMATION, "Informacija", message);
     }
 
-    public static void taskFailed(javafx.concurrent.Task<?> task, String userMessage) {
-        Throwable ex = (task != null) ? task.getException() : null;
-        error(userMessage, ex);
-    }
-
     private static void show(Alert.AlertType type, String title, String message) {
         final String msg = Objects.toString(message, "Unknown error");
 
@@ -52,13 +47,5 @@ public final class GlobalErrorHandler {
         if (m != null && !m.isBlank()) return m;
 
         return "Došlo je do greške: " + ex.getClass().getSimpleName();
-    }
-
-    @SuppressWarnings("unused")
-    private static String stackTrace(Throwable ex) {
-        if (ex == null) return "";
-        StringWriter sw = new StringWriter();
-        ex.printStackTrace(new PrintWriter(sw));
-        return sw.toString();
     }
 }

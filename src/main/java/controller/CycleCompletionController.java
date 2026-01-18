@@ -359,11 +359,6 @@ public class CycleCompletionController {
         }
     }
 
-    private String generateGenitiveName(String firstName, String lastName) {
-        // Jednostavna logika za genitiv - može se proširiti
-        return lastName + " " + firstName;
-    }
-
     private String convertCycleToText(int cycle) {
         return switch (cycle) {
             case 1 -> "prvi";

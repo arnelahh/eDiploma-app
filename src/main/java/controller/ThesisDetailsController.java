@@ -338,9 +338,6 @@ public class ThesisDetailsController {
         }
     }
 
-    /**
-     * Generiše naziv fajla za download u formatu: {DocumentType}_{FirstName}_{LastName}.pdf
-     */
     private String generateDownloadFileName(Document doc) {
         if (doc == null) return "Dokument.pdf";
 
@@ -448,9 +445,6 @@ public class ThesisDetailsController {
         return lines;
     }
 
-    /**
-     * NOVO: Handler za slanje emaila sa dokumentom (sa loading indikatorom)
-     */
     private void handleSendEmailDocument(Document document) {
         if (document == null) {
             GlobalErrorHandler.error("Dokument nije pronađen.");
@@ -492,9 +486,6 @@ public class ThesisDetailsController {
         }
     }
 
-    /**
-     * Asinkrono slanje emaila sa loading indikatorom
-     */
     private void sendEmailAsync(Document document) {
         Task<Boolean> task = new Task<>() {
             @Override

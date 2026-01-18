@@ -175,10 +175,6 @@ public class NoticeController {
         }
     }
 
-    /**
-     * Normalize time format by removing seconds if present
-     * Examples: "9:00:00" -> "9:00", "14:30:00" -> "14:30", "9:00" -> "9:00"
-     */
     private String normalizeTimeFormat(String time) {
         if (time == null || time.isBlank()) return "9:00";
         

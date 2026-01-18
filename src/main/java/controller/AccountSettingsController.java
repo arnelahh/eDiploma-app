@@ -226,24 +226,6 @@ public class AccountSettingsController {
         alert.setContentText(url);
         alert.showAndWait();
     }
-    
-    private void showUrlDialog(String url) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Google App Password Uputstvo");
-        alert.setHeaderText("Kopirajte link i otvorite u browseru:");
-        alert.setContentText(url);
-        
-        // Make the text selectable
-        TextArea textArea = new TextArea(url);
-        textArea.setEditable(false);
-        textArea.setWrapText(true);
-        textArea.setMaxWidth(Double.MAX_VALUE);
-        textArea.setMaxHeight(Double.MAX_VALUE);
-        
-        alert.getDialogPane().setExpandableContent(textArea);
-        alert.getDialogPane().setExpanded(true);
-        alert.showAndWait();
-    }
 
     @FXML
     private void handleRadoviClick() {

@@ -104,9 +104,6 @@ public class CommissionValidator {
         }
     }
 
-    /**
-     * Vraća puno ime sa titulom ako postoji
-     */
     private String getFullName(AcademicStaff staff) {
         String title = staff.getTitle() != null && !staff.getTitle().trim().isEmpty() 
             ? staff.getTitle() + " " 

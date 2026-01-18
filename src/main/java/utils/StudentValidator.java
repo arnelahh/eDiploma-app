@@ -68,10 +68,6 @@ public class StudentValidator {
         });
     }
 
-    // -------------------------
-    // Private helper methods
-    // -------------------------
-
     private static void requireText(ValidationResult vr, String value, String msg) {
         if (value == null || value.isBlank()) vr.add(msg);
     }
