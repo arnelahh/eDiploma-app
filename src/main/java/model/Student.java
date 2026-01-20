@@ -22,6 +22,7 @@ public class Student {
     private int ECTS;
     private int Cycle;
     private int CycleDuration;
+    private boolean IsActive;
     private StudentStatus Status;
     private String Email;
     private LocalDateTime CreatedAt;

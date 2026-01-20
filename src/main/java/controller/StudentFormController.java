@@ -197,6 +197,7 @@ public class StudentFormController {
                 Integer.parseInt(ectsField.getText()),
                 1,
                 Integer.parseInt(cycleDurationField.getText()),
+                true,
                 statusComboBox.getValue(),
                 emailField.getText(),
                 LocalDateTime.now(),
