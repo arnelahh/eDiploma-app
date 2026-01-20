@@ -39,7 +39,7 @@ public class Thesis {
     private Student student;
     private Subject subject;
     private ThesisStatus status;
-    private AcademicStaff secretary; // PROMJENA: Sada je AcademicStaff umjesto AppUser
+    private AcademicStaff secretary;
     private AcademicStaff mentor;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

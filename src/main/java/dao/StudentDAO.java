@@ -14,32 +14,11 @@ public class StudentDAO {
         SELECT s.*, st.Id AS status_id, st.Name AS status_name
         FROM Student s
         LEFT JOIN StudentStatus st ON s.StatusId = st.Id
+        WHERE s.IsActive = 1
         """;
 
     public List<Student> getAllStudents() {
         return fetchStudents(BASE_QUERY + " ORDER BY s.Id DESC");
-    }
-
-    public List<Student> searchStudents(String term) {
-        String sql = BASE_QUERY + """
-        WHERE
-            LOWER(CONCAT(s.FirstName, ' ', s.LastName)) LIKE ?
-         OR LOWER(CONCAT(s.LastName, ' ', s.FirstName)) LIKE ?
-         OR LOWER(s.FirstName) LIKE ?
-         OR LOWER(s.LastName) LIKE ?
-         OR CAST(s.IndexNumber AS CHAR) LIKE ?
-        ORDER BY s.Id DESC
-        """;
-
-        String like = "%" + term.toLowerCase().trim() + "%";
-
-        return fetchStudents(sql,
-                like, // FirstName LastName
-                like, // LastName FirstName
-                like, // FirstName
-                like, // LastName
-                like  // Index
-        );
     }
 
     private List<Student> fetchStudents(String sql, String... params) {
@@ -76,6 +55,7 @@ public class StudentDAO {
                         rs.getInt("ECTS"),
                         rs.getInt("Cycle"),
                         rs.getInt("CycleDuration"),
+                        true,
                         status,
                         rs.getString("Email"),
                         rs.getTimestamp("CreatedAt") != null
@@ -154,20 +134,33 @@ public class StudentDAO {
     }
 
     public void deleteStudent(int id) {
-        String sql = "DELETE FROM Student WHERE Id = ?";
+        String sql = """
+        UPDATE Student
+        SET IsActive = 0, UpdatedAt = ?
+        WHERE Id = ? AND IsActive = 1
+        """;
 
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
-            ps.executeUpdate();
+            ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setInt(2, id);
 
+            int affected = ps.executeUpdate();
+
+            if (affected == 0) {
+                throw new RuntimeException("Student nije pronađen ili je već obrisan (Id=" + id + ").");
+            }
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new RuntimeException("Ne može se obrisati student zbog FK ograničenja: " + e.getMessage(), e);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Greška pri soft delete brisanju studenta: " + e.getMessage(), e);
         }
     }
+
     public boolean isIndexNumberTaken(int indexNumber, int studentIdToIgnore) {
-        String sql = "SELECT COUNT(*) FROM Student WHERE IndexNumber = ? AND Id != ?";
+        String sql = "SELECT COUNT(*) FROM Student WHERE IndexNumber = ? AND Id != ? AND IsActive = 1";
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -185,7 +178,7 @@ public class StudentDAO {
     }
 
     public boolean isEmailTaken(String email, int studentIdToIgnore) {
-        String sql = "SELECT COUNT(*) FROM Student WHERE Email = ? AND Id != ?";
+        String sql = "SELECT COUNT(*) FROM Student WHERE Email = ? AND Id != ? AND IsActive = 1";
         try (Connection conn = CloudDatabaseConnection.Konekcija();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
