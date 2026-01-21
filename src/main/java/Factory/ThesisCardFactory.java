@@ -71,21 +71,6 @@ public class ThesisCardFactory {
     }
 
 
-
-    private HBox createInfoRow(String icon, String text) {
-        HBox row = new HBox(8);
-        row.setAlignment(Pos.CENTER_LEFT);
-
-        Label iconLabel = new Label(icon);
-        iconLabel.getStyleClass().add("info-icon");
-
-        Label textLabel = new Label(text);
-        textLabel.getStyleClass().add("info-text");
-
-        row.getChildren().addAll(iconLabel, textLabel);
-        return row;
-    }
-
     private HBox createInfoItem(String iconClass, String textContent) {
         HBox box = new HBox(8);
         box.setAlignment(Pos.CENTER_LEFT);
@@ -122,12 +107,6 @@ public class ThesisCardFactory {
         // Tekst statusa (.status-text)
         Text statusText = new Text(status);
         statusText.getStyleClass().add("status-text");
-
-        // Važno: Moramo proslijediti CSS klasu roditelja (npr status-waiting)
-        // kako bi child elementi znali koju boju da uzmu, jer u tvom CSS-u piše:
-        // .status-waiting .status-text { ... }
-        // Ali pošto su Text i Circle UNUTAR badge-a koji već ima klasu,
-        // CSS selektor ".status-waiting .status-text" će raditi automatski.
 
         badge.getChildren().addAll(indicator, statusText);
         return badge;

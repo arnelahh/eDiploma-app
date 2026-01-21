@@ -1,21 +1,24 @@
 package utils;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class AESEncryption {
 
-    private static final String SECRET_KEY = "eDiploma2026Key!"; // 16 karaktera za AES-128
+    static Dotenv dotenv = Dotenv.configure()
+            .directory("src/main/resources")
+            .load();
+
+    private static final String SECRET_KEY =  dotenv.get("SECRET_KEY");
     private static final String ALGORITHM = "AES";
 
-    /**
-     * Enkriptuje plaintext string koristeći AES
-     * @param plainText Text za enkriptovanje
-     * @return Base64 encoded enkriptovan string
-     */
+
     public static String encrypt(String plainText) {
         try {
             SecretKey key = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
@@ -28,11 +31,6 @@ public class AESEncryption {
         }
     }
 
-    /**
-     * Dekriptuje AES enkriptovan string
-     * @param encryptedText Base64 encoded enkriptovan string
-     * @return Dekriptovan plaintext
-     */
     public static String decrypt(String encryptedText) {
         try {
             SecretKey key = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);

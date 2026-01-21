@@ -28,11 +28,7 @@ public class EmailService {
 
     // ==================== HELPER METHODS ====================
 
-    /**
-     * Formatira ime akademskog osoblja sa titulom
-     * @param staff AcademicStaff objekat
-     * @return Formatirano ime (npr. "Prof. dr. Ime Prezime") ili "N/A"
-     */
+
     private String formatStaffName(AcademicStaff staff) {
         if (staff == null) return "N/A";
         
@@ -43,21 +39,11 @@ public class EmailService {
         return title + staff.getFirstName() + " " + staff.getLastName();
     }
 
-    /**
-     * Formatira ime studenta
-     * @param student Student objekat
-     * @return Formatirano ime ili "N/A"
-     */
     private String formatStudentName(Student student) {
         if (student == null) return "N/A";
         return student.getFirstName() + " " + student.getLastName();
     }
 
-    /**
-     * Dekodira Base64 PDF sadržaj i vraća byte array
-     * @param document Document objekat sa Base64 sadržajem
-     * @return byte[] PDF sadržaj ili null ako nema sadržaja
-     */
     private byte[] decodePdfContent(Document document) {
         if (document == null || document.getContentBase64() == null || document.getContentBase64().isEmpty()) {
             return null;
@@ -71,36 +57,18 @@ public class EmailService {
         }
     }
 
-    /**
-     * Dodaje email u Set ako nije null ili blank
-     * @param recipients Set primaoca
-     * @param email Email adresa
-     */
     private void addIfPresent(Set<String> recipients, String email) {
         if (email != null && !email.isBlank()) {
             recipients.add(email);
         }
     }
 
-    /**
-     * Dodaje email akademskog osoblja u Set ako nije null
-     * @param recipients Set primaoca
-     * @param staff AcademicStaff objekat
-     */
     private void addIfPresent(Set<String> recipients, AcademicStaff staff) {
         if (staff != null) {
             addIfPresent(recipients, staff.getEmail());
         }
     }
 
-    /**
-     * Generiše konzistentno ime PDF fajla sa imenom studenta
-     * Format: {DocumentType}_{FirstName}_{LastName}.pdf
-     * 
-     * @param prefix Prefiks naziva fajla (npr. "Rjesenje_o_izradi_rada")
-     * @param student Student objekat
-     * @return Formatirano ime fajla sa .pdf ekstenzijom
-     */
     private String generatePdfFileName(String prefix, Student student) {
         if (student == null) {
             return prefix + ".pdf";
@@ -118,18 +86,7 @@ public class EmailService {
 
     // ==================== EMAIL SENDING METHODS ====================
 
-    /**
-     * Šalje email sa PDF attachment-om koristeći trenutno prijavljenog korisnika
-     * NAPOMENA: Šalje JEDAN email sa svim primaocima u TO polju
-     *
-     * @param recipients Lista email adresa primaoca
-     * @param subject Naslov emaila
-     * @param body Sadržaj emaila (HTML)
-     * @param pdfBytes PDF dokument kao byte array (može biti null)
-     * @param pdfFileName Naziv PDF fajla
-     * @param documentId Opcioni ID dokumenta koji je triggerovao email
-     * @return true ako je email uspješno poslan
-     */
+
     public boolean sendEmailWithAttachment(List<String> recipients, String subject, String body,
                                           byte[] pdfBytes, String pdfFileName, Integer documentId) {
         AppUser currentUser = UserSession.getUser();
@@ -172,18 +129,17 @@ public class EmailService {
                 }
             });
 
-            // Priprema liste primaoca kao comma-separated string
+
             String allRecipients = String.join(",", recipients);
             System.out.println("[EmailService] Sending to: " + allRecipients);
 
             try {
-                // Kreiranje jedne poruke sa svim primaocima
                 MimeMessage message = new MimeMessage(session);
                 message.setFrom(new InternetAddress(senderEmail));
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(allRecipients));
                 message.setSubject(subject);
 
-                // Kreiranje multipart poruke
+
                 Multipart multipart = new MimeMultipart();
 
                 // Body dio
@@ -202,10 +158,8 @@ public class EmailService {
 
                 message.setContent(multipart);
 
-                // Šalji JEDAN email sa svim primaocima
                 Transport.send(message);
 
-                // Loguj uspješan email za SVAKOG primaoca (za tracking)
                 for (String recipient : recipients) {
                     logSuccessfulEmail(currentUser.getId(), recipient, subject, documentId);
                 }
@@ -217,8 +171,7 @@ public class EmailService {
                 System.err.println("[EmailService] ✗ Failed to send email");
                 System.err.println("[EmailService] Error: " + e.getMessage());
                 e.printStackTrace();
-                
-                // Loguj neuspjeh za sve primaoce
+
                 logFailedEmail(currentUser.getId(), recipients, subject, e.getMessage(), documentId);
                 return false;
             }
@@ -326,7 +279,7 @@ public class EmailService {
     }
 
     /**
-     * NOVO: Šalje "Obavijest" studentu, mentoru, sekretaru i članovima komisije (Member1/2/3)
+     * : Šalje "Obavijest" studentu, mentoru, sekretaru i članovima komisije (Member1/2/3)
      */
     public boolean sendNoticeDocument(Document document, ThesisDetailsDTO thesisDetails, Commission commission) {
         try {
@@ -377,7 +330,7 @@ public class EmailService {
     }
 
     /**
-     * NOVO: Šalje "Uvjerenje o završenom ciklusu" isključivo studentu
+     * : Šalje "Uvjerenje o završenom ciklusu" isključivo studentu
      */
     public boolean sendCycleCompletionDocument(Document document, ThesisDetailsDTO thesisDetails) {
         try {
