@@ -35,6 +35,7 @@ public class AccountSettingsController {
     private final EmailService emailService = new EmailService();
     private AppUser currentUser;
 
+    /*  proba*/
     @FXML
     public void initialize() {
         loadUserData();
