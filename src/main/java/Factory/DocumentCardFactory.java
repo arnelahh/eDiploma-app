@@ -52,9 +52,9 @@ public class DocumentCardFactory {
         btnEdit.getStyleClass().add("document-icon-btn");
 
         // NOVO: Dugme za slanje emaila (SVG ikonica umjesto emoji)
-        Button btnSendEmail = new Button();
+        Button btnSendEmail = new Button("✉");
         btnSendEmail.getStyleClass().add("document-icon-btn");
-        btnSendEmail.setText("");
+
 
         SVGPath mailIcon = new SVGPath();
         // Simple envelope icon (24x24 coordinate space)
@@ -62,7 +62,7 @@ public class DocumentCardFactory {
         mailIcon.setScaleX(0.65);
         mailIcon.setScaleY(0.65);
         mailIcon.setStyle("-fx-fill: #2c3e50;");
-        btnSendEmail.setGraphic(mailIcon);
+
 
         boolean notStarted = (doc == null);
         boolean ready = (!notStarted && doc.getStatus() == DocumentStatus.READY);
