@@ -1,6 +1,6 @@
 # 🎓 eDiploma App
 
-A desktop application for managing and issuing electronic diplomas to help faculty staff improve efficiency in the process. Built with **Java** and **JavaFX** to provide a rich, interactive user interface for educational institutions.
+A desktop application for managing and issuing electronic documents for diplomas to help faculty staff improve efficiency in the process. Built with **Java** and **JavaFX** to provide a rich, interactive user interface for educational institutions.
 
 ![Java](https://img.shields.io/badge/Java-81.4%25-orange?style=flat-square&logo=openjdk)
 ![JavaFX](https://img.shields.io/badge/JavaFX-Desktop_UI-purple?style=flat-square)
@@ -22,11 +22,11 @@ A desktop application for managing and issuing electronic diplomas to help facul
 
 ## ✨ Features
 
-- 📄 **Digital Diploma Generation** - Create and issue electronic diplomas
+- 📄 **Digital Document Generation** - Create and issue electronic documents
 - 👥 **Student Management** - Add, edit, and manage student records
 - 🔐 **Secure Authentication** - Login system for administrators
 - 📊 **Dashboard Overview** - Statistics and quick access to key features
-- 🖨️ **Print & Export** - Generate printable diploma certificates
+- 🖨️ **Print & Export** - Generate printable documents
 - 🔍 **Search & Filter** - Quickly find diploma records
 - 🎨 **Modern UI** - Clean, intuitive JavaFX interface styled with CSS
 
@@ -45,8 +45,8 @@ A desktop application for managing and issuing electronic diplomas to help facul
 
 Before running this project, ensure you have installed:
 
-- **Java JDK 11+** (with JavaFX support) or **JDK 17+ LTS**
-- **Maven 3.6+** (or use the included Maven wrapper)
+- **Java JDK 25** (with JavaFX support)
+- **Maven 4.0** 
 - **JavaFX SDK** (if not bundled with your JDK)
 - A compatible **IDE** (IntelliJ IDEA)
 
@@ -56,4 +56,4 @@ Before running this project, ensure you have installed:
 - Navigate through the dashboard to manage diplomas
 - Add students and their academic information
 - Add academic staff
-- Generate diplomas and export/print as needed
+- Generate documents and export/print as needed
