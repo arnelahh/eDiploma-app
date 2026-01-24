@@ -11,7 +11,10 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-<junit.version>5.12.1</junit.version>  </properties>
+    <junit.version>5.12.1</junit.version>
+    <javafx.version>21.0.9</javafx.version>
+      <javafx.jmods.url>https://download2.gluonhq.com/openjfx/21.0.9/openjfx-21.0.9_windows-x64_bin-jmods.zip</javafx.jmods.url>
+  </properties>
 
   <dependencies>
       <dependency>
@@ -49,7 +52,7 @@
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
-      <version>21.0.6</version>
+      <version>${javafx.version}</version>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
@@ -126,13 +129,59 @@
 
   <build>
     <plugins>
+        <plugin>
+            <groupId>com.googlecode.maven-download-plugin</groupId>
+            <artifactId>download-maven-plugin</artifactId>
+            <version>1.9.0</version>
+            <executions>
+                <execution>
+                    <id>download-javafx-jmods</id>
+                    <phase>generate-resources</phase>
+                    <goals>
+                        <goal>wget</goal>
+                    </goals>
+                    <configuration>
+                        <url>${javafx.jmods.url}</url>
+                        <outputDirectory>${project.build.directory}</outputDirectory>
+                        <outputFileName>javafx-jmods.zip</outputFileName>
+                        <overwrite>true</overwrite>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+                <execution>
+                    <id>unzip-javafx-jmods</id>
+                    <phase>generate-resources</phase>
+                    <goals><goal>run</goal></goals>
+                    <configuration>
+                        <target>
+                            <delete dir="${project.build.directory}/javafx-jmods"/>
+                            <mkdir dir="${project.build.directory}/javafx-jmods"/>
+                            <unzip src="${project.build.directory}/javafx-jmods.zip"
+                                   dest="${project.build.directory}/javafx-jmods"/>
+                        </target>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
         <configuration>
-          <source>25</source>
-          <target>25</target>
+          <source>21</source>
+          <target>21</target>
+            <annotationProcessorPaths>
+                <path>
+                    <groupId>org.projectlombok</groupId>
+                    <artifactId>lombok</artifactId>
+                    <version>1.18.42</version> </path>
+            </annotationProcessorPaths>
         </configuration>
       </plugin>
       <plugin>
@@ -145,16 +194,85 @@
             <id>default-cli</id>
             <configuration>
               <mainClass>main.ediploma/main.ediploma.HelloApplication</mainClass>
-              <launcher>app</launcher>
-              <jlinkZipName>app</jlinkZipName>
-              <jlinkImageName>app</jlinkImageName>
-              <noManPages>true</noManPages>
-              <stripDebug>true</stripDebug>
-              <noHeaderFiles>true</noHeaderFiles>
             </configuration>
           </execution>
         </executions>
       </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>3.5.1</version>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <createDependencyReducedPom>false</createDependencyReducedPom>
+                        <filters>
+                            <filter>
+                                <artifact>*:*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
+                        <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <mainClass>main.ediploma.Launcher</mainClass>
+                            </transformer>
+                        </transformers>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <groupId>org.panteleyev</groupId>
+            <artifactId>jpackage-maven-plugin</artifactId>
+            <version>1.7.1</version>
+
+            <configuration>
+                <name>eDiploma</name>
+                <appVersion>1.0.0</appVersion>
+                <vendor>eDiplomaApp</vendor>
+
+                <input>${project.build.directory}</input>
+                <mainJar>${project.build.finalName}.jar</mainJar>
+                <mainClass>main.ediploma.Launcher</mainClass>
+
+                <destination>${project.build.directory}/installer</destination>
+
+                <type>EXE</type>
+                <winMenu>true</winMenu>
+                <winShortcut>true</winShortcut>
+                <winConsole>true</winConsole>
+
+                <icon>src/main/resources/templates/icon.ico</icon>
+
+                <installDir>eDiploma</installDir>
+
+                <modulePaths>
+                    <path>${project.build.directory}/javafx-jmods/javafx-jmods-21.0.9</path>
+                </modulePaths>
+
+                <addModules>
+                    <module>javafx.base</module>
+                    <module>javafx.graphics</module>
+                    <module>javafx.controls</module>
+                    <module>javafx.fxml</module>
+                    <module>javafx.web</module>
+                    <module>javafx.swing</module>
+                    <module>java.sql</module>
+                    <module>java.naming</module>
+                    <module>java.desktop</module>
+                    <module>jdk.unsupported</module>
+                    <module>java.scripting</module>
+                </addModules>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
 </project>
