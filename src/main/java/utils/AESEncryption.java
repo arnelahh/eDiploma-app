@@ -1,26 +1,26 @@
 package utils;
 
-import io.github.cdimascio.dotenv.Dotenv;
+import dao.CloudDatabaseConnection;
+
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import io.github.cdimascio.dotenv.Dotenv;
+
 
 public class AESEncryption {
 
-    static Dotenv dotenv = Dotenv.configure()
-            .directory("src/main/resources")
-            .load();
-
-    private static final String SECRET_KEY =  dotenv.get("SECRET_KEY");
+    private static final String SECRET_KEY = CloudDatabaseConnection.getSecretKey();
     private static final String ALGORITHM = "AES";
 
 
     public static String encrypt(String plainText) {
         try {
+            if (SECRET_KEY == null || SECRET_KEY.isEmpty()) {
+                throw new RuntimeException("Secret Key nije učitan! Provjeri database.properties.");
+            }
             SecretKey key = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
             Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -33,6 +33,9 @@ public class AESEncryption {
 
     public static String decrypt(String encryptedText) {
         try {
+            if (SECRET_KEY == null || SECRET_KEY.isEmpty()) {
+                throw new RuntimeException("Secret Key nije učitan! Provjeri database.properties.");
+            }
             SecretKey key = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
             Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, key);

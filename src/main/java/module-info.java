@@ -2,7 +2,8 @@ module main.ediploma {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
-
+    requires javafx.swing;
+    requires javafx.media;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
@@ -11,7 +12,6 @@ module main.ediploma {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires java.sql;
-    requires io.github.cdimascio.dotenv.java;
     requires static lombok;
     requires jbcrypt;
     requires java.desktop;
