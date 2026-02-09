@@ -50,10 +50,10 @@ To build and run this project from source, you need:
 2.  **Requirements:**
     * **Internet Connection:** Required (The app connects to a cloud demonstration database).
 3.  **Demo Credentials:**
-    Admin
+    * Admin
     * **Username:** studentska@unze.ba
     * **Password:** studentska123
-    Secretary
+    * Secretary
     * **Username:** sekretar@unze.ba
     * **Password:** sekretar123
     * *Note: This connects to a shared demo database. Please do not enter sensitive personal information.*
