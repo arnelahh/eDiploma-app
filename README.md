@@ -46,7 +46,7 @@ To build and run this project from source, you need:
 
 ## 📥 Download & Demo
 
-1.  **Download:** Get the latest Windows Installer (.msi) from the [Releases Page](../../releases).
+1.  **Download:** Get the latest Windows Installer (.msi) from the link: https://github.com/arnelahh/eDiploma-app/releases/download/v1.0.0/eDiploma-1.0.0.msi.
 2.  **Requirements:**
     * **Internet Connection:** Required (The app connects to a cloud demonstration database).
 3.  **Demo Credentials:**
