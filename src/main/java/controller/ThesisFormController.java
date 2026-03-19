@@ -64,6 +64,7 @@ public class ThesisFormController {
     @FXML private Button deleteButton;
     @FXML private HBox deleteButtonContainer;
     @FXML private Button addSubjectButton;
+    @FXML private Button addDepartmentButton;
 
     @FXML
     public void initialize() {
@@ -644,6 +645,105 @@ public class ThesisFormController {
                         GlobalErrorHandler.error(error.getMessage());
                     } else {
                         GlobalErrorHandler.error("Greška pri dodavanju predmeta.", error);
+                    }
+                }
+        );
+    }
+
+    @FXML
+    private void handleAddDepartment() {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Dodaj novu katedru");
+        dialog.setHeaderText("Unesite naziv nove katedre");
+
+        ButtonType saveButtonType = new ButtonType("Sačuvaj", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        // Zadržane su iste CSS klase kao kod predmeta da bi dizajn bio identičan
+        content.getStyleClass().add("add-subject-dialog");
+
+        Label label = new Label("Naziv katedre:");
+        label.getStyleClass().add("add-subject-dialog-label");
+
+        TextField departmentNameField = new TextField();
+        departmentNameField.setPromptText("Unesite naziv katedre");
+        departmentNameField.setPrefWidth(400);
+        departmentNameField.getStyleClass().add("add-subject-dialog-field");
+
+        content.getChildren().addAll(label, departmentNameField);
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getStyleClass().add("add-subject-dialog");
+
+        javafx.scene.Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
+        saveButton.setDisable(true);
+        saveButton.getStyleClass().addAll("button", "add-subject-dialog-save");
+
+        javafx.scene.Node cancelButton = dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        cancelButton.getStyleClass().addAll("button", "add-subject-dialog-cancel");
+
+        // Dugme "Sačuvaj" je onemogućeno dok se ne unese tekst
+        departmentNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            saveButton.setDisable(newValue.trim().isEmpty());
+        });
+
+        javafx.application.Platform.runLater(() -> departmentNameField.requestFocus());
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                return departmentNameField.getText();
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(departmentName -> {
+            if (departmentName != null && !departmentName.trim().isEmpty()) {
+                String trimmedName = departmentName.trim();
+                boolean alreadyExists = departmentComboBox.getItems().stream()
+                        .anyMatch(d -> d.getName().equalsIgnoreCase(trimmedName));
+                if (alreadyExists) {
+                    GlobalErrorHandler.warning("Katedra sa nazivom '" + trimmedName + "' već postoji!");
+                } else {
+                    saveNewDepartment(trimmedName);
+                }
+            }
+        });
+    }
+
+    private void saveNewDepartment(String departmentName) {
+        AsyncHelper.executeAsync(
+                () -> {
+                    Department newDepartment = new Department();
+                    newDepartment.setName(departmentName);
+
+                    // NAPOMENA: Ovdje pozivate metodu iz vašeg DepartmentDAO-a.
+                    // Ako se metoda u DAO klasi zove drugačije (npr. insertDepartment), promijenite naziv ispod!
+                    departmentDAO.addDepartment(newDepartment);
+
+                    return departmentDAO.getAllDepartments();
+                },
+                departments -> {
+                    // Ažuriranje ComboBox-a sa novom listom
+                    departmentComboBox.getItems().setAll(departments);
+
+                    // Pronalazak i selektovanje tek dodate katedre
+                    Department newlyAddedDepartment = departments.stream()
+                            .filter(d -> d.getName().equals(departmentName))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (newlyAddedDepartment != null) {
+                        departmentComboBox.setValue(newlyAddedDepartment);
+                    }
+
+                    GlobalErrorHandler.info("Katedra '" + departmentName + "' je uspješno dodata!");
+                },
+                error -> {
+                    if (error instanceof IllegalArgumentException) {
+                        GlobalErrorHandler.error(error.getMessage());
+                    } else {
+                        GlobalErrorHandler.error("Greška pri dodavanju katedre.", error);
                     }
                 }
         );

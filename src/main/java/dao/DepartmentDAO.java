@@ -30,4 +30,31 @@ public class DepartmentDAO {
         return departments;
     }
 
+
+    public void addDepartment(Department department) {
+        String sql = "INSERT INTO Department (Name) VALUES (?)";
+
+        try (Connection conn = CloudDatabaseConnection.Konekcija();
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setString(1, department.getName());
+
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Kreiranje katedre (odjela) nije uspjelo, nijedan red nije promijenjen.");
+            }
+
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    department.setId(generatedKeys.getInt(1));
+                } else {
+                    throw new SQLException("Kreiranje katedre (odjela) nije uspjelo, ID nije dobijen.");
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Greška pri dodavanju odjela: " + e.getMessage(), e);
+        }
+    }
 }

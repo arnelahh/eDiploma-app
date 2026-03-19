@@ -198,11 +198,20 @@
 
                         <GridPane hgap="20" vgap="15">
                             <!-- Katedra -->
-                            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <Label text="Katedra *" styleClass="field-label"/>
-                                <ComboBox fx:id="departmentComboBox" promptText="Izaberite katedru"
-                                          prefWidth="9999" styleClass="form-field"/>
-                            </VBox>
+                            <HBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0" alignment="BOTTOM_LEFT">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="Katedra *" styleClass="field-label"/>
+                                    <ComboBox fx:id="departmentComboBox" promptText="Izaberite katedru"
+                                              prefWidth="9999" styleClass="form-field"/>
+                                </VBox>
+                                <Button fx:id="addDepartmentButton"
+                                        onAction="#handleAddDepartment"
+                                        styleClass="add-subject-button">
+                                    <graphic>
+                                        <SVGPath content="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z" styleClass="plus-icon"/>
+                                    </graphic>
+                                </Button>
+                            </HBox>
 
                             <!-- Predmet -->
                             <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0" alignment="BOTTOM_LEFT">
