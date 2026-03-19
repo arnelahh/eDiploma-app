@@ -289,7 +289,10 @@ public class FinalThesisApprovalController {
         } else {
             examRequirement = "ispunio/la sve obaveze";
         }
-
+        String studyProgram = "";
+        if (thesisDetails.getStudent() != null && thesisDetails.getStudent().getStudyProgram() != null) {
+            studyProgram = thesisDetails.getStudent().getStudyProgram();
+        }
         FinalThesisApprovalDTO dto = FinalThesisApprovalDTO.builder()
                 .decisionNumber(decisionNumberForTemplate)
                 .decisionDate(decisionDatePicker.getValue())
@@ -308,6 +311,7 @@ public class FinalThesisApprovalController {
                 .structure(thesisDetails.getStructure())
                 .literature(formattedLit)
                 .applicationDate(thesisDetails.getApplicationDate())
+                .studyProgramName(studyProgram)
                 .build();
 
         String html = loadTemplate();
@@ -322,6 +326,7 @@ public class FinalThesisApprovalController {
                 .replace("{{studentFullName}}", dto.getStudentFullName())
                 .replace("{{studentStatusNominative}}", dto.getStudentStatusNominative())
                 .replace("{{studentCycle}}", escapeXml(dto.getStudentCycle()))
+                .replace("{{studyProgramName}}", escapeXml(dto.getStudyProgramName()))
                 .replace("{{departmentName}}", dto.getDepartmentName())
                 .replace("{{thesisTitle}}", escapeXml(dto.getThesisTitle()))
                 .replace("{{subjectName}}", dto.getSubjectName())

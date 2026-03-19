@@ -25,6 +25,7 @@ public class FinalThesisApprovalDTO {
     private String studentFirstName;
     private String studentLastName;
     // Thesis Info
+    private String studyProgramName;
     private String departmentName;
     private String thesisTitle;
     private String subjectName;
