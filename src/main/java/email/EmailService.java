@@ -427,35 +427,43 @@ public class EmailService {
         String chairmanName = formatStaffName(chairman);
         String memberName = formatStaffName(member);
         String thesisTitle = thesisDetails.getTitle() != null ? thesisDetails.getTitle() : "N/A";
+        String deadlineLine = "";
+        if (thesisDetails.getApprovalDate() != null) {
+            java.time.LocalDate deadlineDate = thesisDetails.getApprovalDate().plusMonths(3);
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
+            deadlineLine = "<p style=\"margin: 5px 0; color: #e74c3c;\"><strong>Krajnji rok za odbranu:</strong> "
+                    + deadlineDate.format(formatter) + "</p>";
+        }
         return String.format("""
                         <html>
-                        <body style="font-family: Arial, sans-serif; color: #333;">
-                            <h2 style="color: #2c3e50;">Rješenje o formiranju Komisije</h2>
-
-                            <p>Poštovani/a,</p>
-
-                            <p>U prilogu se nalazi dokument <strong>Rješenja o formiranju Komisije</strong>.</p>
-
-                            <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #8e44ad; margin: 20px 0;">
-                                <p style="margin: 5px 0;"><strong>Student:</strong> %s</p>
-                                <p style="margin: 5px 0;"><strong>Mentor:</strong> %s</p>
-                                <p style="margin: 5px 0;"><strong>Naslov rada:</strong> %s</p>
-                                <hr style="border: none; border-top: 1px solid #ddd; margin: 12px 0;">
-                                <p style="margin: 5px 0;"><strong>Predsjednik komisije:</strong> %s</p>
-                                <p style="margin: 5px 0;"><strong>Član komisije:</strong> %s</p>
-                            </div>
-
-                            <p>Molimo vas da dokument pregledate i sačuvate za svoje evidencije.</p>
-
-                            <br>
-                            <p style="color: #7f8c8d; font-size: 12px;">Srdačan pozdrav,<br>Studentska služba<br><i>Ova poruka je automatski generisana iz eDiploma sistema.</i></p>
-                        </body>
-                        </html>
+                                            <body style="font-family: Arial, sans-serif; color: #333;">
+                                                <h2 style="color: #2c3e50;">Rješenje o formiranju Komisije</h2>
+                        
+                                                <p>Poštovani/a,</p>
+                        
+                                                <p>U prilogu se nalazi dokument <strong>Rješenja o formiranju Komisije</strong>.</p>
+                        
+                                                <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #8e44ad; margin: 20px 0;">
+                                                    <p style="margin: 5px 0;"><strong>Student:</strong> %s</p>
+                                                    <p style="margin: 5px 0;"><strong>Mentor:</strong> %s</p>
+                                                    <p style="margin: 5px 0;"><strong>Naslov rada:</strong> %s</p>
+                                                    %s <hr style="border: none; border-top: 1px solid #ddd; margin: 12px 0;">
+                                                    <p style="margin: 5px 0;"><strong>Predsjednik komisije:</strong> %s</p>
+                                                    <p style="margin: 5px 0;"><strong>Član komisije:</strong> %s</p>
+                                                </div>
+                        
+                                                <p>Molimo vas da dokument pregledate i sačuvate za svoje evidencije.</p>
+                        
+                                                <br>
+                                                <p style="color: #7f8c8d; font-size: 12px;">Srdačan pozdrav,<br>Studentska služba<br><i>Ova poruka je automatski generisana iz eDiploma sistema.</i></p>
+                                            </body>
+                                            </html>
                         """,
                 studentName,
                 mentorName,
                 thesisTitle,
+                deadlineLine,
                 chairmanName,
                 memberName
         );

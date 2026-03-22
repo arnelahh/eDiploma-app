@@ -66,10 +66,10 @@ public class AccountSettingsController {
 
     private void updateAppPasswordStatus() {
         if (currentUser != null && currentUser.getAppPassword() != null && !currentUser.getAppPassword().isEmpty()) {
-            appPasswordStatusLabel.setText("✓  App Password je konfigurisan");
+            appPasswordStatusLabel.setText("App Password je konfigurisan");
             appPasswordStatusLabel.setStyle("-fx-font-size: 14; -fx-text-fill: #43a047;");
         } else {
-            appPasswordStatusLabel.setText("⚠️  App Password nije konfigurisan");
+            appPasswordStatusLabel.setText("App Password nije konfigurisan");
             appPasswordStatusLabel.setStyle("-fx-font-size: 14; -fx-text-fill: #ff6b35;");
         }
     }

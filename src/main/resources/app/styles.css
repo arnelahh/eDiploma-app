@@ -1069,3 +1069,24 @@
 .status-checkbox:selected .mark {
     -fx-background-color: white;
 }
+.document-icon-btn {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 6px;
+    -fx-background-radius: 4px;
+}
+.document-icon-btn SVGPath {
+    -fx-fill: #5f6368;
+}
+.document-icon-btn:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.05);
+}
+.document-icon-btn:hover SVGPath {
+    -fx-fill: #202124;
+}
+.document-icon-btn:pressed {
+    -fx-background-color: rgba(0, 0, 0, 0.1);
+}
+.document-icon-btn:pressed SVGPath {
+    -fx-fill: #000000;
+}
