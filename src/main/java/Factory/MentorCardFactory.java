@@ -5,7 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 import model.AcademicStaff;
 
@@ -22,6 +22,7 @@ public class MentorCardFactory {
         card.getStyleClass().add("thesis-card");
         card.setCursor(Cursor.HAND);
         card.setOnMouseClicked(e -> onEdit.accept(mentor));
+
         VBox avatar = new VBox();
         avatar.setAlignment(Pos.CENTER);
         avatar.getStyleClass().add("student-avatar");
@@ -39,7 +40,6 @@ public class MentorCardFactory {
         initialsText.getStyleClass().add("avatar-text");
         avatar.getChildren().add(initialsText);
 
-
         VBox info = new VBox(8);
         HBox.setHgrow(info, Priority.ALWAYS);
 
@@ -51,51 +51,36 @@ public class MentorCardFactory {
         HBox details = new HBox(20);
         details.setAlignment(Pos.CENTER_LEFT);
 
-        details.getChildren().add(createInfo("user-icon", mentor.getEmail()));
+        SVGPath emailIcon = createSvgIcon("M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z", "#4f5dff", 0.6);
+        details.getChildren().add(createInfoBlock(emailIcon, mentor.getEmail()));
 
         int count = mentorDTO.getStudentCount();
         String studentText = count + " " + getStudentLabel(count);
-        HBox studentInfo = new HBox(6);
-        studentInfo.setAlignment(Pos.CENTER_LEFT);
-        Circle greenDot = new Circle(4);
-        greenDot.setStyle("-fx-fill: #00b894;");
-        Text studentCountText = new Text(studentText);
-        studentCountText.getStyleClass().add("card-info");
-        studentInfo.getChildren().addAll(greenDot, studentCountText);
-        details.getChildren().add(studentInfo);
+        SVGPath totalThesisIcon = createSvgIcon("M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z", "#6B7280", 0.6);
+        details.getChildren().add(createInfoBlock(totalThesisIcon, studentText));
 
-        // Dohvatimo broj (koji smo izračunali onim SQL upitom)
         int activeCount = mentorDTO.getOngoingThesisCount();
-
-// Kreiramo tekst (npr. "2 aktivne teze")
         String activeLabel = activeCount + " " + getThesisLabel(activeCount);
-
-        HBox ongoingInfo = new HBox(6);
-        ongoingInfo.setAlignment(Pos.CENTER_LEFT);
-
-// Narančasta točka za "U izradi / Aktivno"
-        Circle orangeDot = new Circle(4);
-        orangeDot.setStyle("-fx-fill: #ff9f43;"); // Pastelna narančasta
-
-        Text ongoingCountText = new Text(activeLabel);
-// Koristimo istu klasu za stil teksta radi konzistentnosti
-        ongoingCountText.getStyleClass().add("card-info");
-
-        ongoingInfo.getChildren().addAll(orangeDot, ongoingCountText);
-        details.getChildren().add(ongoingInfo);
+        SVGPath activeThesisIcon = createSvgIcon("M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z", "#00b894", 0.6);
+        details.getChildren().add(createInfoBlock(activeThesisIcon, activeLabel));
 
         info.getChildren().addAll(name, details);
-
         card.getChildren().addAll(avatar, info);
         return card;
     }
 
-    private HBox createInfo(String iconClass, String textValue) {
-        HBox box = new HBox(8);
-        box.setAlignment(Pos.CENTER_LEFT);
+    private SVGPath createSvgIcon(String pathData, String colorHex, double scale) {
+        SVGPath icon = new SVGPath();
+        icon.setContent(pathData);
+        icon.setStyle("-fx-fill: " + colorHex + ";");
+        icon.setScaleX(scale);
+        icon.setScaleY(scale);
+        return icon;
+    }
 
-        Circle icon = new Circle(6);
-        icon.getStyleClass().add(iconClass);
+    private HBox createInfoBlock(SVGPath icon, String textValue) {
+        HBox box = new HBox(6);
+        box.setAlignment(Pos.CENTER_LEFT);
 
         Text text = new Text(textValue != null ? textValue : "");
         text.getStyleClass().add("card-info");
@@ -113,6 +98,7 @@ public class MentorCardFactory {
             return "radova";
         }
     }
+
     private String getThesisLabel(int count) {
         int mod10 = count % 10;
         int mod100 = count % 100;

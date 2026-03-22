@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <!-- Simple content-only version without sidebar - designed to be loaded into dashboard's center pane -->
+<?import javafx.scene.shape.SVGPath?>
 <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AccountSettingsController">
     <VBox spacing="25" style="-fx-padding: 40;">
 
@@ -63,7 +64,11 @@
             </GridPane>
 
             <VBox spacing="8" style="-fx-background-color: #fff3cd; -fx-padding: 15; -fx-background-radius: 5;">
-                <Label style="-fx-font-size: 13; -fx-text-fill: #856404; -fx-font-weight: bold;" text="⚠️  Važno:" />
+                <Label style="-fx-font-size: 13; -fx-text-fill: #856404; -fx-font-weight: bold;" text="Važno:">
+                    <graphic>
+                        <SVGPath scaleX="0.75" scaleY="0.75" fill="#856404" content="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                    </graphic>
+                </Label>
                 <Label style="-fx-font-size: 12; -fx-text-fill: #856404; -fx-wrap-text: true;" text="Promjena email adrese će resetovati vaš App Password. Morat ćete ponovo konfigurirati email integraciju." wrapText="true" />
             </VBox>
 
@@ -102,7 +107,14 @@
             <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #333;" text="Email Integracija" />
 
             <HBox alignment="CENTER_LEFT" spacing="10">
-                <Label fx:id="appPasswordStatusLabel" style="-fx-font-size: 14; -fx-text-fill: #ff6b35;" text="⚠️  App Password nije konfigurisan" />
+                <Label fx:id="appPasswordStatusLabel"
+                       text="App Password nije konfigurisan"
+                       graphicTextGap="6"
+                       style="-fx-font-size: 14; -fx-text-fill: #ff6b35;">
+                    <graphic>
+                        <SVGPath scaleX="0.75" scaleY="0.75" fill="#ff6b35" content="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                    </graphic>
+                </Label>
             </HBox>
 
             <GridPane hgap="15" vgap="15">
@@ -116,7 +128,11 @@
             </GridPane>
 
             <VBox spacing="8" style="-fx-background-color: #f0f7ff; -fx-padding: 15; -fx-background-radius: 5;">
-                <Label style="-fx-font-size: 13; -fx-text-fill: #1976d2; -fx-font-weight: bold;" text="ℹ️  Kako kreirati Google App Password?" />
+                <Label style="-fx-font-size: 13; -fx-text-fill: #1976d2; -fx-font-weight: bold;" text="Kako kreirati Google App Password?">
+                    <graphic>
+                        <SVGPath scaleX="0.75" scaleY="0.75" fill="#1976d2" content="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                    </graphic>
+                </Label>
                 <Label style="-fx-font-size: 12; -fx-text-fill: #555; -fx-wrap-text: true;" text="1. Idite na Google Account → Security → 2-Step Verification" wrapText="true" />
                 <Label style="-fx-font-size: 12; -fx-text-fill: #555; -fx-wrap-text: true;" text="2. Skrolajte do 'App passwords' i kliknite" wrapText="true" />
                 <Label style="-fx-font-size: 12; -fx-text-fill: #555; -fx-wrap-text: true;" text="3. Kreirajte novi app password za 'Mail' aplikaciju" wrapText="true" />

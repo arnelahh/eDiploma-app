@@ -45,19 +45,20 @@ public class DocumentCardFactory {
         title.getStyleClass().add("document-title");
         left.getChildren().add(title);
 
-        Button btnDownload = new Button("⬇");
+        Button btnDownload = new Button();
+        btnDownload.setGraphic(createIcon("M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"));
         btnDownload.getStyleClass().add("document-icon-btn");
 
-        Button btnEdit = new Button("✏");
+        Button btnEdit = new Button();
+        btnEdit.setGraphic(createIcon("M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"));
         btnEdit.getStyleClass().add("document-icon-btn");
 
-        // NOVO: Dugme za slanje emaila (SVG ikonica umjesto emoji)
-        Button btnSendEmail = new Button("✉");
+        Button btnSendEmail = new Button();
+        btnSendEmail.setGraphic(createIcon("M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"));
         btnSendEmail.getStyleClass().add("document-icon-btn");
 
 
         SVGPath mailIcon = new SVGPath();
-        // Simple envelope icon (24x24 coordinate space)
         mailIcon.setContent("M2 4h20v16H2V4zm10 9L4 6h16l-8 7z");
         mailIcon.setScaleX(0.65);
         mailIcon.setScaleY(0.65);
@@ -70,7 +71,6 @@ public class DocumentCardFactory {
 
         if (ready) card.getStyleClass().add("document-green");
         else if (inProgress) card.getStyleClass().add("document-yellow");
-        // else default (bijelo)
 
         // EDIT: blokiran po redosljedu
         btnEdit.setDisable(blockedByPrevious);
@@ -92,7 +92,6 @@ public class DocumentCardFactory {
                 && type.getName() != null
                 && EMAIL_DISABLED_DOC_NAMES.contains(type.getName()));
 
-        // SEND EMAIL: prikazati samo ako je omogućeno za ovaj tip dokumenta
         if (!emailDisabledForType) {
             btnSendEmail.setDisable(notStarted || !ready || blockedByPrevious);
             btnSendEmail.setOnAction(e -> {
@@ -100,13 +99,19 @@ public class DocumentCardFactory {
                     actions.onSendEmail.accept(doc);
                 }
             });
-            // Dodaj dugmad - redoslijed: Send Email, Download, Edit
             card.getChildren().addAll(left, btnSendEmail, btnDownload, btnEdit);
         } else {
-            // Dodaj dugmad - redoslijed: Download, Edit
             card.getChildren().addAll(left, btnDownload, btnEdit);
         }
 
         return card;
+    }
+
+    private SVGPath createIcon(String pathData) {
+        SVGPath icon = new SVGPath();
+        icon.setContent(pathData);
+        icon.setScaleX(0.75);
+        icon.setScaleY(0.75);
+        return icon;
     }
 }

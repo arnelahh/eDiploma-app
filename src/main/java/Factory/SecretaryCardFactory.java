@@ -5,7 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 import model.AcademicStaff;
 
@@ -22,7 +22,7 @@ public class SecretaryCardFactory {
         card.getStyleClass().add("thesis-card");
         card.setCursor(Cursor.HAND);
         card.setOnMouseClicked(e -> onEdit.accept(dto));
-        // Avatar (initials)
+
         VBox avatar = new VBox();
         avatar.setAlignment(Pos.CENTER);
         avatar.getStyleClass().add("student-avatar");
@@ -33,7 +33,6 @@ public class SecretaryCardFactory {
         initials.getStyleClass().add("avatar-text");
         avatar.getChildren().add(initials);
 
-        // Info
         VBox info = new VBox(8);
         HBox.setHgrow(info, Priority.ALWAYS);
 
@@ -46,9 +45,8 @@ public class SecretaryCardFactory {
         HBox details = new HBox(30);
         details.setAlignment(Pos.CENTER_LEFT);
 
-        details.getChildren().add(createInfo("user-icon", s.getEmail()));
-        details.getChildren().add(createInfo("doc-icon", dto.getUser() != null ? dto.getUser().getUsername() : "—"));
-        details.getChildren().add(createInfo("cycle-icon", dto.getUser() != null && dto.getUser().isActive() ? "Aktivan" : "Neaktivan"));
+        SVGPath emailIcon = createSvgIcon("M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z", "#6B7280", 0.6);
+        details.getChildren().add(createInfoBlock(emailIcon, s.getEmail()));
 
         info.getChildren().addAll(name, details);
 
@@ -56,12 +54,18 @@ public class SecretaryCardFactory {
         return card;
     }
 
-    private HBox createInfo(String iconClass, String textValue) {
-        HBox box = new HBox(8);
-        box.setAlignment(Pos.CENTER_LEFT);
+    private SVGPath createSvgIcon(String pathData, String colorHex, double scale) {
+        SVGPath icon = new SVGPath();
+        icon.setContent(pathData);
+        icon.setStyle("-fx-fill: " + colorHex + ";");
+        icon.setScaleX(scale);
+        icon.setScaleY(scale);
+        return icon;
+    }
 
-        Circle icon = new Circle(6);
-        icon.getStyleClass().add(iconClass);
+    private HBox createInfoBlock(SVGPath icon, String textValue) {
+        HBox box = new HBox(6);
+        box.setAlignment(Pos.CENTER_LEFT);
 
         Text text = new Text(textValue != null ? textValue : "—");
         text.getStyleClass().add("card-info");
