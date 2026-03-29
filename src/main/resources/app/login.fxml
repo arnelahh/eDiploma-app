@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
+<?import javafx.scene.shape.SVGPath?>
 <AnchorPane fx:id="rootPane" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
 
     <StackPane alignment="CENTER"
@@ -53,12 +54,16 @@
 
                         <!-- Dugme unutar inputa, desno -->
                         <Button fx:id="togglePasswordButton"
-                                text="👁"
                                 style="-fx-background-color: transparent; -fx-cursor: hand;"
                                 onAction="#togglePasswordVisibility"
                                 StackPane.alignment="CENTER_RIGHT"
                                 prefHeight="40"
-                                prefWidth="40"/>
+                                prefWidth="40">
+                            <graphic>
+                                <SVGPath fx:id="eyeSvg" fill="#888888" scaleX="0.8" scaleY="0.8"
+                                         content="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                            </graphic>
+                        </Button>
                     </StackPane>
                 </VBox>
             </HBox>
