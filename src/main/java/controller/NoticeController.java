@@ -148,11 +148,7 @@ public class NoticeController {
             if (thesisDetails.getNoticeDate() != null) {
                 commissionDecisionDatePicker.setValue(thesisDetails.getNoticeDate());
             } else {
-                if (thesisDetails.getCommisionDate() != null) {
-                    commissionDecisionDatePicker.setValue(thesisDetails.getCommisionDate());
-                } else {
-                    commissionDecisionDatePicker.setValue(LocalDate.now()); // Fallback
-                }
+                commissionDecisionDatePicker.setValue(LocalDate.now());
             }
         }
 
@@ -161,7 +157,7 @@ public class NoticeController {
             if (thesisDetails.getApprovalDate() != null) {
                 commissionMeetingDatePicker.setValue(thesisDetails.getApprovalDate());
             } else {
-                commissionMeetingDatePicker.setValue(LocalDate.now());
+                commissionMeetingDatePicker.setValue(thesisDetails.getCommisionDate());
             }
         }
 

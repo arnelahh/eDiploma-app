@@ -28,7 +28,7 @@ public class DefenseReportController {
     @FXML private Text member1Text;
     @FXML private Text member2Text;
     @FXML private Text secretaryText;
-    @FXML private DatePicker defenseReportDatePicker; // NOVO: DatePicker za datum zapisnika sa odbrane
+    @FXML private DatePicker defenseReportDatePicker;
 
     private final ThesisDAO thesisDAO = new ThesisDAO();
     private final CommissionDAO commissionDAO = new CommissionDAO();
@@ -78,9 +78,8 @@ public class DefenseReportController {
                 if (thesisDetails.getDefenseReportDate() != null) {
                     defenseReportDatePicker.setValue(thesisDetails.getDefenseReportDate());
                 } else {
-                    // Defaultno postavi na datum odbrane ako postoji
                     if (thesisDetails.getDefenseDate() != null) {
-                        defenseReportDatePicker.setValue(LocalDate.now());
+                        defenseReportDatePicker.setValue(thesisDetails.getDefenseDate());
                     }
                 }
             }

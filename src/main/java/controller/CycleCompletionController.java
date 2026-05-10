@@ -139,7 +139,7 @@ public class CycleCompletionController {
             if (thesisDetails.getCycleCompletionDate() != null) {
                 cycleCompletionDatePicker.setValue(thesisDetails.getCycleCompletionDate());
             } else {
-                cycleCompletionDatePicker.setValue(LocalDate.now());
+                cycleCompletionDatePicker.setValue(thesisDetails.getDefenseDate());
             }
         }
     }
