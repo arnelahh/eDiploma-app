@@ -44,7 +44,7 @@ public class StudentValidator {
         }
 
         // Index number
-        requirePositive(vr, student.getIndexNumber(), "INDEX mora biti pozitivan");
+        requirePositive(vr, student.getIndexNumber(), "Broj indeksa mora biti pozitivan");
 
         return vr;
     }
@@ -57,11 +57,11 @@ public class StudentValidator {
             ValidationResult vr = new ValidationResult();
 
             if (studentDAO.isIndexNumberTaken(student.getIndexNumber(), student.getId())) {
-                vr.add("Index je vec iskorišten");
+                vr.add("Broj indeksa je već iskorišten");
             }
 
             if (studentDAO.isEmailTaken(student.getEmail(), student.getId())) {
-                vr.add("Email je vec iskorišten");
+                vr.add("Email je već iskorišten");
             }
 
             return vr;
