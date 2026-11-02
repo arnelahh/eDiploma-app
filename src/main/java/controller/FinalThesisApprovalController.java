@@ -146,7 +146,10 @@ public class FinalThesisApprovalController {
             if (decisionDate != null) {
                 thesisDAO.updateFinalThesisApprovalDate(thesisId, decisionDate);
             }
-
+            if(decisionDate.isBefore(thesisDetails.getApplicationDate())){
+                GlobalErrorHandler.error("Datum rješenja ne može biti prije datuma prijave završnog rada (" + thesisDetails.getApplicationDate().format(DATE_FORMAT) + ").");
+                return;
+            }
             byte[] pdfBytes = generatePdfBytes();
             String base64 = Base64.getEncoder().encodeToString(pdfBytes);
 

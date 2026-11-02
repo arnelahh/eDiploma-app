@@ -166,7 +166,7 @@ public class NoticeController {
             if (thesisDetails.getDefenseDate() != null) {
                 defenseDatePicker.setValue(thesisDetails.getDefenseDate());
             } else {
-                defenseDatePicker.setValue(LocalDate.now().plusDays(7)); // Default to one week from now
+                defenseDatePicker.setValue(thesisDetails.getFinalThesisApprovalDate().plusMonths(1)); // Default to one month from approval date
             }
         }
 
@@ -260,21 +260,38 @@ public class NoticeController {
     }
 
     private boolean validateInput() {
+        LocalDate approvalDate = thesisDetails.getFinalThesisApprovalDate();
+        LocalDate defenseDate = defenseDatePicker.getValue();
+        LocalDate earliestDefenseDate = approvalDate.plusMonths(1);
         if (commissionDecisionDatePicker == null || commissionDecisionDatePicker.getValue() == null) {
             GlobalErrorHandler.error("Molimo odaberite datum rješenja komisije.");
             return false;
         }
-
+        if(commissionMeetingDatePicker.getValue()!=null && commissionDecisionDatePicker.getValue().isBefore(commissionMeetingDatePicker.getValue())) {
+            GlobalErrorHandler.error("Datum u zaglavlju ne može biti prije datuma zasjedanja komisije!");
+            return false;
+        }
         if (commissionMeetingDatePicker == null || commissionMeetingDatePicker.getValue() == null) {
             GlobalErrorHandler.error("Molimo odaberite datum sjednice komisije.");
             return false;
         }
-
+        if(commissionMeetingDatePicker.getValue().isBefore(approvalDate)){
+            GlobalErrorHandler.error("Datum sjednice komisije ne može biti prije datuma odobrenja ("
+                    + approvalDate.format(DATE_FORMAT) + ")" );
+            return false;
+        }
         if (defenseDatePicker == null || defenseDatePicker.getValue() == null) {
             GlobalErrorHandler.error("Molimo odaberite datum odbrane.");
             return false;
         }
 
+        if (defenseDate.isBefore(earliestDefenseDate)) {
+            GlobalErrorHandler.error(
+                    "Datum odbrane mora biti najmanje mjesec dana nakon datuma odobrenja ("
+                            + approvalDate.format(DATE_FORMAT) + ")"
+            );
+            return false;
+        }
         String timeInput = defenseTimeField != null ? defenseTimeField.getText().trim() : "";
         if (timeInput.isBlank()) {
             GlobalErrorHandler.error("Molimo unesite vrijeme odbrane (npr. 9:00).");
